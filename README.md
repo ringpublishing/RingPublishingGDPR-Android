@@ -23,13 +23,61 @@ Reference guide:
 
 ## Requirements
 
-- Android API 21
+- Android API >= 21
+- AndroidX
 
-## Installation
+## Permissions
 
-//TODO: add installation from github packages or maven
+List permissions used in module:
+```ruby
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+```
+
+## Installation from Github Packages
+
+1. Add to your main build.gradle script section to Github repository
+```ruby
+        maven {
+            name = "RingPublishingGDPR-Android"
+            url = uri("https://maven.pkg.github.com/ringpublishing/RingPublishingGDPR-Android")
+            credentials {
+                username = "your github username"
+                password = "you github access token"
+            }
+        }
+```
+
+2. Add to yout application project module dependencies section
+```ruby
+implementation("com.ringpublishing:gdpr:1.0.1")
+```
+3. Add to your application AndroidManifest in <application> section entry
+```ruby
+        <activity android:name="com.ringpublishing.gdpr.RingPublishingGDPRActivity" android:theme="@style/AppTheme.NoActionBar" />
+```
+
+## Installation from Github source code
+1. Checkout code from Github
+2. Add RingPublishingGDPR like module to your project
+
+In settings.gradle add:
+```ruby
+include ':yourApplication', ':RingPublishingGDPR'
+```
+In your application build.gradle add dependency
+```ruby
+implementation project(path: ':RingPublishingGDPR'))
+```
+3. Add to your application AndroidManifest in <application> section entry
+```ruby
+        <activity android:name="com.ringpublishing.gdpr.RingPublishingGDPRActivity" android:theme="@style/AppTheme.NoActionBar" />
+```
+
 
 ## Usage
+
+Sync project and start looks usage in demo project. Start look in class DemoApplication.java
 
 Start by importing `RingPublishingGDPR`:
 
@@ -43,4 +91,4 @@ then you have access to module instance:
 RingPublishingGDPR.getInstance()
 ```
 
-For detailed example see example project in `demo` directory and start with class DemoApplication or check our documentation.
+For detailed example see example project in `demo` directory and start with class DemoApplication, SplashActivity and MainActivity or check our documentation.

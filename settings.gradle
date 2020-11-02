@@ -10,3 +10,5 @@ gradleEnterprise {
 }
 
 include ':demo', ':RingPublishingGDPR'
+rootProject.name='RingPublishingGDPR-Android'
+

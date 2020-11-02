@@ -72,6 +72,18 @@ dependencies
 {
     implementation project(path: ':RingPublishingGDPR')
 
+    //You can include project using artifact add to main build.gradle repository to GitHub, then this dependency
+    //implementation("com.ringpublishing:gdpr:1.0.2")
+
+    //In this demo you can also use Github packages adding two system properties:
+    //GITHUB_USER=your_github_user
+    //GITHUB_PERSONAL_ACCESS_TOKEN=your_token
+    //Then call printenv to see variables are set correctly
+
+    //You can alternatively fill in project file github.properties with two properties and uncomment:
+    //gpr.usr=your_github_user
+    //gpr.key=your_token
+
     implementation "androidx.appcompat:appcompat:1.2.0"
     implementation 'androidx.preference:preference:1.1.1'
     implementation "androidx.multidex:multidex:2.0.1"
