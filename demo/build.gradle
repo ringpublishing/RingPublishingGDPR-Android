@@ -1,0 +1,78 @@
+apply plugin: 'com.android.application'
+apply from: '../bamboo.gradle'
+android
+{
+    compileSdkVersion APP_COMPILE_SDK_VERSION
+    buildToolsVersion APP_BUILD_TOOLS_VERSION
+
+    compileOptions
+    {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildFeatures
+    {
+        dataBinding true
+    }
+
+    signingConfigs
+    {
+        debug
+        {
+        }
+
+    }
+
+    defaultConfig
+    {
+        applicationId "com.ringpublishing.gdpr.demo"
+        minSdkVersion APP_MIN_SDK_VERSION
+        targetSdkVersion APP_TARGET_SDK_VERSION
+
+        versionCode 1
+        versionName "1.0"
+
+        signingConfig signingConfigs.debug
+
+        multiDexEnabled true
+
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    buildTypes
+    {
+        debug
+        {
+            debuggable true
+            minifyEnabled false
+            applicationIdSuffix ".debug"
+        }
+        release
+        {
+            debuggable false
+            minifyEnabled true
+            ext.betaDistributionGroupAliases = "android_devs,stakeholders"
+            ext.enableCrashlytics = true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    flavorDimensions "default"
+
+    lintOptions {
+        disable "UnsafeExperimentalUsageError",
+        "UnsafeExperimentalUsageWarning"
+    }
+}
+
+dependencies
+{
+    implementation project(path: ':RingPublishingGDPR')
+
+    implementation "androidx.appcompat:appcompat:1.2.0"
+    implementation 'androidx.preference:preference:1.1.1'
+    implementation "androidx.multidex:multidex:2.0.1"
+}

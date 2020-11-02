@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Ring Publishing GDPR Demo</string>
+    <string name="splash_demo">SPLASH</string>
+    <string name="main_demo">MAIN</string>
+    <string name="demo_configuration_warning">Missing configuration tenant and brandName in DemoApplication class</string>
+    <string name="open_consent_view_settings">Open Consent View Settings</string>
+</resources>
