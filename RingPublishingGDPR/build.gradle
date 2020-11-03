@@ -1,0 +1,117 @@
+apply plugin: 'com.android.library'
+apply from: file('publish.gradle')
+
+android
+{
+    compileSdkVersion APP_COMPILE_SDK_VERSION
+    buildToolsVersion APP_BUILD_TOOLS_VERSION
+
+    compileOptions
+    {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig
+    {
+        minSdkVersion APP_MIN_SDK_VERSION
+        targetSdkVersion APP_TARGET_SDK_VERSION
+
+        versionCode 1
+        versionName "1.0"
+
+        multiDexEnabled true
+
+        buildConfigField "String", "CMP_HOST", "\"cmp.ringpublishing.com\""
+        buildConfigField "String", "CMP_PAGE", "\"preview/index.html\""
+        buildConfigField "String", "CMP_JSON_CONFIGURATION_FIELD_HOST", "\"webview_url\""
+
+        consumerProguardFiles 'proguard-rules.pro'
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        testHandleProfiling true
+        testFunctionalTest true
+
+        testApplicationId "com.ringpublishing.gdpr.test"
+    }
+
+    buildTypes
+    {
+        release
+        {
+            minifyEnabled false
+        }
+        tst
+        {
+            testCoverageEnabled = true
+        }
+    }
+
+    lintOptions {
+        disable "UnsafeExperimentalUsageError",
+        "UnsafeExperimentalUsageWarning"
+    }
+
+    testBuildType 'debug'
+
+    //useLibrary 'android.test.runner' failing unit tests on android studio by add unit framework without implementation
+    useLibrary 'android.test.base'
+    useLibrary 'android.test.mock'
+
+    testOptions
+    {
+        unitTests.includeAndroidResources = true
+        unitTests.returnDefaultValues = true
+        unitTests.all {
+            useJUnit()
+            testLogging {
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen { false }
+                showStandardStreams = true
+            }
+        }
+    }
+
+}
+
+dependencies
+{
+    implementation "androidx.annotation:annotation:1.1.0"
+    implementation "com.google.android.material:material:1.2.1"
+    implementation 'androidx.preference:preference:1.1.1'
+
+    implementation "com.squareup.okhttp3:okhttp:4.7.2"
+    implementation "com.squareup.retrofit2:retrofit:2.9.0"
+    implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
+    implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+
+    // Core library
+
+    testImplementation "junit:junit:4.12"
+    testImplementation 'androidx.test:core:1.3.0'
+
+    // AndroidJUnitRunner and JUnit Rules
+    testImplementation 'androidx.test:runner:1.3.0'
+    testImplementation 'androidx.test:rules:1.3.0'
+
+    // Assertions
+    testImplementation 'androidx.test.ext:junit:1.1.2'
+    testImplementation 'androidx.test.ext:truth:1.3.0'
+    testImplementation 'com.google.truth:truth:1.0'
+
+    testImplementation 'org.json:json:20200518'
+
+    // Core library
+    androidTestImplementation 'androidx.test:core:1.3.0'
+
+    // AndroidJUnitRunner and JUnit Rules
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test:rules:1.3.0'
+
+    // Assertions
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.ext:truth:1.3.0'
+    androidTestImplementation 'com.google.truth:truth:1.0'
+}
+

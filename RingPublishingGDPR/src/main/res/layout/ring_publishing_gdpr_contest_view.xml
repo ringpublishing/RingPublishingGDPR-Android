@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/RingPublishingGDPRContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <ProgressBar
+        android:id="@+id/progressbar_loading"
+        style="@style/ProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.ringpublishing.gdpr.internal.view.ErrorView
+        android:id="@+id/error_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+</LinearLayout>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <style name="RingPublishingGDPRContainer">
+        <item name="android:background">@color/ring_publishing_gdpr_container_background_color</item>
+    </style>
+
+    <style name="ErrorViewMessage" parent="android:TextAppearance.Small">
+        <item name="android:textSize">@dimen/ring_publishing_gdpr_message_text_size</item>
+        <item name="android:textColor">@color/ring_publishing_gdpr_message_text_color</item>
+        <item name="android:layout_marginLeft">@dimen/ring_publishing_gdpr_message_margin</item>
+        <item name="android:layout_marginRight">@dimen/ring_publishing_gdpr_message_margin</item>
+        <item name="android:layout_marginTop">@dimen/ring_publishing_gdpr_message_top_margin</item>
+        <item name="android:layout_marginBottom">@dimen/ring_publishing_gdpr_message_bottom_margin</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="ErrorViewButton" parent="android:TextAppearance.Widget.Button">
+        <item name="android:background">@color/ring_publishing_gdpr_button_background_color</item>
+        <item name="android:textSize">@dimen/ring_publishing_gdpr_button_text_size</item>
+        <item name="android:layout_marginTop">@dimen/ring_publishing_gdpr_button_top_margin</item>
+        <item name="android:gravity">center</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="ProgressBar" parent="Theme.AppCompat.Light">
+
+    </style>
+
+    <style name="RingPublishingGDPRActivityStyle">
+
+    </style>
+
+</resources>

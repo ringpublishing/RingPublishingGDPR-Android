@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="ring_publishing_gdpr_message_text_size">18sp</dimen>
+    <dimen name="ring_publishing_gdpr_message_margin">35dp</dimen>
+    <dimen name="ring_publishing_gdpr_message_top_margin">15dp</dimen>
+    <dimen name="ring_publishing_gdpr_message_bottom_margin">25dp</dimen>
+
+    <dimen name="ring_publishing_gdpr_image_size">140dp</dimen>
+
+    <dimen name="ring_publishing_gdpr_button_text_size">15sp</dimen>
+    <dimen name="ring_publishing_gdpr_button_top_margin">10dp</dimen>
+    <dimen name="ring_publishing_gdpr_button_border_thickness">6dp</dimen>
+    <dimen name="ring_publishing_gdpr_button_height">50dp</dimen>
+
+</resources>

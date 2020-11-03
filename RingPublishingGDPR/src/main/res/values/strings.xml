@@ -1,0 +1,6 @@
+<resources>
+
+    <string name="ring_publishing_gdpr_error_view_message">Data could not be fetched. Try again in a moment or check your internet connection.</string>
+    <string name="ring_publishing_gdpr_error_view_retry">Try again</string>
+
+</resources>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/RingPublishingGDPRContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/icon_error"
+        android:layout_width="@dimen/ring_publishing_gdpr_image_size"
+        android:layout_height="@dimen/ring_publishing_gdpr_image_size"
+        android:layout_above="@+id/message_text"
+        android:layout_centerHorizontal="true"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/ic_error"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/message_text"
+        style="@style/ErrorViewMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="@string/ring_publishing_gdpr_error_view_message" />
+
+    <com.ringpublishing.gdpr.internal.view.ButtonView
+        android:id="@+id/retry_button"
+        style="@style/ErrorViewButton"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/ring_publishing_gdpr_button_height"
+        android:layout_alignEnd="@+id/message_text"
+        android:layout_alignStart="@+id/message_text"
+        android:layout_below="@+id/message_text"
+        android:text="@string/ring_publishing_gdpr_error_view_retry" />
+
+</RelativeLayout>

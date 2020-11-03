@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ring_publishing_gdpr_error_view_message">Daten konnten nicht abgerufen werden. Versuchen Sie es gleich noch einmal oder überprüfen Sie Ihre Internetverbindung.</string>
+    <string name="ring_publishing_gdpr_error_view_retry">Versuchen Sie es erneut</string>
+</resources>

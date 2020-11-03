@@ -1,0 +1,53 @@
+buildscript
+{
+    repositories
+    {
+        google()
+        jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "http://repository.jetbrains.com/all" }
+        maven { url 'https://dl.bintray.com/android/android-tools' }
+    }
+
+    dependencies
+    {
+        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath "com.novoda:gradle-android-command-plugin:1.5.0"
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.20.0"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.16.0"
+    }
+}
+
+allprojects
+{
+    repositories
+    {
+        google()
+        jcenter()
+        maven { url 'https://dl.bintray.com/android/android-tools' }
+        maven { url "http://repository.jetbrains.com/all" }
+        maven { url "https://jitpack.io" }
+
+        maven {
+            name = "RingPublishingGDPR-Android"
+            url = uri("https://maven.pkg.github.com/ringpublishing/RingPublishingGDPR-Android")
+            credentials {
+                username = System.getenv('GITHUB_USER') ?: ""
+                password = System.getenv('GITHUB_PERSONAL_ACCESS_TOKEN') ?: "450e655c361371db17b8727056240c3bd4c655f8"
+            }
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+project.ext {
+    APP_MIN_SDK_VERSION = 21
+    APP_TARGET_SDK_VERSION = 29
+    APP_COMPILE_SDK_VERSION = 29
+
+    APP_BUILD_TOOLS_VERSION = '29.0.2'
+    APP_ANDROID_LIB_VERSION = '28.0.0'
+}
