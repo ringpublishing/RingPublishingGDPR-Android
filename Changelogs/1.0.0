@@ -10,4 +10,3 @@ https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Fr
 * Has support for temporary Google’s Additional Consent
 https://support.google.com/admanager/answer/9681920?hl=en
 * Collects and saves 'internal' user's consent stored in UserDefaults with 'RingPublishing_' key prefixes
-1.0.0 Release notes (2020-10-27)
