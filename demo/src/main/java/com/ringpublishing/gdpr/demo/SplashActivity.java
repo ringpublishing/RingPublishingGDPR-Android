@@ -22,7 +22,7 @@ import androidx.databinding.DataBindingUtil;
 public class SplashActivity extends AppCompatActivity
 {
 
-    private final String TAG = SplashActivity.class.getSimpleName();
+    private final String TAG = SplashActivity.class.getCanonicalName();
 
     private final int REQUEST_CODE_OPEN_CONSENT = 123;
 

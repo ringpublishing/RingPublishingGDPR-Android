@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNull;
 public class StorageJsonParserTest
 {
 
-    private final String TAG = StorageJsonParserTest.class.getSimpleName();
+    private final String TAG = StorageJsonParserTest.class.getCanonicalName();
 
     @Test
     public void getNestedJSONObject_WhenAccessChild_ThenHaveChildJSONObject()

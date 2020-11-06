@@ -15,4 +15,5 @@ public abstract class FormView extends LinearLayout
 
     public abstract void showConsentsSettingsScreen();
 
+    public abstract void onFailure(String errorMessage);
 }

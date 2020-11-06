@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 public class CmpWebView
 {
 
-    private static final String TAG = CmpWebView.class.getSimpleName();
+    private static final String TAG = CmpWebView.class.getCanonicalName();
 
     private static final String JAVA_SCRIPT_INTERFACE_NAME = "Android";
 

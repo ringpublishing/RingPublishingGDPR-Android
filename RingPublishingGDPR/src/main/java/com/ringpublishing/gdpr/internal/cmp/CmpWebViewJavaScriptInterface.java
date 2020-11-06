@@ -13,7 +13,7 @@ import static com.ringpublishing.gdpr.internal.cmp.CmpEvent.valueOf;
 public class CmpWebViewJavaScriptInterface
 {
 
-    private static final String TAG = CmpWebViewJavaScriptInterface.class.getSimpleName();
+    private static final String TAG = CmpWebViewJavaScriptInterface.class.getCanonicalName();
 
     private static final String TD_DATA_KEY_EVENT_STATUS = "eventStatus";
 

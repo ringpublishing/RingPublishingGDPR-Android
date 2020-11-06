@@ -37,7 +37,7 @@ public class TestAndroidResources
 
     public static final String DL_CONSENTS_LADP = "CO7r8OGO7r8QvEYACAENAjCsAP_AAH_AAB5YHfn__dvvlv6Uobpcfvrfd_-b-_d-H_e1fwMGCv9-9__9f7_7__P_u__51_u___7__f_____v____________________________________________3________________________9____________________gd-SENAEAAAAAAAEAQmEEEAgIg0FAAQAEEAAAAAEDEEGghBEAAABCAJIkCgBQOgCMAAN8gMCBjABkQgJNQQKDBAkCB3EFRYKkRuQBBJAgmTWnCOOQEEjAANSgkACqgBWRgAAGcUQAAgQpWDBRygILyFNok5CTBkC52YAAA.cAAAD_gAAAAA";
 
-    private static final String TAG = TestAndroidResources.class.getSimpleName();
+    private static final String TAG = TestAndroidResources.class.getCanonicalName();
 
     public static String getJson(final Class sourceClass, String fileName)
     {

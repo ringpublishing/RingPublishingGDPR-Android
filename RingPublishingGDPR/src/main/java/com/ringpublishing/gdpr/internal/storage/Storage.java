@@ -18,7 +18,7 @@ import java.util.Map;
 public class Storage extends Preferences
 {
 
-    private static final String TAG = Storage.class.getSimpleName();
+    private static final String TAG = Storage.class.getCanonicalName();
 
     private static final String KEY_PREFIX_RING_PUBLISHING = "RingPublishing_";
 

@@ -10,6 +10,7 @@ import android.webkit.WebResourceRequest;
 import android.widget.ProgressBar;
 
 import com.ringpublishing.gdpr.R;
+import com.ringpublishing.gdpr.RingPublishingGDPR;
 import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
@@ -26,7 +27,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewClientCallback
 {
 
-    private static final String TAG = FormViewImpl.class.getSimpleName();
+    private static final String TAG = FormViewImpl.class.getCanonicalName();
 
     private final FormViewController formViewController;
 
@@ -38,10 +39,16 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
     private final ErrorView errorView;
 
-    public FormViewImpl(@NonNull final Context context, @NonNull final FormViewController formViewController, @NonNull final CmpWebViewActionCallback cmpWebViewCallback)
+    private RingPublishingGDPR ringPublishingGDPR;
+
+    private CmpWebViewActionCallback cmpWebViewCallback;
+
+    public FormViewImpl(@NonNull final Context context, @NonNull final FormViewController formViewController, @NonNull final CmpWebViewActionCallback cmpWebViewCallback, RingPublishingGDPR ringPublishingGDPR)
     {
         super(context);
         this.formViewController = formViewController;
+        this.ringPublishingGDPR = ringPublishingGDPR;
+        this.cmpWebViewCallback = cmpWebViewCallback;
         formViewController.setFormViewImpl(this);
 
         LayoutInflater.from(getFixedContext(context)).inflate(R.layout.ring_publishing_gdpr_contest_view, this);
@@ -142,6 +149,12 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     public void showConsentsSettingsScreen()
     {
         performActionWithBuffer(CmpAction.get(ActionType.SHOW_SETTINGS));
+    }
+
+    @Override
+    public void onFailure(String errorMessage)
+    {
+        cmpWebViewCallback.onActionError(errorMessage);
     }
 
     private void performActionWithBuffer(String action)

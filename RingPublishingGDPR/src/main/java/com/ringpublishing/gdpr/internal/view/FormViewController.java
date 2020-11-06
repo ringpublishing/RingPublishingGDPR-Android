@@ -1,5 +1,6 @@
 package com.ringpublishing.gdpr.internal.view;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
@@ -8,6 +9,7 @@ import com.ringpublishing.gdpr.internal.api.Api.ConfigurationCallback;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
 import com.ringpublishing.gdpr.internal.model.State;
+import com.ringpublishing.gdpr.internal.network.NetworkInfo;
 import com.ringpublishing.gdpr.internal.task.TimeoutTask;
 import com.ringpublishing.gdpr.internal.task.TimeoutTask.TimeoutCallback;
 
@@ -19,7 +21,7 @@ import androidx.annotation.NonNull;
 public class FormViewController implements TimeoutCallback
 {
 
-    private final String TAG = FormViewController.class.getSimpleName();
+    private final String TAG = FormViewController.class.getCanonicalName();
 
     private final State state = new State();
 
@@ -32,8 +34,6 @@ public class FormViewController implements TimeoutCallback
     private final Api api;
 
     private TimeoutTask cmpLoadingTimeout;
-
-    private boolean showScreenCalledByUser;
 
     private FormViewImpl formViewImpl;
 
@@ -69,7 +69,7 @@ public class FormViewController implements TimeoutCallback
             public void onConfigurationFailure()
             {
                 Log.w(TAG, "Failure onConfigurationFailure");
-                formViewImpl.showError();
+                formViewImpl.onFailure("Failure to get configuration");
             }
         });
     }
@@ -125,8 +125,7 @@ public class FormViewController implements TimeoutCallback
     public void onTimeout()
     {
         Log.w(TAG, "Loading cmp site timeout");
-        formViewImpl.showError();
-        state.error();
+        formViewImpl.onFailure("Loading cmp site timeout");
     }
 
     void setFormViewImpl(FormViewImpl formViewImpl)
