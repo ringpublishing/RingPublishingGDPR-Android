@@ -16,7 +16,7 @@ import androidx.preference.PreferenceManager;
 public class Preferences
 {
 
-    private static final String TAG = Preferences.class.getSimpleName();
+    private static final String TAG = Preferences.class.getCanonicalName();
 
     private SharedPreferences preferences;
 

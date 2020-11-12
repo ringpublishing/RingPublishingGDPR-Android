@@ -15,7 +15,7 @@ import com.ringpublishing.gdpr.BuildConfig;
 public class CmpWebViewClient extends WebViewClient
 {
 
-    private static final String TAG = CmpWebViewClient.class.getSimpleName();
+    private static final String TAG = CmpWebViewClient.class.getCanonicalName();
 
     private CmpWebViewClientCallback callback;
 

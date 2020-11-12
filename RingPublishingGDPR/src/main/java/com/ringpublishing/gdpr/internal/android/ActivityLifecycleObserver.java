@@ -10,7 +10,7 @@ import com.ringpublishing.gdpr.RingPublishingGDPRActivity;
 public class ActivityLifecycleObserver implements ActivityLifecycleCallbacks
 {
 
-    private final String formActivitySimpleName = RingPublishingGDPRActivity.class.getSimpleName();
+    private final String formActivitySimpleName = RingPublishingGDPRActivity.class.getCanonicalName();
 
     private Activity foregroundActivity;
 

@@ -23,7 +23,7 @@ import retrofit2.Response;
 public class Api
 {
 
-    private final String TAG = Api.class.getSimpleName();
+    private final String TAG = Api.class.getCanonicalName();
 
     private final ApiDefinition apiDefinition;
 

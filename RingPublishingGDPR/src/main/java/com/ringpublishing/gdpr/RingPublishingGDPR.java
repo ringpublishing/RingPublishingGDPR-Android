@@ -35,7 +35,7 @@ import androidx.annotation.Nullable;
 public final class RingPublishingGDPR
 {
 
-    private static final String TAG = RingPublishingGDPR.class.getSimpleName();
+    private static final String TAG = RingPublishingGDPR.class.getCanonicalName();
 
     private static RingPublishingGDPR instance;
 
@@ -189,7 +189,7 @@ public final class RingPublishingGDPR
     {
         if (formViewImpl == null)
         {
-            formViewImpl = new FormViewImpl(applicationContext, formViewController, createCmpWebViewCallback());
+            formViewImpl = new FormViewImpl(applicationContext, formViewController, createCmpWebViewCallback(), this);
             if (timeoutInSeconds > 0)
             {
                 formViewImpl.setTimeoutInSeconds(timeoutInSeconds);
@@ -278,7 +278,7 @@ public final class RingPublishingGDPR
             @Override
             public void onActionError(String error)
             {
-                Log.w(TAG, "Cmp site error" + error);
+                Log.w(TAG, "Error: " + error);
                 if(formViewImpl.isOnline())
                 {
                     closeForm();
@@ -348,7 +348,7 @@ public final class RingPublishingGDPR
         };
     }
 
-    private void closeForm()
+    void closeForm()
     {
         storage.saveLastAPIConsentsCheckStatus(null);
         storage.setOutdated(false);

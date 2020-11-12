@@ -24,7 +24,7 @@ import androidx.preference.PreferenceManager;
 public class MainActivity extends AppCompatActivity
 {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = MainActivity.class.getCanonicalName();
 
     ActivityMainBinding activityMainBinding;
 

@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class TestResources
 {
 
-    private static final String TAG = TestResources.class.getSimpleName();
+    private static final String TAG = TestResources.class.getCanonicalName();
 
     public static String getJson(final Class sourceClass, String fileName)
     {
