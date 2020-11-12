@@ -1,0 +1,14 @@
+1.1.0 Release notes (2020-11-10)
+=============================================================
+
+### Features
+
+* RingPublishingGDPR 'initialize' method now accepts additional parameter: 'gdprApplies'
+* Immidiatelly after module initialization, in User Defaults are stored two properties:
+   - 'IABTCF_CmpSdkID' with official CMP SDK ID
+   - 'IABTCF_gdprApplies' with passed to module boolean flag if GDPR should apply
+
+### Changes
+
+* Method: 'shouldShowConsentForm()' respects GDPR setting and stored consents. If 'gdprApplies' is false, this method will return false.
+* Method: 'didAskUserForConsents()' respects GDPR setting and stored consents. If 'gdprApplies' is false, this method will return true.

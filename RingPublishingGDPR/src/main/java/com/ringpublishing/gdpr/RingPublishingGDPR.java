@@ -57,6 +57,8 @@ public final class RingPublishingGDPR
 
     private int timeoutInSeconds;
 
+    private boolean gdprApplies = true;
+
     private RingPublishingGDPR()
     {
     }
@@ -91,6 +93,31 @@ public final class RingPublishingGDPR
                            @NonNull final String brandName,
                            @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig)
     {
+        initialize(application, tenantId, brandName, ringPublishingGDPRUIConfig, true);
+    }
+
+    /**
+     * Initialization point of SDK with configuration.
+     * Should be called once on application start.
+     *
+     * When is called first time, just initialize sdk, because we known that Consent View should be displayed.
+     * On next application launches, call this method automatically asynchronously verify that consents are actual.
+     * When consents needs to be updated, then using application context, open automatically Consent View in new Activity
+     * On case when application will be put to background during this check, open Consent View will be scheduled to next application launch.
+     * When your activity already opened consent view by RingPublishingGDPRActivity, then asynchronously verification will not display it second time.
+     *
+     * @param application Reference to android application object
+     * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
+     * @param brandName Name of application send to Consent API. Using this parameter Consent view style can be customized
+     * @param ringPublishingGDPRUIConfig UI configuration for TypeFace and theme. Styles error screen.
+     * @param gdprApplies Does GDPR applies in current context? When true, you can use also constructor without this parameter.
+     */
+    public void initialize(@NonNull final Application application,
+                           @NonNull final String tenantId,
+                           @NonNull final String brandName,
+                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
+                           boolean gdprApplies)
+    {
         if (initialized)
         {
             Log.w(TAG, "Second initialization ignored");
@@ -103,9 +130,12 @@ public final class RingPublishingGDPR
         this.formViewController = new FormViewController(api, ringPublishingGDPRUIConfig);
         this.activityLifecycleObserver = new ActivityLifecycleObserver(application);
         this.ringPublishingGDPRApplicationCallback = createRingPublishingGDPRApplicationCallback();
+        this.gdprApplies = gdprApplies;
         initialized = true;
 
-        if (storage.didAskUserForConsents() && !isOutdated())
+        storage.configureGDPRApplies(gdprApplies);
+
+        if (storage.didAskUserForConsents() && !isOutdated() && gdprApplies)
         {
             verifyConsents(context);
         }
@@ -114,9 +144,14 @@ public final class RingPublishingGDPR
     /**
      * Use this method to check that RingPublishingGDPRActivity should be displayed
      * @return true when Consent View should be displayed. It could be case when Consent View was never displayed, or is outdated.
+     * When gdpr not apply for your context, this method will return false
      */
     public boolean shouldShowConsentForm()
     {
+        if(!gdprApplies)
+        {
+            return false;
+        }
         return (!didAskUserForConsents() || isOutdated());
     }
 
@@ -140,10 +175,14 @@ public final class RingPublishingGDPR
 
     /**
      * Persisted information that used was asked for Consents
-     * @return true when consent view was already displayed
+     * @return true when consent view was already displayed, or gdpr not applies
      */
     public boolean didAskUserForConsents()
     {
+        if(!gdprApplies)
+        {
+            return true;
+        }
         boolean didAskUserForConsents = storage.didAskUserForConsents();
         Log.i(TAG, "didAskUserForConsents: " + didAskUserForConsents);
         return didAskUserForConsents;

@@ -56,6 +56,10 @@ public class DemoApplication extends MultiDexApplication
         // To see where initialize external libraries see SplashActivity
         // See more in this method javadoc
         ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig);
+
+        // When on your context gdpr not apply use initialize method with extra parameter gdprApplies
+        // ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig, false);
+
     }
 
 }

@@ -92,7 +92,7 @@ dependencies
 
     // Core library
 
-    testImplementation "junit:junit:4.12"
+    testImplementation "junit:junit:4.13.1"
     testImplementation 'androidx.test:core:1.3.0'
 
     // AndroidJUnitRunner and JUnit Rules
