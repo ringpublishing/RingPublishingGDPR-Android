@@ -1,3 +1,17 @@
+1.0.1 Release notes (2020-11-12)
+=============================================================
+
+### Features
+
+* Release notes support
+* Add to logs package to better filter logs
+* Better handling connection errors
+
+### Fixed
+
+* Fix bug where user back to application from background
+
+
 1.0.0 Release notes (2020-10-27)
 =============================================================
 

@@ -85,19 +85,14 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements Rin
     }
 
     @Override
-    protected void onPause()
+    protected void onDestroy()
     {
         if (formView != null)
         {
             LinearLayout layout = findViewById(R.id.content);
             layout.removeView(formView);
+            formView = null;
         }
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy()
-    {
         LinearLayout layout = findViewById(R.id.content);
         layout.removeAllViews();
         RingPublishingGDPR.getInstance().setActivityCallback(null);
