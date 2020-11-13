@@ -57,6 +57,8 @@ public final class RingPublishingGDPR
 
     private int timeoutInSeconds;
 
+    private boolean gdprApplies = true;
+
     private RingPublishingGDPR()
     {
     }
@@ -91,12 +93,37 @@ public final class RingPublishingGDPR
                            @NonNull final String brandName,
                            @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig)
     {
+        initialize(true, application, tenantId, brandName, ringPublishingGDPRUIConfig);
+    }
+
+    /**
+     * Initialization point of SDK with configuration.
+     * Should be called once on application start.
+     *
+     * When is called first time, just initialize sdk, because we known that Consent View should be displayed.
+     * On next application launches, call this method automatically asynchronously verify that consents are actual.
+     * When consents needs to be updated, then using application context, open automatically Consent View in new Activity
+     * On case when application will be put to background during this check, open Consent View will be scheduled to next application launch.
+     * When your activity already opened consent view by RingPublishingGDPRActivity, then asynchronously verification will not display it second time.
+     *
+     * @param gdprApplies Does GDPR applies in current context? When true, you can use also constructor without this parameter.
+     * @param application Reference to android application object
+     * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
+     * @param brandName Name of application send to Consent API. Using this parameter Consent view style can be customized
+     * @param ringPublishingGDPRUIConfig UI configuration for TypeFace and theme. Styles error screen.
+     */
+    public void initialize(boolean gdprApplies, @NonNull final Application application,
+                           @NonNull final String tenantId,
+                           @NonNull final String brandName,
+                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig)
+    {
         if (initialized)
         {
             Log.w(TAG, "Second initialization ignored");
             return;
         }
 
+        this.gdprApplies = gdprApplies;
         final Context context = application.getApplicationContext();
         this.api = new Api(context, tenantId, brandName);
         this.storage = new Storage(context);
@@ -105,7 +132,9 @@ public final class RingPublishingGDPR
         this.ringPublishingGDPRApplicationCallback = createRingPublishingGDPRApplicationCallback();
         initialized = true;
 
-        if (storage.didAskUserForConsents() && !isOutdated())
+        storage.configureGDPRApplies(gdprApplies);
+
+        if (storage.didAskUserForConsents() && !isOutdated() && gdprApplies)
         {
             verifyConsents(context);
         }
@@ -114,10 +143,15 @@ public final class RingPublishingGDPR
     /**
      * Use this method to check that RingPublishingGDPRActivity should be displayed
      * @return true when Consent View should be displayed. It could be case when Consent View was never displayed, or is outdated.
+     * When gdpr not apply for your context, this method will return false
      */
     public boolean shouldShowConsentForm()
     {
-        return (!didAskUserForConsents() || isOutdated());
+        if(!gdprApplies)
+        {
+            return false;
+        }
+        return (!storage.didAskUserForConsents() || isOutdated());
     }
 
     /**
@@ -136,17 +170,6 @@ public final class RingPublishingGDPR
     public void clearConsentsData()
     {
         storage.clearAllConsentData();
-    }
-
-    /**
-     * Persisted information that used was asked for Consents
-     * @return true when consent view was already displayed
-     */
-    public boolean didAskUserForConsents()
-    {
-        boolean didAskUserForConsents = storage.didAskUserForConsents();
-        Log.i(TAG, "didAskUserForConsents: " + didAskUserForConsents);
-        return didAskUserForConsents;
     }
 
     /**

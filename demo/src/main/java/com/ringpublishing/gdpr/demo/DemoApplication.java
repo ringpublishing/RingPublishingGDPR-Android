@@ -40,8 +40,8 @@ public class DemoApplication extends MultiDexApplication
 
         final Typeface yourAppTypeFace = Typeface.DEFAULT;
         final int yourAppThemeColor = Color.YELLOW;
-        final String appTenantId = ""; // Fill here your application tenantId. Obtain from Ring Publishing. Example: "1234"
-        final String appBrandingName = ""; // Fill here application brandName. Obtain from Ring Publishing. Example: "myAppName"
+        final String appTenantId = "1746213"; // Fill here your application tenantId. Obtain from Ring Publishing. Example: "1234"
+        final String appBrandingName = "app_onet_android"; // Fill here application brandName. Obtain from Ring Publishing. Example: "myAppName"
 
         // Just for this example to set tenantId and brandingName before install demo application.
         if(TextUtils.isEmpty(appTenantId) || TextUtils.isEmpty(appBrandingName))
@@ -56,6 +56,10 @@ public class DemoApplication extends MultiDexApplication
         // To see where initialize external libraries see SplashActivity
         // See more in this method javadoc
         ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig);
+
+        // When (in you usage context) GDPR does not apply, use initialize method with extra parameter gdprApplies set to false
+        // ringPublishingGDPR.initialize(false, this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig);
+
     }
 
 }
