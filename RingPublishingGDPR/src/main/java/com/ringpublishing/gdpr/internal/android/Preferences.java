@@ -128,4 +128,14 @@ public class Preferences
         final Set<String> filteredKeys = getFilteredKeys(prefix);
         removeAll(filteredKeys);
     }
+
+    protected void removeAllByPrefixWithout(String prefix, String... exceptions)
+    {
+        final Set<String> filteredKeys = getFilteredKeys(prefix);
+        for (String exception: exceptions)
+        {
+            filteredKeys.remove(exception);
+        }
+        removeAll(filteredKeys);
+    }
 }

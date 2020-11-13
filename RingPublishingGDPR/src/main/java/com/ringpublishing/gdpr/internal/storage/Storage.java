@@ -148,10 +148,13 @@ public class Storage extends Preferences
         return getString(RING_PUBLISHING_LAST_API_CONSENTS_CHECK_STATUS);
     }
 
+    /*
+    Clear all consent data except for: "IABTCF_CmpSdkID" and "IABTCF_gdprApplies"
+     */
     public void clearAllConsentData()
     {
         removeAllByPrefix(KEY_PREFIX_RING_PUBLISHING);
-        removeAllByPrefix(KEY_PREFIX_IABTCF);
+        removeAllByPrefixWithout(KEY_PREFIX_IABTCF, Consent.IABTCF_CmpSdkID.key, Consent.IABTCF_gdprApplies.key);
     }
 
     void clearAllPublisherRestrictions()
@@ -194,6 +197,12 @@ public class Storage extends Preferences
         }
 
         return consents;
+    }
+
+    public void configureGDPRApplies(boolean gdprApplies)
+    {
+        setInt(Consent.IABTCF_CmpSdkID.key, GDPRConstants.CMP_SDK_ID);
+        setInt(Consent.IABTCF_gdprApplies.key, gdprApplies ? 1 : 0);
     }
 
 
