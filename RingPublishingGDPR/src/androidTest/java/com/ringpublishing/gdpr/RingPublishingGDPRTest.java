@@ -55,20 +55,6 @@ public class RingPublishingGDPRTest
         assertTrue(ringPublishingGDPR.shouldShowConsentForm());
     }
 
-    @Test
-    public void isOutdated_WhenFreshInitializeCalled_ThenNoOutdated()
-    {
-        initializeSdkWithConfig();
-        assertFalse(ringPublishingGDPR.isOutdated());
-    }
-
-    @Test
-    public void didAskUserForConsents_WhenFreshInitializeCalled_ThenNoAskedForConsents()
-    {
-        initializeSdkWithConfig();
-        assertFalse(ringPublishingGDPR.didAskUserForConsents());
-    }
-
     private void clearSharedPrefs(Context context)
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

@@ -50,7 +50,7 @@ maven {
 
 2. Add to your application project module dependencies section
 ```ruby
-implementation("com.ringpublishing:gdpr:1.0.0")
+implementation("com.ringpublishing:gdpr:1.1.0")
 ```
 3. Add to your application AndroidManifest.xml in <application> section entry
 ```ruby
