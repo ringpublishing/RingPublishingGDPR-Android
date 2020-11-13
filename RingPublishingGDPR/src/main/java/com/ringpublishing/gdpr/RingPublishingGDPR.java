@@ -93,7 +93,7 @@ public final class RingPublishingGDPR
                            @NonNull final String brandName,
                            @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig)
     {
-        initialize(application, tenantId, brandName, ringPublishingGDPRUIConfig, true);
+        initialize(true, application, tenantId, brandName, ringPublishingGDPRUIConfig);
     }
 
     /**
@@ -106,17 +106,16 @@ public final class RingPublishingGDPR
      * On case when application will be put to background during this check, open Consent View will be scheduled to next application launch.
      * When your activity already opened consent view by RingPublishingGDPRActivity, then asynchronously verification will not display it second time.
      *
+     * @param gdprApplies Does GDPR applies in current context? When true, you can use also constructor without this parameter.
      * @param application Reference to android application object
      * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
      * @param brandName Name of application send to Consent API. Using this parameter Consent view style can be customized
      * @param ringPublishingGDPRUIConfig UI configuration for TypeFace and theme. Styles error screen.
-     * @param gdprApplies Does GDPR applies in current context? When true, you can use also constructor without this parameter.
      */
-    public void initialize(@NonNull final Application application,
+    public void initialize(boolean gdprApplies, @NonNull final Application application,
                            @NonNull final String tenantId,
                            @NonNull final String brandName,
-                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
-                           boolean gdprApplies)
+                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig)
     {
         if (initialized)
         {
@@ -124,13 +123,13 @@ public final class RingPublishingGDPR
             return;
         }
 
+        this.gdprApplies = gdprApplies;
         final Context context = application.getApplicationContext();
         this.api = new Api(context, tenantId, brandName);
         this.storage = new Storage(context);
         this.formViewController = new FormViewController(api, ringPublishingGDPRUIConfig);
         this.activityLifecycleObserver = new ActivityLifecycleObserver(application);
         this.ringPublishingGDPRApplicationCallback = createRingPublishingGDPRApplicationCallback();
-        this.gdprApplies = gdprApplies;
         initialized = true;
 
         storage.configureGDPRApplies(gdprApplies);
@@ -152,7 +151,7 @@ public final class RingPublishingGDPR
         {
             return false;
         }
-        return (!didAskUserForConsents() || isOutdated());
+        return (!storage.didAskUserForConsents() || isOutdated());
     }
 
     /**
@@ -171,21 +170,6 @@ public final class RingPublishingGDPR
     public void clearConsentsData()
     {
         storage.clearAllConsentData();
-    }
-
-    /**
-     * Persisted information that used was asked for Consents
-     * @return true when consent view was already displayed, or gdpr not applies
-     */
-    public boolean didAskUserForConsents()
-    {
-        if(!gdprApplies)
-        {
-            return true;
-        }
-        boolean didAskUserForConsents = storage.didAskUserForConsents();
-        Log.i(TAG, "didAskUserForConsents: " + didAskUserForConsents);
-        return didAskUserForConsents;
     }
 
     /**

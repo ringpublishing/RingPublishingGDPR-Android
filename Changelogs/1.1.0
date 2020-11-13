@@ -11,4 +11,4 @@
 ### Changes
 
 * Method: 'shouldShowConsentForm()' respects GDPR setting and stored consents. If 'gdprApplies' is false, this method will return false.
-* Method: 'didAskUserForConsents()' respects GDPR setting and stored consents. If 'gdprApplies' is false, this method will return true.
+* Method: 'didAskUserForConsents()' removed from public interface
