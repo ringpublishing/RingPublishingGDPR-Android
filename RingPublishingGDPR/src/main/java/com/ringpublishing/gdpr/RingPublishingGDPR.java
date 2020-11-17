@@ -173,6 +173,23 @@ public final class RingPublishingGDPR
     }
 
     /**
+     * Returns boolean value which determines whether consent for vendors and theirs purposes for processing data was established
+     */
+
+    public boolean areVendorConsentsGiven()
+    {
+        return storage.didAskUserForConsents();
+    }
+
+    /**
+     * In addition to standard, SDK stores additional values, which can be used by other Ring Publishing modules, e.g. Ad Server
+     */
+    public Map<String, String> customConsents()
+    {
+        return storage.getRingConsents();
+    }
+
+    /**
      * Timeout for network request
      * Use this only in case when default timeout is to small.
      *

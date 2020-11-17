@@ -54,7 +54,10 @@ public class SplashActivity extends AppCompatActivity
 
     private void showAppContent()
     {
-        initializeExternalLibraries();
+        if(RingPublishingGDPR.getInstance().areVendorConsentsGiven())
+        {
+            initializeExternalLibraries();
+        }
         startActivity(new Intent(this, MainActivity.class));
         finish();
     }

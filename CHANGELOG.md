@@ -1,3 +1,10 @@
+1.1.1 Release notes (2020-11-17)
+=============================================================
+
+### Features
+
+* Public interface has been extended about two additional properties "customConsents" and "areVendorConsentsGiven" which can be used by other Ring Publishing modules, e.g. Ad Server.
+
 1.1.0 Release notes (2020-11-13)
 =============================================================
 
