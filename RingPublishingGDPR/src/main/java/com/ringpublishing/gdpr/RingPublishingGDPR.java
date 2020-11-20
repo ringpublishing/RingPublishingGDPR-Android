@@ -190,6 +190,14 @@ public final class RingPublishingGDPR
     }
 
     /**
+    * These should be used for other purposes than Ad Server (public)
+     */
+    public Map<String, String> publicConsents()
+    {
+        return storage.getPublicConsents();
+    }
+
+    /**
      * Timeout for network request
      * Use this only in case when default timeout is to small.
      *

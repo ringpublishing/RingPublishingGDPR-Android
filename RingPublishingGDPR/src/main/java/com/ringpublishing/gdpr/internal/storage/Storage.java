@@ -199,6 +199,33 @@ public class Storage extends Preferences
         return consents;
     }
 
+    public Map<String, String> getPublicConsents()
+    {
+        Map<String, String> consents = new HashMap<>();
+
+        final String consentsString = getString(ConsentRing.RingPublishing_PublicConsents);
+
+        if (TextUtils.isEmpty(consentsString))
+        {
+            return consents;
+        }
+
+        try
+        {
+            consents = gson.fromJson(consentsString, consents.getClass());
+        }
+        catch (JsonSyntaxException e)
+        {
+            Log.e(TAG, "Fail to reade saved ring consents to verify method", e);
+        }
+        catch (ClassCastException e)
+        {
+            Log.e(TAG, "Fail to reade saved ring consents to verify method", e);
+        }
+
+        return consents;
+    }
+
     public void configureGDPRApplies(boolean gdprApplies)
     {
         setInt(Consent.IABTCF_CmpSdkID.key, GDPRConstants.CMP_SDK_ID);
@@ -226,6 +253,7 @@ public class Storage extends Preferences
         IABTCF_PublisherCC("IABTCF_PublisherCC", "publisherCC", Type.STRING),
         IABTCF_TCString("IABTCF_TCString", "tcString", Type.STRING),
         IABTCF_VendorConsents("IABTCF_VendorConsents", "vendor.consents", Type.STRING),
+        IABTCF_PublicConsents("IABTCF_PublicConsents", "publicConsents", Type.STRING),
         IABTCF_VendorLegitimateInterests("IABTCF_VendorLegitimateInterests", "vendor.legitimateInterests", Type.STRING),
         IABTCF_PurposeConsents("IABTCF_PurposeConsents", "purpose.consents", Type.STRING),
         IABTCF_PurposeLegitimateInterests("IABTCF_PurposeLegitimateInterests", "purpose.legitimateInterests", Type.STRING),
@@ -265,8 +293,8 @@ public class Storage extends Preferences
     public enum ConsentRing
     {
         RingPublishing_Consents("RingPublishing_Consents", "consents"),
-        RingPublishing_VendorsConsent("RingPublishing_VendorsConsent", "vendorsConsent");
-
+        RingPublishing_VendorsConsent("RingPublishing_VendorsConsent", "vendors.Consent"),
+        RingPublishing_PublicConsents("RingPublishing_PublicConsents", "publicConsents");
         private final String key;
 
         private final String jsonKey;

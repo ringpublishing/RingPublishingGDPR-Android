@@ -1,3 +1,10 @@
+1.1.2 Release notes (2020-11-20)
+=============================================================
+
+### Features
+
+*Public interface has been extended about one additional properties "publicConsents" which should be used by EventsSDK
+
 1.1.1 Release notes (2020-11-17)
 =============================================================
 
