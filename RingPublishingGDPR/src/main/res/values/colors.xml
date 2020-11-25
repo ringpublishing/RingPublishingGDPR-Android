@@ -5,8 +5,4 @@
     <color name="ring_publishing_gdpr_message_text_color">#252525</color>
     <color name="ring_publishing_gdpr_container_background_color">#ffffff</color>
 
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-
 </resources>

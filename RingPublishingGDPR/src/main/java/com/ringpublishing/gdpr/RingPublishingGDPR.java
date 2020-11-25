@@ -182,14 +182,6 @@ public final class RingPublishingGDPR
     }
 
     /**
-     * In addition to standard, SDK stores additional values, which can be used by other Ring Publishing modules, e.g. Ad Server
-     */
-    public Map<String, String> customConsents()
-    {
-        return storage.getRingConsents();
-    }
-
-    /**
     * These should be used for other purposes than Ad Server (public)
      */
     public Map<String, String> publicConsents()

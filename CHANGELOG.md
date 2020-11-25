@@ -1,16 +1,10 @@
-1.1.2 Release notes (2020-11-20)
+1.2.0 Release notes (2020-11-20)
 =============================================================
 
 ### Features
 
-*Public interface has been extended about one additional properties "publicConsents" which should be used by EventsSDK
-
-1.1.1 Release notes (2020-11-17)
-=============================================================
-
-### Features
-
-* Public interface has been extended about two additional properties "customConsents" and "areVendorConsentsGiven" which can be used by other Ring Publishing modules, e.g. Ad Server.
+* Public interface has been extended about one additional properties "publicConsents" which should be used by EventsSDK
+* Public interface has been extended about two additional properties  "areVendorConsentsGiven" which can be used by other Ring Publishing modules, e.g. Ad Server.
 
 1.1.0 Release notes (2020-11-13)
 =============================================================

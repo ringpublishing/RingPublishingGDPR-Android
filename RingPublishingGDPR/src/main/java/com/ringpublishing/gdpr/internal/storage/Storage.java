@@ -293,7 +293,7 @@ public class Storage extends Preferences
     public enum ConsentRing
     {
         RingPublishing_Consents("RingPublishing_Consents", "consents"),
-        RingPublishing_VendorsConsent("RingPublishing_VendorsConsent", "vendors.Consent"),
+        RingPublishing_VendorsConsent("RingPublishing_VendorsConsent", "vendorsConsent"),
         RingPublishing_PublicConsents("RingPublishing_PublicConsents", "publicConsents");
         private final String key;
 
