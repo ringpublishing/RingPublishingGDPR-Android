@@ -175,7 +175,6 @@ public final class RingPublishingGDPR
     /**
      * Returns boolean value which determines whether consent for vendors and theirs purposes for processing data was established
      */
-
     public boolean areVendorConsentsGiven()
     {
         return storage.didAskUserForConsents();

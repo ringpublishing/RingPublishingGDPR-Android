@@ -199,33 +199,6 @@ public class Storage extends Preferences
         return consents;
     }
 
-    public Map<String, String> getPublicConsents()
-    {
-        Map<String, String> consents = new HashMap<>();
-
-        final String consentsString = getString(ConsentRing.RingPublishing_PublicConsents);
-
-        if (TextUtils.isEmpty(consentsString))
-        {
-            return consents;
-        }
-
-        try
-        {
-            consents = gson.fromJson(consentsString, consents.getClass());
-        }
-        catch (JsonSyntaxException e)
-        {
-            Log.e(TAG, "Fail to reade saved ring consents to verify method", e);
-        }
-        catch (ClassCastException e)
-        {
-            Log.e(TAG, "Fail to reade saved ring consents to verify method", e);
-        }
-
-        return consents;
-    }
-
     public void configureGDPRApplies(boolean gdprApplies)
     {
         setInt(Consent.IABTCF_CmpSdkID.key, GDPRConstants.CMP_SDK_ID);
