@@ -5,7 +5,7 @@
 
 * New value 'RingPublishing_PublicConsents' stored in user defaults (should be used for other purposes than Ad Server (public))
 * Public interface has been extended about additional property  "areVendorConsentsGiven" which can be used by other Ring Publishing modules, e.g. Ad Server.
-* Remove from demo AndroidMainfest.xml  <activity android:name="com.ringpublishing.gdpr.RingPublishingGDPRActivity" android:theme="@style/GDPRStyle" /> move it to RingPublishingGDPR
+* Removed from demo AndroidMainfest.xml <activity android:name="com.ringpublishing.gdpr.RingPublishingGDPRActivity" android:theme="@style/GDPRStyle" /> and integrated it to RingPublishingGDPR module
 
 1.1.0 Release notes (2020-11-13)
 =============================================================

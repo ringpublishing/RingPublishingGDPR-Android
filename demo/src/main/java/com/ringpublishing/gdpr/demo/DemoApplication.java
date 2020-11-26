@@ -28,11 +28,8 @@ public class DemoApplication extends MultiDexApplication
         Integration steps:
 
         1. Initialize in Application object RingPublishingGDPR sdk with configuration
-        2. Add to your application section in AndroidManifest.xml entry:
-           <activity android:name="com.ringpublishing.gdpr.RingPublishingGDPRActivity" android:theme="@style/AppTheme.NoActionBar" />
-           Example is in demo file AndroidManifest.xml
-        3. Add to your launch Activity (SplashActivity) condition on start with ask shouldShowConsentForm() like in demo SplashActivity
-        4. Move your libraries initialization according to example in SplashActivity.
+        2. Add to your launch Activity (SplashActivity) condition on start with ask shouldShowConsentForm() like in demo SplashActivity
+        3. Move your libraries initialization according to example in SplashActivity.
            (When libraries have feature to observe consent preferences and after preference change they can initialize again with proper consent status,
            then they can be initialized just on application start like you had before.
            Otherwise you must move initialization libraries to section like showAppContent() in demo SplashActivity)

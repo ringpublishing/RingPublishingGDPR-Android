@@ -177,7 +177,7 @@ public final class RingPublishingGDPR
      */
     public boolean areVendorConsentsGiven()
     {
-        return storage.didAskUserForConsents();
+        return storage.getInt("RingPublishing_VendorsConsent") == 1;
     }
 
     /**

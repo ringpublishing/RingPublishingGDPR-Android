@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.ringpublishing.gdpr.RingPublishingGDPR;
-import com.ringpublishing.gdpr.RingPublishingGDPRActivity;
 import com.ringpublishing.gdpr.demo.databinding.ActivitySplashBinding;
 
 import androidx.annotation.Nullable;
@@ -54,12 +53,15 @@ public class SplashActivity extends AppCompatActivity
 
     private void showAppContent()
     {
+        // Here you can check if user agreed for all available vendors
         if(RingPublishingGDPR.getInstance().areVendorConsentsGiven())
         {
             initializeExternalLibraries();
         }
         startActivity(new Intent(this, MainActivity.class));
         finish();
+        // If you app uses SDK's from vendors, which are not part of the official TCF 2.0 vendor list
+        // you can use this flag to check if you can enable / initialize them as user agreed for all vendors
     }
 
     private void initializeExternalLibraries()
