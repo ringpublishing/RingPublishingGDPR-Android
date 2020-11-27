@@ -18,9 +18,6 @@ import androidx.appcompat.app.AppCompatActivity;
  *
  * You have two intents to choose. Default Welcome Screen and optional Settings screen
  * when you want display to user advanced view on start.
- *
- * Important! During integration, remember to add to Your ApplicationManifest.xml entry:
- * <activity android:name="com.ringpublishing.gdpr.RingPublishingGDPRActivity" android:theme="@style/AppTheme.NoActionBar" />
  */
 public class RingPublishingGDPRActivity extends AppCompatActivity implements RingPublishingGDPRActivityCallback
 {

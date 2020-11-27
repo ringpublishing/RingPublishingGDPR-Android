@@ -173,6 +173,14 @@ public final class RingPublishingGDPR
     }
 
     /**
+     * Returns boolean value which determines whether consent for vendors and theirs purposes for processing data was established
+     */
+    public boolean areVendorConsentsGiven()
+    {
+        return storage.getInt("RingPublishing_VendorsConsent") == 1;
+    }
+
+    /**
      * Timeout for network request
      * Use this only in case when default timeout is to small.
      *

@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.ringpublishing.gdpr.RingPublishingGDPR;
-import com.ringpublishing.gdpr.RingPublishingGDPRActivity;
 import com.ringpublishing.gdpr.demo.databinding.ActivityMainBinding;
 
 import java.util.Map;

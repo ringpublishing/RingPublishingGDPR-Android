@@ -52,10 +52,6 @@ maven {
 ```ruby
 implementation("com.ringpublishing:gdpr:1.1.0")
 ```
-3. Add to your application AndroidManifest.xml in <application> section entry
-```ruby
-<activity android:name="com.ringpublishing.gdpr.RingPublishingGDPRActivity" android:theme="@style/AppTheme.NoActionBar" />
-```
 
 ## Installation from GitHub source code
 1. Checkout code from GitHub
@@ -69,11 +65,6 @@ In your application build.gradle add dependency
 ```ruby
 implementation project(path: ':RingPublishingGDPR'))
 ```
-3. Add to your application AndroidManifest in <application> section entry
-```ruby
-<activity android:name="com.ringpublishing.gdpr.RingPublishingGDPRActivity" android:theme="@style/AppTheme.NoActionBar" />
-```
-
 
 ## Usage
 
