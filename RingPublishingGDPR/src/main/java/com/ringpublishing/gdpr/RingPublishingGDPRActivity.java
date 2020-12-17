@@ -101,5 +101,6 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements Rin
     {
         setResult(RESULT_OK);
         finish();
+        RingPublishingGDPR.getInstance().notifyConsentsUpdated();
     }
 }
