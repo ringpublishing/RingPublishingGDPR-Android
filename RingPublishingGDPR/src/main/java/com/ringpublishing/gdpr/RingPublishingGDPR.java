@@ -220,11 +220,20 @@ public final class RingPublishingGDPR
         return RingPublishingGDPRActivity.createShowSettingsScreenIntent(context);
     }
 
+
+    /**
+     * Add listener that informs application about saving or updating consents.
+     * @param ringPublishingGDPRListener listener to observe consents update
+     */
     public void addRingPublishingGDPRListeners(RingPublishingGDPRListener ringPublishingGDPRListener)
     {
         ringPublishingGDPRListeners.add(ringPublishingGDPRListener);
     }
 
+    /**
+     * Remove listener that informs application about saving or updating consents.
+     * @param ringPublishingGDPRListener listener to observe consents update
+     */
     public void removeRingPublishingGDPRListeners(RingPublishingGDPRListener ringPublishingGDPRListener)
     {
         ringPublishingGDPRListeners.remove(ringPublishingGDPRListener);

@@ -54,11 +54,11 @@ public class SplashActivity extends AppCompatActivity
 
     private void showAppContent()
     {
-        // Here you can check if user agreed for all available vendors
+        // Here you can check if user agreed on all available vendors
         if(RingPublishingGDPR.getInstance().areVendorConsentsGiven())
         {
             // If you app uses SDK's from vendors, which are not part of the official TCF 2.0 vendor list
-            // you can use this flag to check if you can enable / initialize them as user agreed for all vendors
+            // you can use this flag to check if you can enable / initialize them as user agreed on all vendors
             initializeSplashExternalLibraries();
         }
         startActivity(new Intent(this, MainActivity.class));
@@ -69,7 +69,7 @@ public class SplashActivity extends AppCompatActivity
     private void initializeSplashExternalLibraries()
     {
         // Here you can initialize external libraries initialized in your Splash screen,
-        // because consent screen was already visited by user.
+        // becaue consent screen has been already presented to user.
         Toast.makeText(this, R.string.toast_libraries_splash, Toast.LENGTH_SHORT).show();
     }
 

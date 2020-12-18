@@ -57,16 +57,16 @@ public class DemoApplication extends MultiDexApplication
         // When (in you usage context) GDPR does not apply, use initialize method with extra parameter gdprApplies set to false
         // ringPublishingGDPR.initialize(false, this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig);
 
-        // Optional listener that inform application about saving or updating consents.
-        // You can add more listeners on each place where you initialize sdk.
+        // Optional listener that informs application about saving or updating consents.
+        // You can add more listeners on each place where you initialize SDK.
         // Remember call ringPublishingGDPR.removeRingPublishingGDPRListeners() on your object destroy
         ringPublishingGDPR.addRingPublishingGDPRListeners(() ->
         {
-            // Here you can check if user agreed for all available vendors
+            // Here you can check if user agreed on all available vendors
             if(RingPublishingGDPR.getInstance().areVendorConsentsGiven())
             {
                 // If you app uses SDK's from vendors, which are not part of the official TCF 2.0 vendor list
-                // you can use this flag to check if you can enable / initialize them as user agreed for all vendors
+                // you can use this flag to check if you can enable / initialize them as user agreed on all vendors
                 initializeApplicationExternalLibraries();
             }
         });

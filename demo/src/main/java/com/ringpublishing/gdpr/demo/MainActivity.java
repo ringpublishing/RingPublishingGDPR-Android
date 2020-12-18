@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements RingPublishingGDP
         });
 
         // Optional example: You can add consentsUpdate listener where you want
-        // Remember remove listned on object ondestroy
+        // Remember to remove listener when object is destroying
         RingPublishingGDPR.getInstance().addRingPublishingGDPRListeners(this);
     }
 
@@ -78,11 +78,11 @@ public class MainActivity extends AppCompatActivity implements RingPublishingGDP
     @Override
     public void onConsentsUpdated()
     {
-        // Here you can check if user agreed for all available vendors
+        // Here you can check if user agreed on all available vendors
         if (RingPublishingGDPR.getInstance().areVendorConsentsGiven())
         {
             // If you app uses SDK's from vendors, which are not part of the official TCF 2.0 vendor list
-            // you can use this flag to check if you can enable / initialize them as user agreed for all vendors
+            // you can use this flag to check if you can enable / initialize them as user agreed on all vendors
             initializeLocalExternalLibraries();
         }
     }
