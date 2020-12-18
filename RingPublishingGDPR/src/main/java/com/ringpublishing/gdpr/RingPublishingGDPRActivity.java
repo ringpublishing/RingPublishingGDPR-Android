@@ -99,8 +99,8 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements Rin
     @Override
     public void hide(FormView formView)
     {
+        RingPublishingGDPR.getInstance().notifyConsentsUpdated();
         setResult(RESULT_OK);
         finish();
-        RingPublishingGDPR.getInstance().notifyConsentsUpdated();
     }
 }
