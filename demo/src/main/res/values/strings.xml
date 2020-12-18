@@ -4,4 +4,7 @@
     <string name="main_demo">MAIN</string>
     <string name="demo_configuration_warning">Missing configuration tenant and brandName in DemoApplication class</string>
     <string name="open_consent_view_settings">Open Consent View Settings</string>
+    <string name="toast_libraries_application">Update consents in application libraries </string>
+    <string name="toast_libraries_splash">Update consents in splash activity libraries </string>
+    <string name="toast_libraries_main">Update consents in main activity libraries </string>
 </resources>

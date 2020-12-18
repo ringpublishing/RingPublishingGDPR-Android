@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.ringpublishing.gdpr.RingPublishingGDPR;
+import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.demo.databinding.ActivityMainBinding;
 
 import java.util.Map;
@@ -20,7 +22,7 @@ import androidx.preference.PreferenceManager;
  * On this activity user have already external libraries initialized.
  * Here you not need do nothing, just for example we print consents and give posibility to open settings consent screen.
  */
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements RingPublishingGDPRListener
 {
 
     private static final String TAG = MainActivity.class.getCanonicalName();
@@ -39,6 +41,17 @@ public class MainActivity extends AppCompatActivity
             final Intent startSettingScreenIntent = RingPublishingGDPR.getInstance().createShowSettingsScreenIntent(this);
             startActivity(startSettingScreenIntent);
         });
+
+        // Optional example: You can add consentsUpdate listener where you want
+        // Remember to remove listener when object is destroying
+        RingPublishingGDPR.getInstance().addRingPublishingGDPRListeners(this);
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        RingPublishingGDPR.getInstance().removeRingPublishingGDPRListeners(this);
+        super.onDestroy();
     }
 
     @Override
@@ -60,5 +73,23 @@ public class MainActivity extends AppCompatActivity
     {
         finish(); // Just for this example to not open Splash Screen when back from MainActivity
         super.onBackPressed();
+    }
+
+    @Override
+    public void onConsentsUpdated()
+    {
+        // Here you can check if user agreed on all available vendors
+        if (RingPublishingGDPR.getInstance().areVendorConsentsGiven())
+        {
+            // If you app uses SDK's from vendors, which are not part of the official TCF 2.0 vendor list
+            // you can use this flag to check if you can enable / initialize them as user agreed on all vendors
+            initializeLocalExternalLibraries();
+        }
+    }
+
+    private void initializeLocalExternalLibraries()
+    {
+        // Initialize your app SDK's that should be initialized on this concrete class
+        Toast.makeText(this, R.string.toast_libraries_main, Toast.LENGTH_SHORT).show();
     }
 }

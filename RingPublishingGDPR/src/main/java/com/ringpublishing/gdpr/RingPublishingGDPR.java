@@ -21,7 +21,10 @@ import com.ringpublishing.gdpr.internal.view.FormViewImpl;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -58,6 +61,8 @@ public final class RingPublishingGDPR
     private int timeoutInSeconds;
 
     private boolean gdprApplies = true;
+
+    private final List<RingPublishingGDPRListener> ringPublishingGDPRListeners = new ArrayList<>();
 
     private RingPublishingGDPR()
     {
@@ -213,6 +218,33 @@ public final class RingPublishingGDPR
     public Intent createShowSettingsScreenIntent(Context context)
     {
         return RingPublishingGDPRActivity.createShowSettingsScreenIntent(context);
+    }
+
+
+    /**
+     * Add listener that informs application about saving or updating consents.
+     * @param ringPublishingGDPRListener listener to observe consents update
+     */
+    public void addRingPublishingGDPRListeners(RingPublishingGDPRListener ringPublishingGDPRListener)
+    {
+        ringPublishingGDPRListeners.add(ringPublishingGDPRListener);
+    }
+
+    /**
+     * Remove listener that informs application about saving or updating consents.
+     * @param ringPublishingGDPRListener listener to observe consents update
+     */
+    public void removeRingPublishingGDPRListeners(RingPublishingGDPRListener ringPublishingGDPRListener)
+    {
+        ringPublishingGDPRListeners.remove(ringPublishingGDPRListener);
+    }
+
+    void notifyConsentsUpdated()
+    {
+        for (RingPublishingGDPRListener listener: ringPublishingGDPRListeners)
+        {
+            listener.onConsentsUpdated();
+        }
     }
 
     @Nullable

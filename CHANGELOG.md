@@ -1,4 +1,10 @@
-1.2.0 Release notes (2020-11-20)
+1.3.0 Release notes (2020-12-18)
+=============================================================
+
+### Features
+
+* New listener 'RingPublishingGDPRListener' than observe consents update in method 'onConsentsUpdated()'
+
 =============================================================
 
 ### Features
