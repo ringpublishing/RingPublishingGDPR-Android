@@ -3,7 +3,7 @@
 
 ### Features
 
-* New listener 'RingPublishingGDPRListener' than observe consents update in method 'onConsentsUpdated()''1.2.0 Release notes (2020-11-20)
+* New listener 'RingPublishingGDPRListener' than observe consents update in method 'onConsentsUpdated()'
 
 =============================================================
 

@@ -3,4 +3,4 @@
 
 ### Features
 
-* New listener 'RingPublishingGDPRListener' than observe consents update in method 'onConsentsUpdated()''
+* New listener 'RingPublishingGDPRListener' than observe consents update in method 'onConsentsUpdated()'
