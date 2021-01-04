@@ -3,6 +3,7 @@ package com.ringpublishing.gdpr;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 
@@ -68,6 +69,16 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements Rin
         formView = RingPublishingGDPR.getInstance().getFormView(this.getApplicationContext());
 
         final LinearLayout layout = findViewById(R.id.content);
+        if(layout.getChildCount() > 0)
+        {
+            layout.removeView(formView);
+            layout.removeAllViews();
+            if(formView.getParent() instanceof ViewGroup)
+            {
+                ((ViewGroup)formView.getParent()).removeView(formView);
+            }
+        }
+
         formView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         layout.addView(formView);
 

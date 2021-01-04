@@ -415,7 +415,10 @@ public final class RingPublishingGDPR
     {
         storage.saveLastAPIConsentsCheckStatus(null);
         storage.setOutdated(false);
-        ringPublishingGDPRActivityCallback.hide(formViewImpl);
+        if(ringPublishingGDPRActivityCallback != null)
+        {
+            ringPublishingGDPRActivityCallback.hide(formViewImpl);
+        }
     }
 
     private void showFromApplication(FormView formView)
