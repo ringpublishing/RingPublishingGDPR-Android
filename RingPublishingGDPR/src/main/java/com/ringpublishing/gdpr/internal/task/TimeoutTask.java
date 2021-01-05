@@ -27,8 +27,7 @@ public class TimeoutTask
         {
             if (timeoutCallback != null)
             {
-                //TODO: on timeout
-                //timeoutCallback.onTimeout();
+                timeoutCallback.onTimeout();
             }
         }, TimeUnit.SECONDS.toMillis(timeout));
     }

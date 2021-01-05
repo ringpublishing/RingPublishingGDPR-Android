@@ -1,6 +1,5 @@
 package com.ringpublishing.gdpr.internal.view;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
@@ -9,7 +8,6 @@ import com.ringpublishing.gdpr.internal.api.Api.ConfigurationCallback;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
 import com.ringpublishing.gdpr.internal.model.State;
-import com.ringpublishing.gdpr.internal.network.NetworkInfo;
 import com.ringpublishing.gdpr.internal.task.TimeoutTask;
 import com.ringpublishing.gdpr.internal.task.TimeoutTask.TimeoutCallback;
 

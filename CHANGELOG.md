@@ -1,3 +1,12 @@
+1.3.1 Release notes (2021-01-04)
+=============================================================
+
+### Fixed
+
+* Fix for removing parent from view when system created new RingPublishingGDPRActivity before destroying old one.
+* Fix timeout and close form on long requests
+* Prevent NullPointerException when ringPublishingGDPRActivityCallback is unregistered already
+
 1.3.0 Release notes (2020-12-18)
 =============================================================
 
