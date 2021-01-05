@@ -3,7 +3,7 @@
 
 ### Fixed
 
-* Fix removing parent from view when system create new RingPublishingGDPRActivity before destroy old one.
+* Fix for removing parent from view when system created new RingPublishingGDPRActivity before destroying old one.
 * Fix timeout and close form on long requests
 * Prevent NullPointerException when ringPublishingGDPRActivityCallback is unregistered already
 
