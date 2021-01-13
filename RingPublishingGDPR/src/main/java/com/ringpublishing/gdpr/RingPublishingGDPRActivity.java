@@ -73,10 +73,11 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements Rin
         {
             layout.removeView(formView);
             layout.removeAllViews();
-            if(formView.getParent() instanceof ViewGroup)
-            {
-                ((ViewGroup)formView.getParent()).removeView(formView);
-            }
+        }
+
+        if(formView.getParent() instanceof ViewGroup)
+        {
+            ((ViewGroup)formView.getParent()).removeView(formView);
         }
 
         formView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
