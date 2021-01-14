@@ -50,7 +50,7 @@ maven {
 
 2. Add to your application project module dependencies section
 ```ruby
-implementation("com.ringpublishing:gdpr:1.2.0")
+implementation("com.ringpublishing:gdpr:1.3.+")
 ```
 
 ## Installation from GitHub source code
