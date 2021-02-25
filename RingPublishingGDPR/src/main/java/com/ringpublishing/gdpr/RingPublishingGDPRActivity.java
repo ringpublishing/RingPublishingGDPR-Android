@@ -57,32 +57,63 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements Rin
         return intent;
     }
 
+    private ViewGroup layout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_ring_publishing_gdpr);
 
-        RingPublishingGDPR.getInstance().setActivityCallback(this);
+        layout = findViewById(R.id.content);
+        addViewToLayout();
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent)
+    {
+        super.onNewIntent(intent);
+        handleIntent();
+    }
+
+    @Override
+    protected void onRestart()
+    {
+        if(layout.getChildCount() < 1)
+        {
+            clearLayout();
+            addViewToLayout();
+        }
+        super.onRestart();
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        clearLayout();
+        super.onDestroy();
+    }
+
+    private void addViewToLayout()
+    {
+        clearLayout();
         formView = RingPublishingGDPR.getInstance().getFormView(this.getApplicationContext());
 
-        final LinearLayout layout = findViewById(R.id.content);
-        if(layout.getChildCount() > 0)
+        if(formView == null)
         {
-            layout.removeView(formView);
-            layout.removeAllViews();
+            return;
         }
 
-        if(formView.getParent() instanceof ViewGroup)
-        {
-            ((ViewGroup)formView.getParent()).removeView(formView);
-        }
+        RingPublishingGDPR.getInstance().setActivityCallback(this);
 
         formView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         layout.addView(formView);
 
+        handleIntent();
+    }
+
+    private void handleIntent()
+    {
         if (getIntent() != null && getIntent().hasExtra(SCREEN_SETTINGS_BUNDLE_KEY))
         {
             formView.showConsentsSettingsScreen();
@@ -93,19 +124,24 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements Rin
         }
     }
 
-    @Override
-    protected void onDestroy()
+    private void clearLayout()
     {
-        if (formView != null)
+        if(formView == null)
         {
-            LinearLayout layout = findViewById(R.id.content);
-            layout.removeView(formView);
-            formView = null;
+            formView = RingPublishingGDPR.getInstance().getFormView(this.getApplicationContext());
         }
-        LinearLayout layout = findViewById(R.id.content);
+
+        if(formView != null)
+        {
+            if(formView.getParent() instanceof ViewGroup)
+            {
+                ((ViewGroup)formView.getParent()).removeView(formView);
+            }
+        }
+
         layout.removeAllViews();
+
         RingPublishingGDPR.getInstance().setActivityCallback(null);
-        super.onDestroy();
     }
 
     @Override

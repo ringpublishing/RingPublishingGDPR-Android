@@ -5,14 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".RingPublishingGDPRActivity">
-
-    <LinearLayout
-        android:id="@+id/content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
-
-    </LinearLayout>
+    tools:context=".RingPublishingGDPRActivity"
+    android:id="@+id/content">
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
