@@ -1,3 +1,11 @@
+1.3.5 Release notes (2021-02-25)
+=============================================================
+
+### Fixed
+
+* Crash in RingPublishingGDPRActivity when class try add view to layout, but this view still have old parent.
+* From now RingPublishingGDPRActivity have singleTask launch mode. In layout activity_ring_publishing_gdpr unused LinearLayout is removed.
+
 1.3.4 Release notes (2021-02-18)
 =============================================================
 
