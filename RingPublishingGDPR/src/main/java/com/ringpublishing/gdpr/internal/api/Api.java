@@ -9,13 +9,9 @@ import com.google.gson.JsonObject;
 import com.ringpublishing.gdpr.BuildConfig;
 import com.ringpublishing.gdpr.internal.network.Network;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Map;
 
 import androidx.annotation.NonNull;
-import okhttp3.HttpUrl;
-import okhttp3.HttpUrl.Builder;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,7 +34,7 @@ public class Api
         this.brandName = brandName;
     }
 
-    public void verify(final Map<String, String> consents, @NonNull VerifyApiCallback callback)
+    public void verify(final Map<String, String> consents, @NonNull VerifyCallback callback)
     {
         apiDefinition.verify(consents)
                 .enqueue(new Callback<VerifyResponse>()
@@ -64,7 +60,7 @@ public class Api
                     {
                         Log.w(TAG, "Verify request failure", throwable);
 
-                        callback.onFail("Request fail: " + throwable.getLocalizedMessage());
+                        callback.onFailure("Request fail: " + throwable.getLocalizedMessage());
                     }
                 });
     }
@@ -80,22 +76,27 @@ public class Api
                         if (!response.isSuccessful())
                         {
                             Log.w(TAG, "Configuration response not successful");
-                            callback.onConfigurationFailure();
+                            callback.onFailure();
                             return;
                         }
                         final JsonObject jsonObject = response.body();
                         if (jsonObject == null)
                         {
                             Log.w(TAG, "Configuration response body is null");
-                            callback.onConfigurationFailure();
+                            callback.onFailure();
                             return;
                         }
 
+                        parseResponseParameters(jsonObject);
+                    }
+
+                    private void parseResponseParameters(JsonObject jsonObject)
+                    {
                         final JsonElement urlElement = jsonObject.get(BuildConfig.CMP_JSON_CONFIGURATION_FIELD_HOST);
                         if (urlElement == null)
                         {
-                            Log.w(TAG, "Configuration response body parameter is null");
-                            callback.onConfigurationFailure();
+                            Log.w(TAG, "Configuration response body parameter HOST is null");
+                            callback.onFailure();
                             return;
                         }
 
@@ -103,12 +104,30 @@ public class Api
                         if (TextUtils.isEmpty(url))
                         {
                             Log.w(TAG, "Configuration response body parameter is empty");
-                            callback.onConfigurationFailure();
+                            callback.onFailure();
                             return;
                         }
 
-                        Log.w(TAG, "Configuration response url with brandName is: " + url);
-                        callback.onConfigurationSuccess(url);
+                        final JsonElement gdprAppliesElement = jsonObject.get(BuildConfig.CMP_JSON_CONFIGURATION_FIELD_GDPR_APPLIES);
+
+                        boolean gdprApplies = true;
+
+                        if (gdprAppliesElement != null)
+                        {
+                            try
+                            {
+                                gdprApplies = gdprAppliesElement.getAsBoolean();
+                                Log.w(TAG, String.format("Configuration response url with brandName is:%s gdprApplies:%s ", url, gdprApplies));
+                            }
+                            catch (ClassCastException | IllegalStateException cce)
+                            {
+                                Log.w(TAG, "Configuration response body parameter gdprApplies is not boolean!");
+                                callback.onFailure();
+                                return;
+                            }
+                        }
+
+                        callback.onSuccess(url, gdprApplies);
                     }
 
                     @Override
@@ -116,7 +135,7 @@ public class Api
                     {
                         //Only when we received invalid data
                         Log.w(TAG, "Configuration response failure", throwable);
-                        callback.onConfigurationFailure();
+                        callback.onFailure();
                     }
                 });
     }
@@ -126,21 +145,21 @@ public class Api
         return network;
     }
 
-    public interface VerifyApiCallback
+    public interface VerifyCallback
     {
-
-        void onOutdated(String status);
 
         void onActual(String status);
 
-        void onFail(String status);
+        void onOutdated(String status);
+
+        void onFailure(String status);
     }
 
     public interface ConfigurationCallback
     {
 
-        void onConfigurationSuccess(String response);
+        void onSuccess(String host, boolean gdprApplies);
 
-        void onConfigurationFailure();
+        void onFailure();
     }
 }

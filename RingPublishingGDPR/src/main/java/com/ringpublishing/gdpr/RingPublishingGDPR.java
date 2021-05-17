@@ -8,11 +8,14 @@ import android.util.Log;
 
 import com.ringpublishing.gdpr.internal.android.ActivityLifecycleObserver;
 import com.ringpublishing.gdpr.internal.api.Api;
-import com.ringpublishing.gdpr.internal.api.Api.VerifyApiCallback;
+import com.ringpublishing.gdpr.internal.api.Api.ConfigurationCallback;
+import com.ringpublishing.gdpr.internal.api.Api.VerifyCallback;
 import com.ringpublishing.gdpr.internal.callback.RingPublishingGDPRActivityCallback;
 import com.ringpublishing.gdpr.internal.callback.RingPublishingGDPRApplicationCallback;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
 import com.ringpublishing.gdpr.internal.cmp.CmpWebViewActionCallback;
+import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
+import com.ringpublishing.gdpr.internal.model.TenantConfiguration.TenantState;
 import com.ringpublishing.gdpr.internal.storage.Storage;
 import com.ringpublishing.gdpr.internal.view.FormView;
 import com.ringpublishing.gdpr.internal.view.FormViewController;
@@ -24,7 +27,6 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -60,9 +62,11 @@ public final class RingPublishingGDPR
 
     private int timeoutInSeconds;
 
-    private boolean gdprApplies = true;
+    private final TenantConfiguration tenantConfiguration = new TenantConfiguration();
 
     private final List<RingPublishingGDPRListener> ringPublishingGDPRListeners = new ArrayList<>();
+
+    private RingPublishingGDPRShowConsentScreenListener ringPublishingGDPRShowConsentListener;
 
     private RingPublishingGDPR()
     {
@@ -98,37 +102,12 @@ public final class RingPublishingGDPR
                            @NonNull final String brandName,
                            @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig)
     {
-        initialize(true, application, tenantId, brandName, ringPublishingGDPRUIConfig);
-    }
-
-    /**
-     * Initialization point of SDK with configuration.
-     * Should be called once on application start.
-     *
-     * When is called first time, just initialize sdk, because we known that Consent View should be displayed.
-     * On next application launches, call this method automatically asynchronously verify that consents are actual.
-     * When consents needs to be updated, then using application context, open automatically Consent View in new Activity
-     * On case when application will be put to background during this check, open Consent View will be scheduled to next application launch.
-     * When your activity already opened consent view by RingPublishingGDPRActivity, then asynchronously verification will not display it second time.
-     *
-     * @param gdprApplies Does GDPR applies in current context? When true, you can use also constructor without this parameter.
-     * @param application Reference to android application object
-     * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
-     * @param brandName Name of application send to Consent API. Using this parameter Consent view style can be customized
-     * @param ringPublishingGDPRUIConfig UI configuration for TypeFace and theme. Styles error screen.
-     */
-    public void initialize(boolean gdprApplies, @NonNull final Application application,
-                           @NonNull final String tenantId,
-                           @NonNull final String brandName,
-                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig)
-    {
         if (initialized)
         {
             Log.w(TAG, "Second initialization ignored");
             return;
         }
 
-        this.gdprApplies = gdprApplies;
         final Context context = application.getApplicationContext();
         this.api = new Api(context, tenantId, brandName);
         this.storage = new Storage(context);
@@ -137,22 +116,98 @@ public final class RingPublishingGDPR
         this.ringPublishingGDPRApplicationCallback = createRingPublishingGDPRApplicationCallback();
         initialized = true;
 
-        storage.configureGDPRApplies(gdprApplies);
-
-        if (storage.didAskUserForConsents() && !isOutdated() && gdprApplies)
-        {
-            verifyConsents(context);
-        }
+        tenantConfiguration.setState(TenantState.LOADING);
+        determineConsentsStatusOnStartup(context);
     }
 
+    //TODO: move to separated class
+    void determineConsentsStatusOnStartup(Context context)
+    {
+        api.configuration(new ConfigurationCallback()
+        {
+            @Override
+            public void onSuccess(String url, boolean gdprApplies)
+            {
+                storage.configureGDPRApplies(gdprApplies);
+
+                tenantConfiguration.setHost(url);
+                tenantConfiguration.setGdprApplies(gdprApplies);
+                tenantConfiguration.setState(TenantState.CONFIGURATION_FINISHED);
+                formViewController.setTenantConfiguration(tenantConfiguration);
+
+                if (gdprApplies)
+                {
+                    if (storage.didAskUserForConsents() && !isOutdated())
+                    {
+                        verifyConsents(context);
+                    }
+                    else
+                    {
+                        tenantConfiguration.setState(TenantState.VERIFY_FINISHED);
+                        if (ringPublishingGDPRShowConsentListener != null)
+                        {
+                            ringPublishingGDPRShowConsentListener.onReadyToShowConsentScreen();
+                        }
+                    }
+                }
+                else
+                {
+                    tenantConfiguration.setState(TenantState.VERIFY_FINISHED);
+                    if (ringPublishingGDPRShowConsentListener != null)
+                    {
+                        ringPublishingGDPRShowConsentListener.onConsentsUpToDate();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure()
+            {
+                Log.w(TAG, "Failure onConfigurationFailure");
+                formViewImpl.onFailure("Failure to get configuration");
+            }
+        });
+    }
+
+    //TODO: update doc
     /**
      * Use this method to check that RingPublishingGDPRActivity should be displayed
      * @return true when Consent View should be displayed. It could be case when Consent View was never displayed, or is outdated.
      * When gdpr not apply for your context, this method will return false
      */
-    public boolean shouldShowConsentForm()
+    public void setRingPublishingGDPRShowConsentScreenListener(RingPublishingGDPRShowConsentScreenListener ringPublishingGDPRShowConsentListener)
     {
-        if(!gdprApplies)
+        this.ringPublishingGDPRShowConsentListener = ringPublishingGDPRShowConsentListener;
+
+        if(ringPublishingGDPRShowConsentListener == null)
+        {
+            return;
+        }
+
+        if (tenantConfiguration.getState() == TenantState.VERIFY_FINISHED)
+        {
+            if (tenantConfiguration.isGdprApplies() && (storage.didAskUserForConsents() && storage.isOutdated() || !storage.didAskUserForConsents()))
+            {
+                ringPublishingGDPRShowConsentListener.onReadyToShowConsentScreen();
+            }
+            else
+            {
+                ringPublishingGDPRShowConsentListener.onConsentsUpToDate();
+            }
+        }
+        else
+        {
+            if (tenantConfiguration.getState() == TenantState.ERROR || tenantConfiguration.getState() == TenantState.VERIFY_ERROR)
+            {
+                ringPublishingGDPRShowConsentListener.onConsentsUpToDate();
+            }
+        }
+
+    }
+
+    private boolean consentScreenShouldBeShown()
+    {
+        if(tenantConfiguration == null || !tenantConfiguration.isGdprApplies())
         {
             return false;
         }
@@ -291,18 +346,30 @@ public final class RingPublishingGDPR
         if (consents == null || consents.isEmpty())
         {
             Log.w(TAG, "Fail verify consents. Consents are empty");
+            tenantConfiguration.setState(TenantState.VERIFY_ERROR);
+            ringPublishingGDPRShowConsentListener.onConsentsUpToDate();
             return;
         }
 
-        api.verify(consents, new VerifyApiCallback()
+        api.verify(consents, new VerifyCallback()
         {
             @Override
             public void onOutdated(String rawStatus)
             {
                 storage.saveLastAPIConsentsCheckStatus(rawStatus);
                 storage.setOutdated(true);
-                FormView formView = getFormView(applicationContext);
-                showFromApplication(formView);
+                tenantConfiguration.setState(TenantState.VERIFY_FINISHED);
+
+                if(ringPublishingGDPRShowConsentListener == null)
+                {
+                    FormView formView = getFormView(applicationContext);
+                    showFromApplication(formView);
+                }
+                else
+                {
+                    tenantConfiguration.setState(TenantState.VERIFY_ERROR);
+                    ringPublishingGDPRShowConsentListener.onConsentsUpToDate();
+                }
             }
 
             @Override
@@ -310,10 +377,12 @@ public final class RingPublishingGDPR
             {
                 storage.saveLastAPIConsentsCheckStatus(rawStatus);
                 storage.setOutdated(false);
+                tenantConfiguration.setState(TenantState.VERIFY_FINISHED);
+                RingPublishingGDPR.getInstance().notifyConsentsUpdated();
             }
 
             @Override
-            public void onFail(String status)
+            public void onFailure(String status)
             {
                 storage.saveLastAPIConsentsCheckStatus(status);
             }
