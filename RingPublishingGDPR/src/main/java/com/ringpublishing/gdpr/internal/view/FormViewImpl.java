@@ -39,7 +39,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
     private final ErrorView errorView;
 
-    private CmpWebViewActionCallback cmpWebViewCallback;
+    private final CmpWebViewActionCallback cmpWebViewCallback;
 
     public FormViewImpl(@NonNull final Context context, @NonNull final FormViewController formViewController, @NonNull final CmpWebViewActionCallback cmpWebViewCallback)
     {

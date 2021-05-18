@@ -4,10 +4,8 @@ public class TenantConfiguration
 {
     public enum TenantState {
         LOADING,
-        ERROR,
-        CONFIGURATION_FINISHED,
-        VERIFY_ERROR,
-        VERIFY_FINISHED
+        FAILURE,
+        SUCCESS,
     }
 
     private boolean gdprApplies;

@@ -16,6 +16,7 @@ import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
 import com.ringpublishing.gdpr.internal.cmp.CmpWebViewActionCallback;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration.TenantState;
+import com.ringpublishing.gdpr.internal.model.VerifyState;
 import com.ringpublishing.gdpr.internal.storage.Storage;
 import com.ringpublishing.gdpr.internal.view.FormView;
 import com.ringpublishing.gdpr.internal.view.FormViewController;
@@ -25,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -64,9 +66,13 @@ public final class RingPublishingGDPR
 
     private final TenantConfiguration tenantConfiguration = new TenantConfiguration();
 
-    private final List<RingPublishingGDPRListener> ringPublishingGDPRListeners = new ArrayList<>();
+    private VerifyState verifyState = VerifyState.LOADING;
+
+    private final List<RingPublishingGDPRListener> ringPublishingGDPRListeners = Collections.synchronizedList(new ArrayList<>());
 
     private RingPublishingGDPRShowConsentScreenListener ringPublishingGDPRShowConsentListener;
+
+    private Context context;
 
     private RingPublishingGDPR()
     {
@@ -108,68 +114,61 @@ public final class RingPublishingGDPR
             return;
         }
 
-        final Context context = application.getApplicationContext();
+        context = application.getApplicationContext();
         this.api = new Api(context, tenantId, brandName, timeoutInSeconds);
         this.storage = new Storage(context);
         this.formViewController = new FormViewController(api, ringPublishingGDPRUIConfig);
         this.activityLifecycleObserver = new ActivityLifecycleObserver(application);
         this.ringPublishingGDPRApplicationCallback = createRingPublishingGDPRApplicationCallback();
         initialized = true;
-
-        determineConsentsStatusOnStartup(context);
-    }
-
-    void determineConsentsStatusOnStartup(Context context)
-    {
         tenantConfiguration.setState(TenantState.LOADING);
 
+        fetchTenantConfiguration();
+
+        if (isOutdated())
+        {
+            verifyState = VerifyState.OUTDATED;
+        }
+        else
+        {
+            if (storage.didAskUserForConsents())
+            {
+                verifyOutdated();
+            }
+            else
+            {
+                verifyState = VerifyState.ACTUAL;
+            }
+        }
+    }
+
+    void fetchTenantConfiguration()
+    {
         api.configuration(new ConfigurationCallback()
         {
             @Override
             public void onSuccess(String url, boolean gdprApplies)
             {
-                storage.configureGDPRApplies(gdprApplies);
-
-                tenantConfiguration.setHost(url);
-                tenantConfiguration.setGdprApplies(gdprApplies);
-                tenantConfiguration.setState(TenantState.CONFIGURATION_FINISHED);
-                formViewController.setTenantConfiguration(tenantConfiguration);
-
-                if (gdprApplies)
-                {
-                    if (storage.didAskUserForConsents() && !isOutdated())
-                    {
-                        setRingPublishingGDPRShowConsentScreenListener(context);
-                    }
-                    else
-                    {
-                        tenantConfiguration.setState(TenantState.VERIFY_FINISHED);
-                        if (ringPublishingGDPRShowConsentListener != null)
-                        {
-                            ringPublishingGDPRShowConsentListener.onReadyToShowConsentScreen();
-                        }
-                    }
-                }
-                else
-                {
-                    tenantConfiguration.setState(TenantState.VERIFY_FINISHED);
-                    if (ringPublishingGDPRShowConsentListener != null)
-                    {
-                        ringPublishingGDPRShowConsentListener.onConsentsUpToDate();
-                    }
-                }
+                setTenantConfiguration(true, url, gdprApplies);
             }
 
             @Override
             public void onFailure()
             {
-                storage.configureGDPRApplies(false);
-                tenantConfiguration.setGdprApplies(false);
-                tenantConfiguration.setState(TenantState.ERROR);
+                setTenantConfiguration(false, null, false);
                 Log.w(TAG, "Failure onConfigurationFailure");
-                formViewImpl.onFailure("Failure to get configuration");
             }
         });
+    }
+
+    private void setTenantConfiguration(boolean success, String url, boolean gdprApplies)
+    {
+        storage.configureGDPRApplies(gdprApplies);
+        tenantConfiguration.setState(success ? TenantState.SUCCESS : TenantState.FAILURE);
+        tenantConfiguration.setHost(url);
+        tenantConfiguration.setGdprApplies(gdprApplies);
+        formViewController.setTenantConfiguration(tenantConfiguration);
+        apiCallFinished();
     }
 
     /**
@@ -186,25 +185,7 @@ public final class RingPublishingGDPR
             return;
         }
 
-        if (tenantConfiguration.getState() == TenantState.VERIFY_FINISHED)
-        {
-            if (tenantConfiguration.isGdprApplies() && (storage.didAskUserForConsents() && storage.isOutdated() || !storage.didAskUserForConsents()))
-            {
-                ringPublishingGDPRShowConsentListener.onReadyToShowConsentScreen();
-            }
-            else
-            {
-                ringPublishingGDPRShowConsentListener.onConsentsUpToDate();
-            }
-        }
-        else
-        {
-            if (tenantConfiguration.getState() == TenantState.ERROR || tenantConfiguration.getState() == TenantState.VERIFY_ERROR)
-            {
-                ringPublishingGDPRShowConsentListener.onConsentsUpToDate();
-            }
-        }
-
+        apiCallFinished();
     }
 
     /**
@@ -289,9 +270,12 @@ public final class RingPublishingGDPR
 
     void notifyConsentsUpdated()
     {
-        for (RingPublishingGDPRListener listener: ringPublishingGDPRListeners)
+        synchronized (ringPublishingGDPRListeners)
         {
-            listener.onConsentsUpdated();
+            for (RingPublishingGDPRListener listener: ringPublishingGDPRListeners)
+            {
+                listener.onConsentsUpdated();
+            }
         }
     }
 
@@ -332,15 +316,14 @@ public final class RingPublishingGDPR
         return outdated;
     }
 
-    private void setRingPublishingGDPRShowConsentScreenListener(@NonNull Context applicationContext)
+    private void verifyOutdated()
     {
         final Map<String, String> consents = storage.getRingConsents();
 
         if (consents == null || consents.isEmpty())
         {
             Log.w(TAG, "Fail verify consents. Consents are empty");
-            tenantConfiguration.setState(TenantState.VERIFY_ERROR);
-            ringPublishingGDPRShowConsentListener.onConsentsUpToDate();
+            setVerifyState(VerifyState.FAILURE);
             return;
         }
 
@@ -349,38 +332,72 @@ public final class RingPublishingGDPR
             @Override
             public void onOutdated(String rawStatus)
             {
-                storage.saveLastAPIConsentsCheckStatus(rawStatus);
                 storage.setOutdated(true);
-                tenantConfiguration.setState(TenantState.VERIFY_FINISHED);
-
-                if(ringPublishingGDPRShowConsentListener == null)
-                {
-                    FormView formView = getFormView(applicationContext);
-                    showFromApplication(formView);
-                }
-                else
-                {
-                    tenantConfiguration.setState(TenantState.VERIFY_ERROR);
-                    ringPublishingGDPRShowConsentListener.onConsentsUpToDate();
-                }
+                storage.saveLastAPIConsentsCheckStatus(rawStatus);
+                setVerifyState(VerifyState.OUTDATED);
             }
 
             @Override
             public void onActual(String rawStatus)
             {
-                storage.saveLastAPIConsentsCheckStatus(rawStatus);
                 storage.setOutdated(false);
-                tenantConfiguration.setState(TenantState.VERIFY_FINISHED);
-                RingPublishingGDPR.getInstance().notifyConsentsUpdated();
+                storage.saveLastAPIConsentsCheckStatus(rawStatus);
+                setVerifyState(VerifyState.ACTUAL);
             }
 
             @Override
             public void onFailure(String status)
             {
-                tenantConfiguration.setState(TenantState.VERIFY_ERROR);
                 storage.saveLastAPIConsentsCheckStatus(status);
+                setVerifyState(VerifyState.FAILURE);
             }
         });
+    }
+
+    private void setVerifyState(VerifyState verifyState)
+    {
+        this.verifyState = verifyState;
+        apiCallFinished();
+    }
+
+    private synchronized void apiCallFinished()
+    {
+        final TenantState tenantState = tenantConfiguration.getState();
+
+        if (tenantState == TenantState.LOADING || verifyState == VerifyState.LOADING)
+        {
+            Log.w(TAG, "Update apiMethodFinished, but still state is loading");
+            return;
+        }
+
+        if (tenantState == TenantState.FAILURE || verifyState == VerifyState.FAILURE || !tenantConfiguration.isGdprApplies())
+        {
+            if (ringPublishingGDPRShowConsentListener != null)
+            {
+                ringPublishingGDPRShowConsentListener.onConsentsUpToDate();
+            }
+            return;
+        }
+
+        if (ringPublishingGDPRShowConsentListener == null)
+        {
+            if (isOutdated())
+            {
+                FormView formView = getFormView(context);
+                showFromApplication(formView);
+            }
+        }
+        else
+        {
+            if (isOutdated() || !storage.didAskUserForConsents())
+            {
+                ringPublishingGDPRShowConsentListener.onReadyToShowConsentScreen();
+            }
+            else
+            {
+                ringPublishingGDPRShowConsentListener.onConsentsUpToDate();
+            }
+        }
     }
 
     @NotNull
@@ -441,6 +458,7 @@ public final class RingPublishingGDPR
                 if (closeForm)
                 {
                     closeForm();
+                    RingPublishingGDPR.getInstance().notifyConsentsUpdated();
                 }
             }
 
@@ -469,6 +487,7 @@ public final class RingPublishingGDPR
                 if (closeForm)
                 {
                     closeForm();
+                    RingPublishingGDPR.getInstance().notifyConsentsUpdated();
                 }
             }
         };

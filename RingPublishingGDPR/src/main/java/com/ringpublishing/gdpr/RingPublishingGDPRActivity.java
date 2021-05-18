@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.LinearLayout;
 
 import com.ringpublishing.gdpr.internal.callback.RingPublishingGDPRActivityCallback;
 import com.ringpublishing.gdpr.internal.view.FormView;
@@ -147,7 +146,6 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements Rin
     @Override
     public void hide(FormView formView)
     {
-        RingPublishingGDPR.getInstance().notifyConsentsUpdated();
         setResult(RESULT_OK);
         finish();
     }

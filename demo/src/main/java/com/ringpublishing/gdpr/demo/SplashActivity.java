@@ -83,7 +83,7 @@ public class SplashActivity extends AppCompatActivity
     private void initializeSplashExternalLibraries()
     {
         // Here you can initialize external libraries initialized in your Splash screen,
-        // becaue consent screen has been already presented to user.
+        // because consent screen has been already presented to user.
         Toast.makeText(this, R.string.toast_libraries_splash, Toast.LENGTH_SHORT).show();
     }
 
