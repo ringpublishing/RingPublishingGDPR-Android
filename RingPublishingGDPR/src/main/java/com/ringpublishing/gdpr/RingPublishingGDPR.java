@@ -60,7 +60,7 @@ public final class RingPublishingGDPR
 
     private boolean initialized;
 
-    private int timeoutInSeconds;
+    private int timeoutInSeconds = BuildConfig.DEFAULT_TIMEOUT;
 
     private final TenantConfiguration tenantConfiguration = new TenantConfiguration();
 
@@ -109,20 +109,20 @@ public final class RingPublishingGDPR
         }
 
         final Context context = application.getApplicationContext();
-        this.api = new Api(context, tenantId, brandName);
+        this.api = new Api(context, tenantId, brandName, timeoutInSeconds);
         this.storage = new Storage(context);
         this.formViewController = new FormViewController(api, ringPublishingGDPRUIConfig);
         this.activityLifecycleObserver = new ActivityLifecycleObserver(application);
         this.ringPublishingGDPRApplicationCallback = createRingPublishingGDPRApplicationCallback();
         initialized = true;
 
-        tenantConfiguration.setState(TenantState.LOADING);
         determineConsentsStatusOnStartup(context);
     }
 
-    //TODO: move to separated class
     void determineConsentsStatusOnStartup(Context context)
     {
+        tenantConfiguration.setState(TenantState.LOADING);
+
         api.configuration(new ConfigurationCallback()
         {
             @Override
@@ -139,7 +139,7 @@ public final class RingPublishingGDPR
                 {
                     if (storage.didAskUserForConsents() && !isOutdated())
                     {
-                        verifyConsents(context);
+                        setRingPublishingGDPRShowConsentScreenListener(context);
                     }
                     else
                     {
@@ -163,23 +163,25 @@ public final class RingPublishingGDPR
             @Override
             public void onFailure()
             {
+                storage.configureGDPRApplies(false);
+                tenantConfiguration.setGdprApplies(false);
+                tenantConfiguration.setState(TenantState.ERROR);
                 Log.w(TAG, "Failure onConfigurationFailure");
                 formViewImpl.onFailure("Failure to get configuration");
             }
         });
     }
 
-    //TODO: update doc
     /**
      * Use this method to check that RingPublishingGDPRActivity should be displayed
-     * @return true when Consent View should be displayed. It could be case when Consent View was never displayed, or is outdated.
-     * When gdpr not apply for your context, this method will return false
+     * Call this method in first application Activity
+     * Wait for callback in RingPublishingGDPRShowConsentScreenListener to decide that consent screen should be displayed.
      */
     public void setRingPublishingGDPRShowConsentScreenListener(RingPublishingGDPRShowConsentScreenListener ringPublishingGDPRShowConsentListener)
     {
         this.ringPublishingGDPRShowConsentListener = ringPublishingGDPRShowConsentListener;
 
-        if(ringPublishingGDPRShowConsentListener == null)
+        if (ringPublishingGDPRShowConsentListener == null)
         {
             return;
         }
@@ -203,15 +205,6 @@ public final class RingPublishingGDPR
             }
         }
 
-    }
-
-    private boolean consentScreenShouldBeShown()
-    {
-        if(tenantConfiguration == null || !tenantConfiguration.isGdprApplies())
-        {
-            return false;
-        }
-        return (!storage.didAskUserForConsents() || isOutdated());
     }
 
     /**
@@ -307,7 +300,7 @@ public final class RingPublishingGDPR
     {
         if (formViewImpl == null)
         {
-            formViewImpl = new FormViewImpl(applicationContext, formViewController, createCmpWebViewCallback(), this);
+            formViewImpl = new FormViewImpl(applicationContext, formViewController, createCmpWebViewCallback());
             if (timeoutInSeconds > 0)
             {
                 formViewImpl.setTimeoutInSeconds(timeoutInSeconds);
@@ -339,7 +332,7 @@ public final class RingPublishingGDPR
         return outdated;
     }
 
-    private void verifyConsents(@NonNull Context applicationContext)
+    private void setRingPublishingGDPRShowConsentScreenListener(@NonNull Context applicationContext)
     {
         final Map<String, String> consents = storage.getRingConsents();
 
@@ -384,6 +377,7 @@ public final class RingPublishingGDPR
             @Override
             public void onFailure(String status)
             {
+                tenantConfiguration.setState(TenantState.VERIFY_ERROR);
                 storage.saveLastAPIConsentsCheckStatus(status);
             }
         });

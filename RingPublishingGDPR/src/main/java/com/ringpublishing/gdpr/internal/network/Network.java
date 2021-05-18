@@ -4,6 +4,8 @@ import android.content.Context;
 
 import com.ringpublishing.gdpr.BuildConfig;
 
+import java.util.concurrent.TimeUnit;
+
 import androidx.annotation.NonNull;
 import okhttp3.HttpUrl.Builder;
 import okhttp3.OkHttpClient;
@@ -13,11 +15,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class Network
 {
 
-    private Context appContext;
+    private final Context appContext;
 
-    public Network(Context appContext)
+    private final int timeoutInSeconds;
+
+    public Network(@NonNull Context appContext, int timeoutInSeconds)
     {
         this.appContext = appContext;
+        this.timeoutInSeconds = timeoutInSeconds;
     }
 
     @NonNull
@@ -41,6 +46,9 @@ public class Network
     {
         return new OkHttpClient.Builder()
                 .addNetworkInterceptor(createUserAgentInterceptor())
+                .readTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+                .writeTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+                .connectTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                 .build();
     }
 

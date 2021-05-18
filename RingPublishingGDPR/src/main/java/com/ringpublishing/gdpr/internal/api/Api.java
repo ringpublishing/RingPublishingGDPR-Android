@@ -27,9 +27,9 @@ public class Api
 
     private final String brandName;
 
-    public Api(@NonNull Context applicationContext, @NonNull String tenantId, @NonNull String brandName)
+    public Api(@NonNull Context applicationContext, @NonNull String tenantId, @NonNull String brandName, int timeoutInSeconds)
     {
-        network = new Network(applicationContext);
+        network = new Network(applicationContext, timeoutInSeconds);
         apiDefinition = network.createRetrofit(tenantId).create(ApiDefinition.class);
         this.brandName = brandName;
     }

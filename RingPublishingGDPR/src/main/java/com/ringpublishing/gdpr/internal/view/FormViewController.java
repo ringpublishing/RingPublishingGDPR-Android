@@ -2,6 +2,7 @@ package com.ringpublishing.gdpr.internal.view;
 
 import android.util.Log;
 
+import com.ringpublishing.gdpr.BuildConfig;
 import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.api.Api.ConfigurationCallback;
@@ -36,7 +37,7 @@ public class FormViewController implements TimeoutCallback
 
     private FormViewImpl formViewImpl;
 
-    private int timeoutInSeconds = 10;
+    private int timeoutInSeconds = BuildConfig.DEFAULT_TIMEOUT;
 
     private TenantConfiguration tenantConfiguration;
 

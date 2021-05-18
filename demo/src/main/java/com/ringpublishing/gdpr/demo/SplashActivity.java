@@ -26,46 +26,45 @@ public class SplashActivity extends AppCompatActivity
 
     private final String TAG = SplashActivity.class.getCanonicalName();
 
+    private final int REQUEST_CODE_OPEN_CONSENT = 123;
+
     ActivitySplashBinding binding;
+
+    private RingPublishingGDPRShowConsentScreenListener ringPublishingGDPRShowConsentScreenListener = new RingPublishingGDPRShowConsentScreenListener()
+    {
+        @Override
+        public void onReadyToShowConsentScreen()
+        {
+            final Intent startWelcomeScreenIntent = RingPublishingGDPR.getInstance().createShowWelcomeScreenIntent(SplashActivity.this);
+            // Option to open advanced settings view
+            //RingPublishingGDPR.getInstance().createShowSettingsScreenIntent(this);
+            Log.i(TAG, "RingPublishingGDPR is ready to show consent screen on application start. Consent screen should be displayed.");
+            startActivityForResult(startWelcomeScreenIntent, REQUEST_CODE_OPEN_CONSENT);
+        }
+
+        @Override
+        public void onConsentsUpToDate()
+        {
+            Log.i(TAG, "Consents was checked and they are up to date. Consent screen is not need to display. Now application content can be shown");
+            showAppContent();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "SplachActivity onCreate");
         binding = DataBindingUtil.setContentView(this, R.layout.activity_splash);
 
-        //TODO: update commnet
-        // This condition decide that sdk should open RingPublishingGDPRActivity
-        // shouldShowConsentForm() will be true on first application launch, or on next launches when consents are already outdated
-        RingPublishingGDPR.getInstance().setRingPublishingGDPRShowConsentScreenListener(new RingPublishingGDPRShowConsentScreenListener()
-        {
-            @Override
-            public void onReadyToShowConsentScreen()
-            {
-                final Intent startWelcomeScreenIntent = RingPublishingGDPR.getInstance().createShowWelcomeScreenIntent(SplashActivity.this);
-                // Option to open advanced settings view
-                //RingPublishingGDPR.getInstance().createShowSettingsScreenIntent(this);
-                Log.i(TAG, "SplachActivity onCreate startWelcomeScreenIntent");
-                startActivity(startWelcomeScreenIntent);
-            }
+        Log.i(TAG, "In onCreate set RingPublishingGDPRShowConsentScreenListener to check that consent screen should be displayed");
+        RingPublishingGDPR.getInstance().setRingPublishingGDPRShowConsentScreenListener(ringPublishingGDPRShowConsentScreenListener);
+    }
 
-            @Override
-            public void onConsentsUpToDate()
-            {
-                Log.i(TAG, "SplachActivity onCreate showAppContent");
-                showAppContent();
-            }
-        });
-
-        RingPublishingGDPR.getInstance().addRingPublishingGDPRListeners(new RingPublishingGDPRListener()
-        {
-            @Override
-            public void onConsentsUpdated()
-            {
-                showAppContent();
-            }
-        });
+    @Override
+    protected void onDestroy()
+    {
+        RingPublishingGDPR.getInstance().setRingPublishingGDPRShowConsentScreenListener(null);
+        super.onDestroy();
     }
 
     private void showAppContent()
@@ -86,6 +85,17 @@ public class SplashActivity extends AppCompatActivity
         // Here you can initialize external libraries initialized in your Splash screen,
         // becaue consent screen has been already presented to user.
         Toast.makeText(this, R.string.toast_libraries_splash, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_OPEN_CONSENT)
+        {
+            Log.i(TAG, "In onActivityResult consent form is accepted or closed by user. Now application content can be shown");
+            showAppContent();
+        }
     }
 
 }

@@ -39,15 +39,12 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
     private final ErrorView errorView;
 
-    private RingPublishingGDPR ringPublishingGDPR;
-
     private CmpWebViewActionCallback cmpWebViewCallback;
 
-    public FormViewImpl(@NonNull final Context context, @NonNull final FormViewController formViewController, @NonNull final CmpWebViewActionCallback cmpWebViewCallback, RingPublishingGDPR ringPublishingGDPR)
+    public FormViewImpl(@NonNull final Context context, @NonNull final FormViewController formViewController, @NonNull final CmpWebViewActionCallback cmpWebViewCallback)
     {
         super(context);
         this.formViewController = formViewController;
-        this.ringPublishingGDPR = ringPublishingGDPR;
         this.cmpWebViewCallback = cmpWebViewCallback;
         formViewController.setFormViewImpl(this);
 
@@ -193,10 +190,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         {
             showError();
         }
-        else
-        {
-            //TODO:gma what here ?
-        }
+
         Log.w(TAG, "Receive error loading resources" + error.toString());
     }
 

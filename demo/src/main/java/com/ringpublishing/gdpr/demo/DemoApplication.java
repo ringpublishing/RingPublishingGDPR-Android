@@ -24,6 +24,7 @@ public class DemoApplication extends MultiDexApplication
         super.onCreate();
         // Optional for debug Demo application webview
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
+
         /*
         Integration steps:
 
@@ -60,17 +61,14 @@ public class DemoApplication extends MultiDexApplication
         // Optional listener that informs application about saving or updating consents.
         // You can add more listeners on each place where you initialize SDK.
         // Remember call ringPublishingGDPR.removeRingPublishingGDPRListeners() on your object destroy
-        ringPublishingGDPR.addRingPublishingGDPRListeners(new RingPublishingGDPRListener()
+        ringPublishingGDPR.addRingPublishingGDPRListeners(() ->
         {
-            @Override public void onConsentsUpdated()
+            // Here you can check if user agreed on all available vendors
+            if(RingPublishingGDPR.getInstance().areVendorConsentsGiven())
             {
-                // Here you can check if user agreed on all available vendors
-                if (RingPublishingGDPR.getInstance().areVendorConsentsGiven())
-                {
-                    // If you app uses SDK's from vendors, which are not part of the official TCF 2.0 vendor list
-                    // you can use this flag to check if you can enable / initialize them as user agreed on all vendors
-                    DemoApplication.this.initializeApplicationExternalLibraries();
-                }
+                // If you app uses SDK's from vendors, which are not part of the official TCF 2.0 vendor list
+                // you can use this flag to check if you can enable / initialize them as user agreed on all vendors
+                initializeApplicationExternalLibraries();
             }
         });
     }

@@ -28,6 +28,8 @@ android
         buildConfigField "String", "CMP_JSON_CONFIGURATION_FIELD_HOST", "\"webview_url\""
         buildConfigField "String", "CMP_JSON_CONFIGURATION_FIELD_GDPR_APPLIES", "\"gdpr_applies\""
 
+        buildConfigField "int", "DEFAULT_TIMEOUT", '10'
+
         consumerProguardFiles 'proguard-rules.pro'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
