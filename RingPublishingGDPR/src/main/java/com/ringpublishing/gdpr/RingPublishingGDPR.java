@@ -1,5 +1,6 @@
 package com.ringpublishing.gdpr;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -44,6 +45,7 @@ public final class RingPublishingGDPR
 
     private static final String TAG = RingPublishingGDPR.class.getCanonicalName();
 
+    @SuppressLint("StaticFieldLeak") // Application context used to display Consent from from application
     private static RingPublishingGDPR instance;
 
     private FormViewImpl formViewImpl;
