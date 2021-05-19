@@ -282,7 +282,7 @@ public final class RingPublishingGDPR
     @Nullable
     FormView getFormView(Context applicationContext)
     {
-        if (formViewImpl == null)
+        if (formViewImpl == null && formViewController != null)
         {
             formViewImpl = new FormViewImpl(applicationContext, formViewController, createCmpWebViewCallback());
             if (timeoutInSeconds > 0)
