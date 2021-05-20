@@ -6,8 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.ringpublishing.gdpr.RingPublishingGDPR;
-import com.ringpublishing.gdpr.RingPublishingGDPRListener;
-import com.ringpublishing.gdpr.RingPublishingGDPRShowConsentScreenListener;
+import com.ringpublishing.gdpr.ConsentFormListener;
 import com.ringpublishing.gdpr.demo.databinding.ActivitySplashBinding;
 
 import androidx.annotation.Nullable;
@@ -30,40 +29,38 @@ public class SplashActivity extends AppCompatActivity
 
     ActivitySplashBinding binding;
 
-    private RingPublishingGDPRShowConsentScreenListener ringPublishingGDPRShowConsentScreenListener = new RingPublishingGDPRShowConsentScreenListener()
-    {
-        @Override
-        public void onReadyToShowConsentScreen()
-        {
-            final Intent startWelcomeScreenIntent = RingPublishingGDPR.getInstance().createShowWelcomeScreenIntent(SplashActivity.this);
-            // Option to open advanced settings view
-            //RingPublishingGDPR.getInstance().createShowSettingsScreenIntent(this);
-            Log.i(TAG, "RingPublishingGDPR is ready to show consent screen on application start. Consent screen should be displayed.");
-            startActivityForResult(startWelcomeScreenIntent, REQUEST_CODE_OPEN_CONSENT);
-        }
-
-        @Override
-        public void onConsentsUpToDate()
-        {
-            Log.i(TAG, "Consents was checked and they are up to date. Consent screen is not need to display. Now application content can be shown");
-            showAppContent();
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_splash);
 
-        Log.i(TAG, "In onCreate set RingPublishingGDPRShowConsentScreenListener to check that consent screen should be displayed");
-        RingPublishingGDPR.getInstance().setRingPublishingGDPRShowConsentScreenListener(ringPublishingGDPRShowConsentScreenListener);
+        Log.i(TAG, "In onCreate call shouldShowConsentForm and in ConsentFormListener to check that consent screen should be displayed");
+        RingPublishingGDPR.getInstance().shouldShowConsentForm(new ConsentFormListener()
+        {
+            @Override
+            public void onReadyToShowForm()
+            {
+                final Intent startWelcomeScreenIntent = RingPublishingGDPR.getInstance().createShowWelcomeScreenIntent(SplashActivity.this);
+                // Option to open advanced settings view
+                //RingPublishingGDPR.getInstance().createShowSettingsScreenIntent(this);
+                Log.i(TAG, "RingPublishingGDPR is ready to show consent screen on application start. Consent screen should be displayed.");
+                startActivityForResult(startWelcomeScreenIntent, REQUEST_CODE_OPEN_CONSENT);
+            }
+
+            @Override
+            public void onConsentsUpToDate()
+            {
+                Log.i(TAG, "Consents was checked and they are up to date. Consent screen is not need to display. Now application content can be shown");
+                showAppContent();
+            }
+        });
     }
 
     @Override
     protected void onDestroy()
     {
-        RingPublishingGDPR.getInstance().setRingPublishingGDPRShowConsentScreenListener(null);
+        RingPublishingGDPR.getInstance().removeConsentFormListener();
         super.onDestroy();
     }
 

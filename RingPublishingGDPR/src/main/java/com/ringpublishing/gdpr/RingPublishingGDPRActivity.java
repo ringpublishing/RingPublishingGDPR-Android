@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
-import com.ringpublishing.gdpr.internal.callback.RingPublishingGDPRActivityCallback;
+import com.ringpublishing.gdpr.internal.callback.GDPRActivityCallback;
 import com.ringpublishing.gdpr.internal.view.FormView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * You have two intents to choose. Default Welcome Screen and optional Settings screen
  * when you want display to user advanced view on start.
  */
-public class RingPublishingGDPRActivity extends AppCompatActivity implements RingPublishingGDPRActivityCallback
+public class RingPublishingGDPRActivity extends AppCompatActivity implements GDPRActivityCallback
 {
 
     private static final String SCREEN_SETTINGS_BUNDLE_KEY = "SCREEN_SETTINGS";
@@ -96,7 +96,7 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements Rin
     private void addViewToLayout()
     {
         clearLayout();
-        formView = RingPublishingGDPR.getInstance().getFormView(this.getApplicationContext());
+        formView = RingPublishingGDPR.getInstance().createFormView(this.getApplicationContext());
 
         if(formView == null)
         {
@@ -127,7 +127,7 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements Rin
     {
         if(formView == null)
         {
-            formView = RingPublishingGDPR.getInstance().getFormView(this.getApplicationContext());
+            formView = RingPublishingGDPR.getInstance().createFormView(this.getApplicationContext());
         }
 
         if(formView != null)
@@ -144,7 +144,7 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements Rin
     }
 
     @Override
-    public void hide(FormView formView)
+    public void hideForm()
     {
         setResult(RESULT_OK);
         finish();

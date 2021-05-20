@@ -5,15 +5,11 @@
 
 * Added support for backend configuration (based on geo-ip) for 'gdprApplies' (IABTCF_gdprApplies) flag. This flag can no longer be passed as parameter to the SDK initializer.
 * Interaction with module on app start is now always asynchronous (where previously during first app launch it was synchronous).
-SDK will always call one of two callback methods from interface 'RingPublishingGDPRShowConsentScreenListener' after set this listener:
-    - 'onConsentsUpToDate()' if there is no need to show consents controller (for example gdprApplies is false, networking error during initialization, etc.)
-    - 'onReadyToShowConsentScreen()' if consents controller should be presenter to the user (for example when gdprApplies is true and consents are not stored on the device or are
-    outdated)
 
 ### Changes
 
 * Removed 'gdprApplies' property from 'RingPublishingGDPR.getInstance().initialize()' method
-* Removed 'shouldShowConsentForm()' method from 'RingPublishingGDPR' interface. Now at this point you should use 'setRingPublishingGDPRShowConsentScreenListener()' method.
+* Changed 'shouldShowConsentForm()' method from 'RingPublishingGDPR' interface. Now method have new argument 'ConsentFormListener'
 
 ### Fixes
 

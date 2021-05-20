@@ -44,13 +44,13 @@ public class MainActivity extends AppCompatActivity implements RingPublishingGDP
 
         // Optional example: You can add consentsUpdate listener where you want
         // Remember to remove listener when object is destroying
-        RingPublishingGDPR.getInstance().addRingPublishingGDPRListeners(this);
+        RingPublishingGDPR.getInstance().addRingPublishingGDPRListener(this);
     }
 
     @Override
     protected void onDestroy()
     {
-        RingPublishingGDPR.getInstance().removeRingPublishingGDPRListeners(this);
+        RingPublishingGDPR.getInstance().removeRingPublishingGDPRListener(this);
         super.onDestroy();
     }
 

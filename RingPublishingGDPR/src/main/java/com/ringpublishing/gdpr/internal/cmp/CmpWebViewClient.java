@@ -17,9 +17,9 @@ public class CmpWebViewClient extends WebViewClient
 
     private static final String TAG = CmpWebViewClient.class.getCanonicalName();
 
-    private CmpWebViewClientCallback callback;
+    private final CmpWebViewClientCallback callback;
 
-    private WebView webView;
+    private final WebView webView;
 
     public CmpWebViewClient(CmpWebViewClientCallback callback, WebView webView)
     {
@@ -33,7 +33,6 @@ public class CmpWebViewClient extends WebViewClient
         Log.w(TAG, "WebView loading error " + error.toString());
 
         super.onReceivedError(view, request, error);
-
         callback.onReceivedError(request, error);
     }
 
@@ -52,7 +51,6 @@ public class CmpWebViewClient extends WebViewClient
         Log.i("Load url finish %s", url);
 
         super.onPageFinished(view, url);
-
         callback.onPageFinished(url);
     }
 

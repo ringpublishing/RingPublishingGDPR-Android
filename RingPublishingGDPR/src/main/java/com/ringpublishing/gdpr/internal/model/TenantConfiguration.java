@@ -2,17 +2,10 @@ package com.ringpublishing.gdpr.internal.model;
 
 public class TenantConfiguration
 {
-    public enum TenantState {
-        LOADING,
-        FAILURE,
-        SUCCESS,
-    }
 
     private boolean gdprApplies;
 
     private String host;
-
-    private TenantState state = TenantState.LOADING;
 
     public void setGdprApplies(boolean gdprApplies)
     {
@@ -22,16 +15,6 @@ public class TenantConfiguration
     public void setHost(String host)
     {
         this.host = host;
-    }
-
-    public void setState(TenantState state)
-    {
-        this.state = state;
-    }
-
-    public TenantState getState()
-    {
-        return state;
     }
 
     public String getHost()

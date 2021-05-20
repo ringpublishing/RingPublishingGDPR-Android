@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply from: file('publish.gradle')
-apply from: file('version.gradle')
 
 android
 {
@@ -24,7 +23,6 @@ android
         multiDexEnabled true
 
         buildConfigField "String", "CMP_HOST", "\"cmp.ringpublishing.com\""
-        buildConfigField "String", "CMP_PAGE", "\"preview/index.html\""
         buildConfigField "String", "CMP_JSON_CONFIGURATION_FIELD_HOST", "\"webview_url\""
         buildConfigField "String", "CMP_JSON_CONFIGURATION_FIELD_GDPR_APPLIES", "\"gdpr_applies\""
 
