@@ -1,3 +1,21 @@
+1.4.0 Release notes (2021-05-19)
+=============================================================
+
+### Features
+
+* Added support for backend configuration (based on geo-ip) for 'gdprApplies' (IABTCF_gdprApplies) flag. This flag can no longer be passed as parameter to the SDK initializer.
+* Interaction with module on app start is now always asynchronous (where previously during first app launch it was synchronous).
+
+### Changes
+
+* Removed 'gdprApplies' property from 'RingPublishingGDPR.getInstance().initialize()' method
+* Changed 'shouldShowConsentForm()' method from 'RingPublishingGDPR' interface. Now method have new argument 'ConsentFormListener'
+
+### Fixes
+
+* Fixed crash related to getFormView() and FormViewController
+
+
 1.3.5 Release notes (2021-02-25)
 =============================================================
 
