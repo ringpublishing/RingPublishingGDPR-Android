@@ -46,10 +46,10 @@ public class StorageTest
     @Test
     public void isOutdated_WhenhaveFlagInPrefrences_ThenisOutdated()
     {
-        boolean outdated = storage.isOutdated();
+        boolean outdated = storage.isConsentOutdated();
         assertFalse(outdated);
         storage.setBoolean("consentOutdated", true);
-        boolean outdatedAfterSave = storage.isOutdated();
+        boolean outdatedAfterSave = storage.isConsentOutdated();
         assertTrue(outdatedAfterSave);
     }
 
@@ -58,8 +58,8 @@ public class StorageTest
     {
         boolean outdated = storage.getBoolean("consentOutdated", false);
         assertFalse(outdated);
-        storage.setOutdated(true);
-        boolean outdatedAfterSave = storage.isOutdated();
+        storage.setConsentOutdated(true);
+        boolean outdatedAfterSave = storage.isConsentOutdated();
         assertTrue(outdatedAfterSave);
     }
 

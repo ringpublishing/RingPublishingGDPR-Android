@@ -42,12 +42,12 @@ public class Storage extends Preferences
         return !TextUtils.isEmpty(getString(Consent.IABTCF_TCString));
     }
 
-    public boolean isOutdated()
+    public boolean isConsentOutdated()
     {
         return getBoolean(KEY_OUTDATED, false);
     }
 
-    public void setOutdated(final boolean isOutdated)
+    public void setConsentOutdated(final boolean isOutdated)
     {
         setBoolean(KEY_OUTDATED, isOutdated);
     }

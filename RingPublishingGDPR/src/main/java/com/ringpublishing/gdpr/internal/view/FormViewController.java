@@ -2,12 +2,14 @@ package com.ringpublishing.gdpr.internal.view;
 
 import android.util.Log;
 
+import com.ringpublishing.gdpr.BuildConfig;
 import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.api.Api.ConfigurationCallback;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
 import com.ringpublishing.gdpr.internal.model.State;
+import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.task.TimeoutTask;
 import com.ringpublishing.gdpr.internal.task.TimeoutTask.TimeoutCallback;
 
@@ -35,7 +37,9 @@ public class FormViewController implements TimeoutCallback
 
     private FormViewImpl formViewImpl;
 
-    private int timeoutInSeconds = 10;
+    private int timeoutInSeconds = BuildConfig.DEFAULT_TIMEOUT;
+
+    private TenantConfiguration tenantConfiguration;
 
     public FormViewController(@NonNull final Api api, @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig)
     {
@@ -53,24 +57,6 @@ public class FormViewController implements TimeoutCallback
         cmpLoadingTimeout.cancel();
     }
 
-    void fetchCmpApiConfiguration()
-    {
-        api.configuration(new ConfigurationCallback()
-        {
-            @Override
-            public void onConfigurationSuccess(String url)
-            {
-                formViewImpl.loadCmpUrl(url);
-            }
-
-            @Override
-            public void onConfigurationFailure()
-            {
-                Log.w(TAG, "Failure onConfigurationFailure");
-                formViewImpl.onFailure("Failure to get configuration");
-            }
-        });
-    }
 
     void addAction(String action)
     {
@@ -98,7 +84,14 @@ public class FormViewController implements TimeoutCallback
     void loadCmpSite()
     {
         startLoadingTimeout();
-        fetchCmpApiConfiguration();
+        if (tenantConfiguration != null)
+        {
+            formViewImpl.loadCmpUrl(tenantConfiguration.getHost());
+        }
+        else
+        {
+            formViewImpl.onFailure("Loading cmp site fail. TenantConfiguration is null");
+        }
     }
 
     private void startLoadingTimeout()
@@ -165,4 +158,8 @@ public class FormViewController implements TimeoutCallback
         return false;
     }
 
+    public void setTenantConfiguration(TenantConfiguration tenantConfiguration)
+    {
+        this.tenantConfiguration = tenantConfiguration;
+    }
 }

@@ -3,28 +3,25 @@ package com.ringpublishing.gdpr;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.ringpublishing.gdpr.internal.android.ActivityLifecycleObserver;
 import com.ringpublishing.gdpr.internal.api.Api;
-import com.ringpublishing.gdpr.internal.api.Api.VerifyApiCallback;
-import com.ringpublishing.gdpr.internal.callback.RingPublishingGDPRActivityCallback;
-import com.ringpublishing.gdpr.internal.callback.RingPublishingGDPRApplicationCallback;
-import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
-import com.ringpublishing.gdpr.internal.cmp.CmpWebViewActionCallback;
+import com.ringpublishing.gdpr.internal.callback.GDPRActivityCallback;
+import com.ringpublishing.gdpr.internal.callback.GDPRApplicationCallback;
+import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
+import com.ringpublishing.gdpr.internal.model.VerifyState;
+import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.storage.Storage;
-import com.ringpublishing.gdpr.internal.view.FormView;
+import com.ringpublishing.gdpr.internal.task.ApiSynchronizationTask;
+import com.ringpublishing.gdpr.internal.cmp.CmpWebViewAction;
+import com.ringpublishing.gdpr.internal.task.ConsentVerifyTask;
+import com.ringpublishing.gdpr.internal.task.FetchConfigurationTask;
+import com.ringpublishing.gdpr.internal.task.ShowFromApplicationTask;
 import com.ringpublishing.gdpr.internal.view.FormViewController;
 import com.ringpublishing.gdpr.internal.view.FormViewImpl;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,27 +39,31 @@ public final class RingPublishingGDPR
 
     private static RingPublishingGDPR instance;
 
-    private FormViewImpl formViewImpl;
+    private boolean initialized;
+
+    private int timeoutInSeconds = BuildConfig.DEFAULT_TIMEOUT;
 
     private Storage storage;
 
-    private Api api;
+    private final RequestsState requestsState = new RequestsState();
 
-    private ActivityLifecycleObserver activityLifecycleObserver;
+    private final TenantConfiguration tenantConfiguration = new TenantConfiguration();
 
-    private RingPublishingGDPRActivityCallback ringPublishingGDPRActivityCallback;
-
-    private RingPublishingGDPRApplicationCallback ringPublishingGDPRApplicationCallback;
+    private FormViewImpl formViewImpl;
 
     private FormViewController formViewController;
 
-    private boolean initialized;
+    private CmpWebViewAction cmpActionCallbackCreator;
 
-    private int timeoutInSeconds;
+    private ApiSynchronizationTask apiSynchronizationTask;
 
-    private boolean gdprApplies = true;
+    private ShowFromApplicationTask showFromApplicationTask;
 
-    private final List<RingPublishingGDPRListener> ringPublishingGDPRListeners = new ArrayList<>();
+    private FetchConfigurationTask fetchConfigurationTask;
+
+    private ConsentFormListener consentFormListener;
+
+    private GDPRApplicationCallback gdprApplicationCallback;
 
     private RingPublishingGDPR()
     {
@@ -98,65 +99,51 @@ public final class RingPublishingGDPR
                            @NonNull final String brandName,
                            @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig)
     {
-        initialize(true, application, tenantId, brandName, ringPublishingGDPRUIConfig);
-    }
-
-    /**
-     * Initialization point of SDK with configuration.
-     * Should be called once on application start.
-     *
-     * When is called first time, just initialize sdk, because we known that Consent View should be displayed.
-     * On next application launches, call this method automatically asynchronously verify that consents are actual.
-     * When consents needs to be updated, then using application context, open automatically Consent View in new Activity
-     * On case when application will be put to background during this check, open Consent View will be scheduled to next application launch.
-     * When your activity already opened consent view by RingPublishingGDPRActivity, then asynchronously verification will not display it second time.
-     *
-     * @param gdprApplies Does GDPR applies in current context? When true, you can use also constructor without this parameter.
-     * @param application Reference to android application object
-     * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
-     * @param brandName Name of application send to Consent API. Using this parameter Consent view style can be customized
-     * @param ringPublishingGDPRUIConfig UI configuration for TypeFace and theme. Styles error screen.
-     */
-    public void initialize(boolean gdprApplies, @NonNull final Application application,
-                           @NonNull final String tenantId,
-                           @NonNull final String brandName,
-                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig)
-    {
         if (initialized)
         {
             Log.w(TAG, "Second initialization ignored");
             return;
         }
 
-        this.gdprApplies = gdprApplies;
-        final Context context = application.getApplicationContext();
-        this.api = new Api(context, tenantId, brandName);
+        Context context = application.getApplicationContext();
+        Api api = new Api(context, tenantId, brandName, timeoutInSeconds);
         this.storage = new Storage(context);
         this.formViewController = new FormViewController(api, ringPublishingGDPRUIConfig);
-        this.activityLifecycleObserver = new ActivityLifecycleObserver(application);
-        this.ringPublishingGDPRApplicationCallback = createRingPublishingGDPRApplicationCallback();
+        this.gdprApplicationCallback = createRingPublishingGDPRApplicationCallback();
+
+        this.showFromApplicationTask = new ShowFromApplicationTask(new ActivityLifecycleObserver(application));
+        this.cmpActionCallbackCreator = new CmpWebViewAction(this, storage);
+        this.formViewImpl = createFormView(context);
+        this.apiSynchronizationTask = new ApiSynchronizationTask(requestsState, tenantConfiguration, storage, () -> showFromApplicationTask.run(formViewImpl, gdprApplicationCallback));
+        this.fetchConfigurationTask = new FetchConfigurationTask(api, storage, requestsState, tenantConfiguration, formViewController);
         initialized = true;
 
-        storage.configureGDPRApplies(gdprApplies);
-
-        if (storage.didAskUserForConsents() && !isOutdated() && gdprApplies)
-        {
-            verifyConsents(context);
-        }
+        runApplicationStartWork(api);
     }
 
     /**
      * Use this method to check that RingPublishingGDPRActivity should be displayed
-     * @return true when Consent View should be displayed. It could be case when Consent View was never displayed, or is outdated.
-     * When gdpr not apply for your context, this method will return false
+     * Call this method in first application Activity
+     * Wait for callback in ConsentFormListener to decide that consent form should be displayed.
      */
-    public boolean shouldShowConsentForm()
+    public void shouldShowConsentForm(ConsentFormListener consentFormListener)
     {
-        if(!gdprApplies)
+        this.consentFormListener = consentFormListener;
+
+        if (consentFormListener == null)
         {
-            return false;
+            return;
         }
-        return (!storage.didAskUserForConsents() || isOutdated());
+
+        apiSynchronizationTask.run(consentFormListener);
+    }
+
+    /**
+     * Remove ConsentFormListener listener reference
+     */
+    public void removeConsentFormListener()
+    {
+        this.consentFormListener = null;
     }
 
     /**
@@ -225,50 +212,41 @@ public final class RingPublishingGDPR
      * Add listener that informs application about saving or updating consents.
      * @param ringPublishingGDPRListener listener to observe consents update
      */
-    public void addRingPublishingGDPRListeners(RingPublishingGDPRListener ringPublishingGDPRListener)
+    public void addRingPublishingGDPRListener(RingPublishingGDPRListener ringPublishingGDPRListener)
     {
-        ringPublishingGDPRListeners.add(ringPublishingGDPRListener);
+        cmpActionCallbackCreator.addRingPublishingGDPRListener(ringPublishingGDPRListener);
     }
 
     /**
      * Remove listener that informs application about saving or updating consents.
      * @param ringPublishingGDPRListener listener to observe consents update
      */
-    public void removeRingPublishingGDPRListeners(RingPublishingGDPRListener ringPublishingGDPRListener)
+    public void removeRingPublishingGDPRListener(RingPublishingGDPRListener ringPublishingGDPRListener)
     {
-        ringPublishingGDPRListeners.remove(ringPublishingGDPRListener);
-    }
-
-    void notifyConsentsUpdated()
-    {
-        for (RingPublishingGDPRListener listener: ringPublishingGDPRListeners)
-        {
-            listener.onConsentsUpdated();
-        }
+        cmpActionCallbackCreator.removeRingPublishingGDPRListener(ringPublishingGDPRListener);
     }
 
     @Nullable
-    FormView getFormView(Context applicationContext)
+    FormViewImpl createFormView(Context applicationContext)
     {
-        if (formViewImpl == null)
+        final FormViewImpl formViewImpl = new FormViewImpl(applicationContext, formViewController, cmpActionCallbackCreator);
+        cmpActionCallbackCreator.setFormViewImpl(formViewImpl);
+
+        if (timeoutInSeconds > 0)
         {
-            formViewImpl = new FormViewImpl(applicationContext, formViewController, createCmpWebViewCallback(), this);
-            if (timeoutInSeconds > 0)
-            {
-                formViewImpl.setTimeoutInSeconds(timeoutInSeconds);
-            }
+            formViewImpl.setTimeoutInSeconds(timeoutInSeconds);
         }
 
         return formViewImpl;
     }
 
-    void setActivityCallback(RingPublishingGDPRActivityCallback ringPublishingGDPRActivityCallback)
+    void setActivityCallback(GDPRActivityCallback gdprActivityCallback)
     {
-        this.ringPublishingGDPRActivityCallback = ringPublishingGDPRActivityCallback;
+        cmpActionCallbackCreator.setGdprActivityCallback(gdprActivityCallback);
     }
 
     @NotNull
-    private RingPublishingGDPRApplicationCallback createRingPublishingGDPRApplicationCallback()
+    private GDPRApplicationCallback createRingPublishingGDPRApplicationCallback()
     {
         return context -> {
             final Intent showWelcomeScreenIntent = RingPublishingGDPRActivity.createShowWelcomeScreenIntent(context);
@@ -277,193 +255,26 @@ public final class RingPublishingGDPR
         };
     }
 
-    private boolean isOutdated()
+    private void runApplicationStartWork(Api api)
     {
-        boolean outdated = storage.isOutdated();
-        Log.i(TAG, "isOutdated: " + outdated);
-        return outdated;
-    }
+        requestsState.setIsLoading();
 
-    private void verifyConsents(@NonNull Context applicationContext)
-    {
-        final Map<String, String> consents = storage.getRingConsents();
+        fetchConfigurationTask.run(() -> apiSynchronizationTask.run(consentFormListener));
 
-        if (consents == null || consents.isEmpty())
+        if (storage.isConsentOutdated())
         {
-            Log.w(TAG, "Fail verify consents. Consents are empty");
-            return;
-        }
-
-        api.verify(consents, new VerifyApiCallback()
-        {
-            @Override
-            public void onOutdated(String rawStatus)
-            {
-                storage.saveLastAPIConsentsCheckStatus(rawStatus);
-                storage.setOutdated(true);
-                FormView formView = getFormView(applicationContext);
-                showFromApplication(formView);
-            }
-
-            @Override
-            public void onActual(String rawStatus)
-            {
-                storage.saveLastAPIConsentsCheckStatus(rawStatus);
-                storage.setOutdated(false);
-            }
-
-            @Override
-            public void onFail(String status)
-            {
-                storage.saveLastAPIConsentsCheckStatus(status);
-            }
-        });
-    }
-
-    @NotNull
-    private CmpWebViewActionCallback createCmpWebViewCallback()
-    {
-        return new CmpWebViewActionCallback()
-        {
-            @Override
-            public void onActionLoaded()
-            {
-                Log.i(TAG, "Cmp site is ready");
-                formViewImpl.post(() -> formViewImpl.cmpReady());
-            }
-
-            @Override
-            public void onActionComplete()
-            {
-                formViewImpl.formSubmittedAction();
-            }
-
-            @Override
-            public void onActionError(String error)
-            {
-                Log.w(TAG, "Error: " + error);
-                if(formViewImpl.isOnline())
-                {
-                    closeForm();
-                }
-                else
-                {
-                    formViewImpl.showError();
-                }
-            }
-
-            @Override
-            public void onActionInAppTCData(String tcData, boolean success)
-            {
-                if (success)
-                {
-                    try
-                    {
-                        storage.saveTCData(tcData);
-                    }
-                    catch (JSONException e)
-                    {
-                        clearConsentsData();
-                        Log.e(TAG, "saveTCData fail!!", e);
-                    }
-
-                }
-                else
-                {
-                    clearConsentsData();
-                    Log.e(TAG, "Save TCData fail");
-                }
-
-                boolean closeForm = formViewImpl.waitingActionFinish(ActionType.GET_TC_DATA);
-                if (closeForm)
-                {
-                    closeForm();
-                }
-            }
-
-            @Override
-            public void getCompleteConsentData(String error, String dlData)
-            {
-                if (TextUtils.isEmpty(error))
-                {
-                    try
-                    {
-                        storage.saveConsentData(dlData);
-                    }
-                    catch (JSONException e)
-                    {
-                        clearConsentsData();
-                        Log.e(TAG, "Fail saving consent data", e);
-                    }
-                }
-                else
-                {
-                    clearConsentsData();
-                    Log.e(TAG, "Save dlData fail");
-                }
-
-                boolean closeForm = formViewImpl.waitingActionFinish(ActionType.GET_COMPLETE_CONSENT_DATA);
-                if (closeForm)
-                {
-                    closeForm();
-                }
-            }
-        };
-    }
-
-    void closeForm()
-    {
-        storage.saveLastAPIConsentsCheckStatus(null);
-        storage.setOutdated(false);
-        if(ringPublishingGDPRActivityCallback != null)
-        {
-            ringPublishingGDPRActivityCallback.hide(formViewImpl);
-        }
-    }
-
-    private void showFromApplication(FormView formView)
-    {
-        if (formView == null)
-        {
-            Log.e(TAG, "Form view is null");
-            return;
-        }
-
-        if (activityLifecycleObserver == null)
-        {
-            Log.e(TAG, "Activity Lifecycle Observer is null");
-        }
-
-        final Context context = formView.getContext();
-        if (context == null)
-        {
-            Log.e(TAG, "Context form view is null");
-            return;
-        }
-
-        if (activityLifecycleObserver.isApplicationDisplayed())
-        {
-            if (activityLifecycleObserver.isActivityDisplayed())
-            {
-                Log.i(TAG, "Activity is displayed no need to open it again");
-            }
-            else
-            {
-                if (ringPublishingGDPRApplicationCallback != null)
-                {
-                    Log.i(TAG, "Start activity");
-                    ringPublishingGDPRApplicationCallback.startActivity(context);
-                }
-                else
-                {
-                    Log.i(TAG, "Starter to open async after check outdated is not set.");
-                }
-            }
+            requestsState.setVerifyState(VerifyState.OUTDATED);
         }
         else
         {
-            Log.i(TAG, "No activity on top we need to ad activity to queue and open it after start your first activity");
-            activityLifecycleObserver.executeOnFirstActivityStarted(() -> ringPublishingGDPRApplicationCallback.startActivity(context));
+            if (storage.didAskUserForConsents())
+            {
+                new ConsentVerifyTask(storage, api, requestsState).run(() -> apiSynchronizationTask.run(consentFormListener));
+            }
+            else
+            {
+                requestsState.setVerifyState(VerifyState.ACTUAL);
+            }
         }
     }
 
