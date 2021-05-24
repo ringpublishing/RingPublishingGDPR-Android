@@ -2,6 +2,7 @@ package com.ringpublishing.gdpr.internal.cmp;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.webkit.CookieManager;
 
 import com.ringpublishing.gdpr.RingPublishingGDPR;
 import com.ringpublishing.gdpr.RingPublishingGDPRListener;
@@ -85,6 +86,8 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
             Log.e(TAG, "Save TCData fail");
         }
 
+        CookieManager.getInstance().flush();
+
         boolean closeForm = formViewImpl.waitingActionFinish(ActionType.GET_TC_DATA);
         if (closeForm)
         {
@@ -113,6 +116,8 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
             ringPublishingGDPR.clearConsentsData();
             Log.e(TAG, "Save dlData fail");
         }
+
+        CookieManager.getInstance().flush();
 
         boolean closeForm = formViewImpl.waitingActionFinish(ActionType.GET_COMPLETE_CONSENT_DATA);
         if (closeForm)
