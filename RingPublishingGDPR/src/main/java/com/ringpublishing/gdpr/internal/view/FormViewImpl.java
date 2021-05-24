@@ -210,7 +210,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
     public void formSubmittedAction()
     {
-        post(() -> showLoading());
+        post(this::showLoading);
 
         formViewController.callFormSubmittedActions();
     }
