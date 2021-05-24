@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
+import android.webkit.CookieManager;
 
 import com.ringpublishing.gdpr.internal.android.ActivityLifecycleObserver;
 import com.ringpublishing.gdpr.internal.api.Api;
@@ -24,7 +25,6 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -374,6 +374,8 @@ public final class RingPublishingGDPR
                     Log.e(TAG, "Save TCData fail");
                 }
 
+                CookieManager.getInstance().flush();
+
                 boolean closeForm = formViewImpl.waitingActionFinish(ActionType.GET_TC_DATA);
                 if (closeForm)
                 {
@@ -401,6 +403,8 @@ public final class RingPublishingGDPR
                     clearConsentsData();
                     Log.e(TAG, "Save dlData fail");
                 }
+
+                CookieManager.getInstance().flush();
 
                 boolean closeForm = formViewImpl.waitingActionFinish(ActionType.GET_COMPLETE_CONSENT_DATA);
                 if (closeForm)
