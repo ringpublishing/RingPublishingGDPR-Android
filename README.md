@@ -41,6 +41,10 @@ List permissions used in module:
 maven {
     name = "RingPublishingGDPR-Android"
     url = uri("https://maven.pkg.github.com/ringpublishing/RingPublishingGDPR-Android")
+    credentials {
+        username = "your github username"
+        password = "you github access token"
+    }
 }
 ```
 
