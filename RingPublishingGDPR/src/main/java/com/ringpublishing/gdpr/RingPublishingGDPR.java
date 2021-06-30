@@ -99,26 +99,31 @@ public final class RingPublishingGDPR
                            @NonNull final String brandName,
                            @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig)
     {
-        if (initialized)
-        {
-            Log.w(TAG, "Second initialization ignored");
-            return;
-        }
+        initializeInternal(application, tenantId, brandName, ringPublishingGDPRUIConfig, null);
+    }
 
-        Context context = application.getApplicationContext();
-        Api api = new Api(context, tenantId, brandName, timeoutInSeconds);
-        this.storage = new Storage(context);
-        this.formViewController = new FormViewController(api, ringPublishingGDPRUIConfig);
-        this.gdprApplicationCallback = createRingPublishingGDPRApplicationCallback();
-
-        this.showFromApplicationTask = new ShowFromApplicationTask(new ActivityLifecycleObserver(application));
-        this.cmpActionCallbackCreator = new CmpWebViewAction(this, storage);
-        this.formViewImpl = createFormView(context);
-        this.apiSynchronizationTask = new ApiSynchronizationTask(requestsState, tenantConfiguration, storage, () -> showFromApplicationTask.run(formViewImpl, gdprApplicationCallback));
-        this.fetchConfigurationTask = new FetchConfigurationTask(api, storage, requestsState, tenantConfiguration, formViewController);
-        initialized = true;
-
-        runApplicationStartWork(api);
+    /**
+     * Initialization point of SDK with configuration.
+     * Should be called once on application start.
+     *
+     * When is called first time, just initialize sdk, because we known that Consent View should be displayed.
+     * On next application launches, call this method automatically asynchronously verify that consents are actual.
+     * When consents needs to be updated, then using application context, open automatically Consent View in new Activity
+     * On case when application will be put to background during this check, open Consent View will be scheduled to next application launch.
+     * When your activity already opened consent view by RingPublishingGDPRActivity, then asynchronously verification will not display it second time.
+     *
+     * @param application Reference to android application object
+     * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
+     * @param brandName Name of application send to Consent API. Using this parameter Consent view style can be customized
+     * @param ringPublishingGDPRUIConfig UI configuration for TypeFace and theme. Styles error screen.
+     * @param forcedGDPRApplies Determines if module was initialized with forced GDPR applies state
+     */
+    public void initialize(@NonNull final Application application,
+                           @NonNull final String tenantId,
+                           @NonNull final String brandName,
+                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig, boolean forcedGDPRApplies)
+    {
+        initializeInternal(application, tenantId, brandName, ringPublishingGDPRUIConfig, forcedGDPRApplies);
     }
 
     /**
@@ -154,6 +159,20 @@ public final class RingPublishingGDPR
     public boolean isInitialized()
     {
         return initialized;
+    }
+
+    /**
+     * Should GDPR apply in current context?
+     *
+     * This property at module initialization (and before) has value saved from last app session.
+     * This property will be populated with fresh value somewhere between:
+     * - after module initialization
+     * - before module calls one of methods with consents status,
+     *  either 'shouldShowConsentForm()' or 'onConsentsUpdated()'
+     */
+    public boolean isGDPRApplies()
+    {
+        return storage.isGDPRApplies();
     }
 
     /**
@@ -243,6 +262,34 @@ public final class RingPublishingGDPR
     void setActivityCallback(GDPRActivityCallback gdprActivityCallback)
     {
         cmpActionCallbackCreator.setGdprActivityCallback(gdprActivityCallback);
+    }
+
+    private void initializeInternal(@NonNull final Application application,
+                                    @NonNull final String tenantId,
+                                    @NonNull final String brandName,
+                                    @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
+                                    @Nullable Boolean forcedGDPRApplies)
+    {
+        if (initialized)
+        {
+            Log.w(TAG, "Second initialization ignored");
+            return;
+        }
+
+        Context context = application.getApplicationContext();
+        Api api = new Api(context, tenantId, brandName, timeoutInSeconds, forcedGDPRApplies);
+        this.storage = new Storage(context);
+        this.formViewController = new FormViewController(api, ringPublishingGDPRUIConfig);
+        this.gdprApplicationCallback = createRingPublishingGDPRApplicationCallback();
+
+        this.showFromApplicationTask = new ShowFromApplicationTask(new ActivityLifecycleObserver(application));
+        this.cmpActionCallbackCreator = new CmpWebViewAction(this, storage);
+        this.formViewImpl = createFormView(context);
+        this.apiSynchronizationTask = new ApiSynchronizationTask(requestsState, tenantConfiguration, storage, () -> showFromApplicationTask.run(formViewImpl, gdprApplicationCallback));
+        this.fetchConfigurationTask = new FetchConfigurationTask(api, storage, requestsState, tenantConfiguration, formViewController);
+        initialized = true;
+
+        runApplicationStartWork(api);
     }
 
     @NotNull

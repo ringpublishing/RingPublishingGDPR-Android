@@ -9,6 +9,8 @@ import com.google.gson.JsonObject;
 import com.ringpublishing.gdpr.BuildConfig;
 import com.ringpublishing.gdpr.internal.network.Network;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -27,11 +29,14 @@ public class Api
 
     private final String brandName;
 
-    public Api(@NonNull Context applicationContext, @NonNull String tenantId, @NonNull String brandName, int timeoutInSeconds)
+    private final Boolean forcedGDPRApplies;
+
+    public Api(@NonNull Context applicationContext, @NonNull String tenantId, @NonNull String brandName, int timeoutInSeconds, Boolean forcedGDPRApplies)
     {
         network = new Network(applicationContext, timeoutInSeconds);
         apiDefinition = network.createRetrofit(tenantId).create(ApiDefinition.class);
         this.brandName = brandName;
+        this.forcedGDPRApplies = forcedGDPRApplies;
     }
 
     public void verify(final Map<String, String> consents, @NonNull VerifyCallback callback)
@@ -67,77 +72,89 @@ public class Api
 
     public void configuration(@NonNull ConfigurationCallback callback)
     {
-        apiDefinition.configuration(brandName)
-                .enqueue(new Callback<JsonObject>()
+        if (forcedGDPRApplies == null)
+        {
+            apiDefinition.configuration(brandName).enqueue(configurationCallback(callback));
+        }
+        else
+        {
+            apiDefinition.configuration(brandName, forcedGDPRApplies ? "1" : "0").enqueue(configurationCallback(callback));
+        }
+    }
+
+    @NotNull
+    private Callback<JsonObject> configurationCallback(@NonNull ConfigurationCallback callback)
+    {
+        return new Callback<JsonObject>()
+        {
+            @Override
+            public void onResponse(@NonNull Call<JsonObject> call, @NonNull Response<JsonObject> response)
+            {
+                if (!response.isSuccessful())
                 {
-                    @Override
-                    public void onResponse(@NonNull Call<JsonObject> call, @NonNull Response<JsonObject> response)
-                    {
-                        if (!response.isSuccessful())
-                        {
-                            Log.w(TAG, "Configuration response not successful");
-                            callback.onFailure();
-                            return;
-                        }
-                        final JsonObject jsonObject = response.body();
-                        if (jsonObject == null)
-                        {
-                            Log.w(TAG, "Configuration response body is null");
-                            callback.onFailure();
-                            return;
-                        }
+                    Log.w(TAG, "Configuration response not successful");
+                    callback.onFailure();
+                    return;
+                }
+                final JsonObject jsonObject = response.body();
+                if (jsonObject == null)
+                {
+                    Log.w(TAG, "Configuration response body is null");
+                    callback.onFailure();
+                    return;
+                }
 
-                        parseResponseParameters(jsonObject);
+                parseResponseParameters(jsonObject);
+            }
+
+            private void parseResponseParameters(JsonObject jsonObject)
+            {
+                final JsonElement urlElement = jsonObject.get(BuildConfig.CMP_JSON_CONFIGURATION_FIELD_HOST);
+                if (urlElement == null)
+                {
+                    Log.w(TAG, "Configuration response body parameter HOST is null");
+                    callback.onFailure();
+                    return;
+                }
+
+                final String url = urlElement.getAsString();
+                if (TextUtils.isEmpty(url))
+                {
+                    Log.w(TAG, "Configuration response body parameter is empty");
+                    callback.onFailure();
+                    return;
+                }
+
+                final JsonElement gdprAppliesElement = jsonObject.get(BuildConfig.CMP_JSON_CONFIGURATION_FIELD_GDPR_APPLIES);
+
+                boolean gdprApplies = true;
+
+                if (gdprAppliesElement != null)
+                {
+                    try
+                    {
+                        gdprApplies = gdprAppliesElement.getAsBoolean();
+                        Log.w(TAG, String.format("Configuration response url with brandName is:%s gdprApplies:%s ", url, gdprApplies));
                     }
-
-                    private void parseResponseParameters(JsonObject jsonObject)
+                    catch (ClassCastException | IllegalStateException cce)
                     {
-                        final JsonElement urlElement = jsonObject.get(BuildConfig.CMP_JSON_CONFIGURATION_FIELD_HOST);
-                        if (urlElement == null)
-                        {
-                            Log.w(TAG, "Configuration response body parameter HOST is null");
-                            callback.onFailure();
-                            return;
-                        }
-
-                        final String url = urlElement.getAsString();
-                        if (TextUtils.isEmpty(url))
-                        {
-                            Log.w(TAG, "Configuration response body parameter is empty");
-                            callback.onFailure();
-                            return;
-                        }
-
-                        final JsonElement gdprAppliesElement = jsonObject.get(BuildConfig.CMP_JSON_CONFIGURATION_FIELD_GDPR_APPLIES);
-
-                        boolean gdprApplies = true;
-
-                        if (gdprAppliesElement != null)
-                        {
-                            try
-                            {
-                                gdprApplies = gdprAppliesElement.getAsBoolean();
-                                Log.w(TAG, String.format("Configuration response url with brandName is:%s gdprApplies:%s ", url, gdprApplies));
-                            }
-                            catch (ClassCastException | IllegalStateException cce)
-                            {
-                                Log.w(TAG, "Configuration response body parameter gdprApplies is not boolean!");
-                                callback.onFailure();
-                                return;
-                            }
-                        }
-
-                        callback.onSuccess(url, gdprApplies);
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<JsonObject> call, @NonNull Throwable throwable)
-                    {
-                        //Only when we received invalid data
-                        Log.w(TAG, "Configuration response failure", throwable);
+                        Log.w(TAG, "Configuration response body parameter gdprApplies is not boolean!");
                         callback.onFailure();
+                        return;
                     }
-                });
+                }
+
+                callback.onSuccess(url, gdprApplies);
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<JsonObject> call, @NonNull Throwable throwable)
+            {
+                //Only when we received invalid data
+                Log.w(TAG, "Configuration response failure", throwable);
+                callback.onFailure();
+            }
+        };
     }
 
     public Network getNetwork()

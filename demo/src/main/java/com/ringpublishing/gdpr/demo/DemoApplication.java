@@ -54,8 +54,10 @@ public class DemoApplication extends MultiDexApplication
         // See more in this method javadoc
         ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig);
 
-        // When (in you usage context) GDPR does not apply, use initialize method with extra parameter gdprApplies set to false
-        // ringPublishingGDPR.initialize(false, this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig);
+        // If you want, you can also use alternative initialization method with additional parameter: forcedGDPRApplies
+        // ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig, true);
+        // ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig, false);
+
 
         // Optional listener that informs application about saving or updating consents.
         // You can add more listeners on each place where you initialize SDK.

@@ -205,6 +205,10 @@ public class Storage extends Preferences
         setInt(Consent.IABTCF_gdprApplies.key, gdprApplies ? 1 : 0);
     }
 
+    public boolean isGDPRApplies()
+    {
+        return !containsInt(Consent.IABTCF_gdprApplies.key) || getInt(Consent.IABTCF_gdprApplies.key) == 1;
+    }
 
     enum Type
     {
