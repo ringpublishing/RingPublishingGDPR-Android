@@ -9,8 +9,6 @@ import com.google.gson.JsonObject;
 import com.ringpublishing.gdpr.BuildConfig;
 import com.ringpublishing.gdpr.internal.network.Network;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -82,7 +80,7 @@ public class Api
         }
     }
 
-    @NotNull
+    @NonNull
     private Callback<JsonObject> configurationCallback(@NonNull ConfigurationCallback callback)
     {
         return new Callback<JsonObject>()

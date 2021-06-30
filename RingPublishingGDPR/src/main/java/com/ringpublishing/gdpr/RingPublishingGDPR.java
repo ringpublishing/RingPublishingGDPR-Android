@@ -21,8 +21,6 @@ import com.ringpublishing.gdpr.internal.task.ShowFromApplicationTask;
 import com.ringpublishing.gdpr.internal.view.FormViewController;
 import com.ringpublishing.gdpr.internal.view.FormViewImpl;
 
-import org.jetbrains.annotations.NotNull;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -121,7 +119,8 @@ public final class RingPublishingGDPR
     public void initialize(@NonNull final Application application,
                            @NonNull final String tenantId,
                            @NonNull final String brandName,
-                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig, boolean forcedGDPRApplies)
+                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
+                           boolean forcedGDPRApplies)
     {
         initializeInternal(application, tenantId, brandName, ringPublishingGDPRUIConfig, forcedGDPRApplies);
     }
@@ -292,7 +291,7 @@ public final class RingPublishingGDPR
         runApplicationStartWork(api);
     }
 
-    @NotNull
+    @NonNull
     private GDPRApplicationCallback createRingPublishingGDPRApplicationCallback()
     {
         return context -> {
