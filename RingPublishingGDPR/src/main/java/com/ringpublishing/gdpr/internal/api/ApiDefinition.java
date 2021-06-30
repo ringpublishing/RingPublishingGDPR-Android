@@ -17,4 +17,8 @@ public interface ApiDefinition
 
     @GET("mobile")
     Call<JsonObject> configuration(@Query("site") String brandName);
+
+    @GET("mobile")
+    Call<JsonObject> configuration(@Query("site") String brandName, @Query("forced_gdpr") String forcedGDPRApplies);
+
 }

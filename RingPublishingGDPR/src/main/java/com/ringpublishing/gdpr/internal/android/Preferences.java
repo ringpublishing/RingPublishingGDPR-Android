@@ -88,6 +88,11 @@ public class Preferences
         return preferences.getInt(key, 0);
     }
 
+    public boolean containsInt(String key)
+    {
+        return preferences.contains(key);
+    }
+
     public void setInt(String key, int value)
     {
         Log.i(TAG, "Save Int preference: " + key + " value:" + value);

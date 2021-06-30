@@ -47,14 +47,6 @@ public class RingPublishingGDPRTest
         assertTrue(ringPublishingGDPR.isInitialized());
     }
 
-
-    @Test
-    public void shouldShowConsentForm_WhenFreshInitializeCalled_ThenShouldShowConsentsForm()
-    {
-        initializeSdkWithConfig();
-        assertTrue(ringPublishingGDPR.shouldShowConsentForm());
-    }
-
     private void clearSharedPrefs(Context context)
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
