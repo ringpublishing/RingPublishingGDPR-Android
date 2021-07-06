@@ -82,9 +82,7 @@ dependencies
     //export GITHUB_PERSONAL_ACCESS_TOKEN=your_github_auth_token
     //Call printenv to see variables are set correctly
     //Then comment 'implementation project(path: ':RingPublishingGDPR')' and uncomment:
-    //implementation("com.ringpublishing:gdpr:1.0.0")
+    //implementation("com.ringpublishing:gdpr:1.5.1")
 
-    implementation "androidx.appcompat:appcompat:1.2.0"
-    implementation 'androidx.preference:preference:1.1.1'
     implementation "androidx.multidex:multidex:2.0.1"
 }

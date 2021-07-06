@@ -96,7 +96,7 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements GDP
     private void addViewToLayout()
     {
         clearLayout();
-        formView = RingPublishingGDPR.getInstance().createFormView(this.getApplicationContext());
+        formView = RingPublishingGDPR.getInstance().createFormView(this);
 
         if(formView == null)
         {
@@ -127,7 +127,7 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements GDP
     {
         if(formView == null)
         {
-            formView = RingPublishingGDPR.getInstance().createFormView(this.getApplicationContext());
+            formView = RingPublishingGDPR.getInstance().createFormView(this);
         }
 
         if(formView != null)

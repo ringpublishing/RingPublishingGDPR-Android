@@ -10,7 +10,6 @@ import android.webkit.WebResourceRequest;
 import android.widget.ProgressBar;
 
 import com.ringpublishing.gdpr.R;
-import com.ringpublishing.gdpr.RingPublishingGDPR;
 import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
@@ -48,7 +47,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         this.cmpWebViewCallback = cmpWebViewCallback;
         formViewController.setFormViewImpl(this);
 
-        LayoutInflater.from(getFixedContext(context)).inflate(R.layout.ring_publishing_gdpr_contest_view, this);
+        LayoutInflater.from(context).inflate(R.layout.ring_publishing_gdpr_contest_view, this);
 
         networkInfo = new NetworkInfo(context);
         cmpWebView = new CmpWebView(findViewById(R.id.webview), this, cmpWebViewCallback, formViewController.getUserAgentHeader());
@@ -198,15 +197,6 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     {
         return networkInfo.isOnline();
     }
-
-    /**
-     * Fix loolipop android 5 missing webview
-     */
-    private Context getFixedContext(Context context)
-    {
-        return context.createConfigurationContext(context.getResources().getConfiguration());
-    }
-
 
     public void formSubmittedAction()
     {
