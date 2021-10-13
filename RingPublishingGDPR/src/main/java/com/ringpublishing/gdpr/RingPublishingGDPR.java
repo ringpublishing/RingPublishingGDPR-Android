@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.ringpublishing.gdpr.internal.android.Preconditions;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
@@ -205,8 +204,6 @@ public final class RingPublishingGDPR
      */
     public Intent createShowWelcomeScreenIntent(Context context)
     {
-        Preconditions.checkArgument(isInitialized(), "Cannot call createShowWelcomeScreenIntent before initialize RingPublishingGDPR library");
-        Preconditions.checkArgument(consentFormListener != null, "Cannot call createShowWelcomeScreenIntent outside shouldShowConsentForm callback");
         return RingPublishingGDPRActivity.createShowWelcomeScreenIntent(context);
     }
 
@@ -218,7 +215,6 @@ public final class RingPublishingGDPR
      */
     public Intent createShowSettingsScreenIntent(Context context)
     {
-//        Preconditions.checkArgument(isInitialized(), "Cannot call createShowSettingsScreenIntent before initialize RingPublishingGDPR library");
         return RingPublishingGDPRActivity.createShowSettingsScreenIntent(context);
     }
 
