@@ -4,11 +4,13 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 
+import androidx.annotation.NonNull;
+
 public class NetworkInfo
 {
 
-    private ConnectivityManager cm;
-
+    @NonNull
+    private final ConnectivityManager cm;
 
     public NetworkInfo(Context appContext)
     {

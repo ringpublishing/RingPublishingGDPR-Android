@@ -26,8 +26,6 @@ public class CmpWebView
 
     private final CmpWebViewJavaScriptInterface cmpWebViewJavaScriptInterface;
 
-    private String cmpHost;
-
     public CmpWebView(WebView webView, CmpWebViewClientCallback cmpWebViewClientCallback, CmpWebViewActionCallback cmpWebViewCallback, String userAgentHeader)
     {
         this.webView = webView;
@@ -87,16 +85,6 @@ public class CmpWebView
             Log.e(TAG, "Load JavaScript error", e);
             cmpWebViewJavaScriptInterface.onError("Fail attach javascript intefrace" + e.getLocalizedMessage());
         }
-    }
-
-    public String getCmpHost()
-    {
-        return cmpHost;
-    }
-
-    public void setCmpHost(String url)
-    {
-        cmpHost = url;
     }
 
     public void loadUrl(String url)

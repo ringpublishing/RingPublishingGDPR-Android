@@ -2,14 +2,8 @@ package com.ringpublishing.gdpr.internal.view;
 
 import android.util.Log;
 
-import com.ringpublishing.gdpr.BuildConfig;
-import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
-import com.ringpublishing.gdpr.internal.api.Api;
-import com.ringpublishing.gdpr.internal.api.Api.ConfigurationCallback;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
-import com.ringpublishing.gdpr.internal.model.State;
-import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.task.TimeoutTask;
 import com.ringpublishing.gdpr.internal.task.TimeoutTask.TimeoutCallback;
 
@@ -23,46 +17,37 @@ public class FormViewController implements TimeoutCallback
 
     private final String TAG = FormViewController.class.getCanonicalName();
 
-    private final State state = new State();
-
+    @NonNull
     private final List<String> actionsQueue = new ArrayList<>();
 
+    @NonNull
     private final List<ActionType> waitingToCloseActions = new ArrayList<>();
 
-    private final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig;
+    @NonNull
+    private final FormViewImpl formViewImpl;
 
-    private final Api api;
+    @NonNull
+    private final TimeoutTask timeoutTask = new TimeoutTask();
 
-    private TimeoutTask cmpLoadingTimeout;
-
-    private FormViewImpl formViewImpl;
-
-    private int timeoutInSeconds = BuildConfig.DEFAULT_TIMEOUT;
-
-    private TenantConfiguration tenantConfiguration;
-
-    public FormViewController(@NonNull final Api api, @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig)
+    public FormViewController(@NonNull FormViewImpl formView)
     {
-        this.api = api;
-        this.ringPublishingGDPRUIConfig = ringPublishingGDPRUIConfig;
+        this.formViewImpl = formView;
     }
 
     public void setTimeoutInSeconds(int timeoutSeconds)
     {
-        this.timeoutInSeconds = timeoutSeconds;
+        this.timeoutTask.setTimeout(timeoutSeconds);
     }
 
     void onDetach()
     {
-        cmpLoadingTimeout.cancel();
+        this.timeoutTask.cancel();
     }
-
 
     void addAction(String action)
     {
         actionsQueue.add(action);
     }
-
 
     void executeWaitingActions()
     {
@@ -83,33 +68,12 @@ public class FormViewController implements TimeoutCallback
 
     void loadCmpSite()
     {
-        startLoadingTimeout();
-        if (tenantConfiguration != null)
-        {
-            formViewImpl.loadCmpUrl(tenantConfiguration.getHost());
-        }
-        else
-        {
-            formViewImpl.onFailure("Loading cmp site fail. TenantConfiguration is null");
-        }
-    }
-
-    private void startLoadingTimeout()
-    {
-        cmpLoadingTimeout = new TimeoutTask(this, timeoutInSeconds);
-        cmpLoadingTimeout.start();
-    }
-
-    void loading()
-    {
-        Log.i(TAG, "setStatusLoading()");
-        state.loading();
+        timeoutTask.start(this);
     }
 
     void showContent()
     {
-        state.content();
-        cmpLoadingTimeout.cancel();
+        timeoutTask.cancel();
     }
 
     @Override
@@ -117,21 +81,6 @@ public class FormViewController implements TimeoutCallback
     {
         Log.w(TAG, "Loading cmp site timeout");
         formViewImpl.onFailure("Loading cmp site timeout");
-    }
-
-    void setFormViewImpl(FormViewImpl formViewImpl)
-    {
-        this.formViewImpl = formViewImpl;
-    }
-
-    String getUserAgentHeader()
-    {
-        return api.getNetwork().createUserAgentHeader();
-    }
-
-    RingPublishingGDPRUIConfig getRingPublishingGDPRUIConfig()
-    {
-        return ringPublishingGDPRUIConfig;
     }
 
     public void callFormSubmittedActions()
@@ -144,7 +93,7 @@ public class FormViewController implements TimeoutCallback
             formViewImpl.performAction(CmpAction.get(waitingToCloseAction));
         }
 
-        startLoadingTimeout();
+        timeoutTask.start(this);
     }
 
     public boolean waitingActionFinish(ActionType action)
@@ -152,14 +101,10 @@ public class FormViewController implements TimeoutCallback
         waitingToCloseActions.remove(action);
         if (waitingToCloseActions.isEmpty())
         {
-            cmpLoadingTimeout.cancel();
+            timeoutTask.cancel();
             return true;
         }
         return false;
     }
 
-    public void setTenantConfiguration(TenantConfiguration tenantConfiguration)
-    {
-        this.tenantConfiguration = tenantConfiguration;
-    }
 }

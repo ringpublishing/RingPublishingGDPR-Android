@@ -10,61 +10,74 @@ import android.webkit.WebResourceRequest;
 import android.widget.ProgressBar;
 
 import com.ringpublishing.gdpr.R;
+import com.ringpublishing.gdpr.RingPublishingGDPRNotifier;
 import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
+import com.ringpublishing.gdpr.internal.api.Api;
+import com.ringpublishing.gdpr.internal.callback.GDPRActivityCallback;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
 import com.ringpublishing.gdpr.internal.cmp.CmpWebView;
-import com.ringpublishing.gdpr.internal.cmp.CmpWebViewActionCallback;
+import com.ringpublishing.gdpr.internal.cmp.CmpWebViewAction;
 import com.ringpublishing.gdpr.internal.cmp.CmpWebViewClientCallback;
+import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.network.NetworkInfo;
+import com.ringpublishing.gdpr.internal.storage.Storage;
 import com.ringpublishing.gdpr.internal.view.ErrorView.RetryCallback;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 @SuppressLint("ViewConstructor")
 public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewClientCallback
 {
 
-    private static final String TAG = FormViewImpl.class.getCanonicalName();
+    public static final String TAG = FormViewImpl.class.getCanonicalName();
 
-    private final FormViewController formViewController;
-
+    @NonNull
     private final NetworkInfo networkInfo;
 
+    @NonNull
     private final CmpWebView cmpWebView;
 
+    @NonNull
     private final ProgressBar loadingView;
 
+    @NonNull
     private final ErrorView errorView;
 
-    private final CmpWebViewActionCallback cmpWebViewCallback;
+    @NonNull
+    private final CmpWebViewAction cmpWebViewCallback;
 
-    public FormViewImpl(@NonNull final Context context, @NonNull final FormViewController formViewController, @NonNull final CmpWebViewActionCallback cmpWebViewCallback)
+    @NonNull
+    private final FormViewController formViewController;
+
+    @NonNull
+    private final TenantConfiguration tenantConfiguration;
+
+    @Nullable
+    private GDPRActivityCallback gdprActivityCallback;
+
+    public FormViewImpl(@NonNull final Context context,
+                        @NonNull final Api api,
+                        @NonNull TenantConfiguration tenantConfiguration,
+                        @NonNull Storage storage,
+                        @NonNull RingPublishingGDPRNotifier ringPublishingGDPRNotifier)
     {
         super(context);
-        this.formViewController = formViewController;
-        this.cmpWebViewCallback = cmpWebViewCallback;
-        formViewController.setFormViewImpl(this);
+
+        this.formViewController = new FormViewController(this);
+        this.tenantConfiguration = tenantConfiguration;
+        this.cmpWebViewCallback = new CmpWebViewAction(storage, ringPublishingGDPRNotifier, this);
 
         LayoutInflater.from(context).inflate(R.layout.ring_publishing_gdpr_contest_view, this);
 
-        networkInfo = new NetworkInfo(context);
-        cmpWebView = new CmpWebView(findViewById(R.id.webview), this, cmpWebViewCallback, formViewController.getUserAgentHeader());
+        networkInfo = new NetworkInfo(context.getApplicationContext());
+        cmpWebView = new CmpWebView(findViewById(R.id.webview), this, cmpWebViewCallback, api.getNetwork().createUserAgentHeader());
 
         loadingView = findViewById(R.id.progressbar_loading);
         errorView = findViewById(R.id.error_view);
         errorView.setRetryCallback(this);
-
-        setViewStyle(formViewController.getRingPublishingGDPRUIConfig());
-    }
-
-    @Override
-    protected void onAttachedToWindow()
-    {
-        super.onAttachedToWindow();
-        showLoading();
-        formViewController.loadCmpSite();
     }
 
     @Override
@@ -112,19 +125,33 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     @Override
     public void onRetryClicked()
     {
-        showLoading();
-        formViewController.loadCmpSite();
+        loadCmpSite();
     }
 
-    void loadCmpUrl(String url)
+    @Override
+    protected void onAttachedToWindow()
     {
-        cmpWebView.setCmpHost(url);
-        cmpWebView.loadUrl(url);
+        super.onAttachedToWindow();
+        loadCmpSite();
+    }
+
+    private void loadCmpSite()
+    {
+        showLoading();
+        formViewController.loadCmpSite();
+        if (tenantConfiguration.getHost() != null)
+        {
+            cmpWebView.loadUrl(tenantConfiguration.getHost());
+        }
+        else
+        {
+            onFailure("Loading cmp site fail. TenantConfiguration is null");
+        }
     }
 
     public void attachJavascript(String url)
     {
-        if (url.startsWith(cmpWebView.getCmpHost()))
+        if (tenantConfiguration.getHost() != null && url.startsWith(tenantConfiguration.getHost()))
         {
             cmpWebView.attachJavaScriptInterface();
             Log.i(TAG, "attachJavascript()");
@@ -170,7 +197,6 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     {
         Log.i(TAG, "onPageStarted()");
         showLoading();
-        formViewController.loading();
     }
 
     @Override
@@ -213,5 +239,19 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     public void setTimeoutInSeconds(int timeoutInSeconds)
     {
         formViewController.setTimeoutInSeconds(timeoutInSeconds);
+    }
+
+    @Override
+    public void setActivityCallback(@Nullable GDPRActivityCallback ringPublishingGDPRActivity)
+    {
+        this.gdprActivityCallback = ringPublishingGDPRActivity;
+    }
+
+    public void hideForm()
+    {
+        if (this.gdprActivityCallback != null)
+        {
+            this.gdprActivityCallback.hideForm();
+        }
     }
 }

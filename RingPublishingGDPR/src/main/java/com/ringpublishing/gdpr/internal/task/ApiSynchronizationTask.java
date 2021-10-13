@@ -7,27 +7,31 @@ import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.storage.Storage;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public class ApiSynchronizationTask
 {
-    private final String TAG = ApiSynchronizationTask.class.getSimpleName();
 
+    private final String TAG = ApiSynchronizationTask.class.getCanonicalName();
+
+    @NonNull
     private final RequestsState requestsState;
 
+    @NonNull
     private final TenantConfiguration tenantConfiguration;
 
+    @NonNull
     private final Storage storage;
 
-    private final Runnable showFormFromApplication;
-
-    public ApiSynchronizationTask(RequestsState requestsState, TenantConfiguration tenantConfiguration, Storage storage, Runnable showFormFromApplication)
+    public ApiSynchronizationTask(@NonNull RequestsState requestsState, @NonNull TenantConfiguration tenantConfiguration, @NonNull Storage storage)
     {
         this.requestsState = requestsState;
         this.tenantConfiguration = tenantConfiguration;
         this.storage = storage;
-        this.showFormFromApplication = showFormFromApplication;
     }
 
-    public synchronized void run(ConsentFormListener consentFormListener)
+    public synchronized void run(@Nullable ConsentFormListener consentFormListener)
     {
         if (requestsState.isLoading())
         {
@@ -35,32 +39,26 @@ public class ApiSynchronizationTask
             return;
         }
 
-        if (requestsState.isFailure() || !tenantConfiguration.isGdprApplies())
+        if (consentFormListener == null)
         {
-            if (consentFormListener != null)
-            {
-                consentFormListener.onConsentsUpToDate();
-            }
+            Log.e(TAG, "consentFormListener is null");
             return;
         }
 
-        if (consentFormListener == null)
+        if (requestsState.isFailure() || !tenantConfiguration.isGdprApplies())
         {
-            if (storage.isConsentOutdated())
-            {
-                showFormFromApplication.run();
-            }
+            Log.d(TAG, "requestsState.isFailure() | tenantConfiguration is not set -> onConsentsUpToDate");
+            consentFormListener.onConsentsUpToDate();
+        }
+        else if (storage.isConsentOutdated() || !storage.didAskUserForConsents())
+        {
+            Log.d(TAG, "isConsentOutdated | not didAskUserForConsents  -> onReadyToShowForm");
+            consentFormListener.onReadyToShowForm();
         }
         else
         {
-            if (storage.isConsentOutdated() || !storage.didAskUserForConsents())
-            {
-                consentFormListener.onReadyToShowForm();
-            }
-            else
-            {
-                consentFormListener.onConsentsUpToDate();
-            }
+            Log.d(TAG, requestsState.toString() + " other case  -> onConsentsUpToDate" );
+            consentFormListener.onConsentsUpToDate();
         }
     }
 

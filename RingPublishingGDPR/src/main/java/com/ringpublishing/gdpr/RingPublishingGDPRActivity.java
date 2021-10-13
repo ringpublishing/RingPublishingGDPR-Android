@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * This activity will display consent view to accept by user.
  * When is displayed by sdk on application start, will be start in new task.
  * When you want to display it manually, create Intent and start activity.
- *
+ * <p>
  * You have two intents to choose. Default Welcome Screen and optional Settings screen
  * when you want display to user advanced view on start.
  */
@@ -28,6 +28,7 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements GDP
 
     /**
      * Create intent to open default consent screen
+     *
      * @param context to create intent
      * @return Intent that can be used to startActivity
      */
@@ -38,6 +39,7 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements GDP
 
     /**
      * Create intent to open settings consent screen
+     *
      * @param context to create intent
      * @return Intent that can be used to startActivity
      */
@@ -76,17 +78,6 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements GDP
     }
 
     @Override
-    protected void onRestart()
-    {
-        if(layout.getChildCount() < 1)
-        {
-            clearLayout();
-            addViewToLayout();
-        }
-        super.onRestart();
-    }
-
-    @Override
     protected void onDestroy()
     {
         clearLayout();
@@ -97,14 +88,7 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements GDP
     {
         clearLayout();
         formView = RingPublishingGDPR.getInstance().createFormView(this);
-
-        if(formView == null)
-        {
-            return;
-        }
-
-        RingPublishingGDPR.getInstance().setActivityCallback(this);
-
+        formView.setActivityCallback(this);
         formView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         layout.addView(formView);
 
@@ -125,22 +109,16 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements GDP
 
     private void clearLayout()
     {
-        if(formView == null)
+        if (formView != null)
         {
-            formView = RingPublishingGDPR.getInstance().createFormView(this);
-        }
-
-        if(formView != null)
-        {
-            if(formView.getParent() instanceof ViewGroup)
+            formView.setActivityCallback(null);
+            if (formView.getParent() instanceof ViewGroup)
             {
-                ((ViewGroup)formView.getParent()).removeView(formView);
+                ((ViewGroup) formView.getParent()).removeView(formView);
             }
         }
 
         layout.removeAllViews();
-
-        RingPublishingGDPR.getInstance().setActivityCallback(null);
     }
 
     @Override

@@ -5,20 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.ringpublishing.gdpr.internal.android.ActivityLifecycleObserver;
+import com.ringpublishing.gdpr.internal.android.Preconditions;
 import com.ringpublishing.gdpr.internal.api.Api;
-import com.ringpublishing.gdpr.internal.callback.GDPRActivityCallback;
-import com.ringpublishing.gdpr.internal.callback.GDPRApplicationCallback;
+import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.model.VerifyState;
-import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.storage.Storage;
 import com.ringpublishing.gdpr.internal.task.ApiSynchronizationTask;
-import com.ringpublishing.gdpr.internal.cmp.CmpWebViewAction;
 import com.ringpublishing.gdpr.internal.task.ConsentVerifyTask;
 import com.ringpublishing.gdpr.internal.task.FetchConfigurationTask;
-import com.ringpublishing.gdpr.internal.task.ShowFromApplicationTask;
-import com.ringpublishing.gdpr.internal.view.FormViewController;
 import com.ringpublishing.gdpr.internal.view.FormViewImpl;
 
 import androidx.annotation.NonNull;
@@ -43,25 +38,25 @@ public final class RingPublishingGDPR
 
     private Storage storage;
 
+    @NonNull
     private final RequestsState requestsState = new RequestsState();
 
+    @NonNull
     private final TenantConfiguration tenantConfiguration = new TenantConfiguration();
 
-    private FormViewImpl formViewImpl;
-
-    private FormViewController formViewController;
-
-    private CmpWebViewAction cmpActionCallbackCreator;
+    @NonNull
+    private final RingPublishingGDPRNotifier ringPublishingGDPRNotifier = new RingPublishingGDPRNotifier();
 
     private ApiSynchronizationTask apiSynchronizationTask;
 
-    private ShowFromApplicationTask showFromApplicationTask;
-
     private FetchConfigurationTask fetchConfigurationTask;
 
+    @Nullable
     private ConsentFormListener consentFormListener;
 
-    private GDPRApplicationCallback gdprApplicationCallback;
+    private Api api;
+
+    private RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig;
 
     private RingPublishingGDPR()
     {
@@ -80,7 +75,7 @@ public final class RingPublishingGDPR
     /**
      * Initialization point of SDK with configuration.
      * Should be called once on application start.
-     *
+     * <p>
      * When is called first time, just initialize sdk, because we known that Consent View should be displayed.
      * On next application launches, call this method automatically asynchronously verify that consents are actual.
      * When consents needs to be updated, then using application context, open automatically Consent View in new Activity
@@ -103,7 +98,7 @@ public final class RingPublishingGDPR
     /**
      * Initialization point of SDK with configuration.
      * Should be called once on application start.
-     *
+     * <p>
      * When is called first time, just initialize sdk, because we known that Consent View should be displayed.
      * On next application launches, call this method automatically asynchronously verify that consents are actual.
      * When consents needs to be updated, then using application context, open automatically Consent View in new Activity
@@ -130,7 +125,7 @@ public final class RingPublishingGDPR
      * Call this method in first application Activity
      * Wait for callback in ConsentFormListener to decide that consent form should be displayed.
      */
-    public void shouldShowConsentForm(ConsentFormListener consentFormListener)
+    public void shouldShowConsentForm(@Nullable ConsentFormListener consentFormListener)
     {
         this.consentFormListener = consentFormListener;
 
@@ -153,6 +148,7 @@ public final class RingPublishingGDPR
     /**
      * This method can be used on application services that can start before application object is initialized
      * to make sure that RingPublishingGDPR is initialized already.
+     *
      * @return true when initialize method is already called
      */
     public boolean isInitialized()
@@ -162,12 +158,12 @@ public final class RingPublishingGDPR
 
     /**
      * Should GDPR apply in current context?
-     *
+     * <p>
      * This property at module initialization (and before) has value saved from last app session.
      * This property will be populated with fresh value somewhere between:
      * - after module initialization
      * - before module calls one of methods with consents status,
-     *  either 'shouldShowConsentForm()' or 'onConsentsUpdated()'
+     * either 'shouldShowConsentForm()' or 'onConsentsUpdated()'
      */
     public boolean isGDPRApplies()
     {
@@ -199,68 +195,65 @@ public final class RingPublishingGDPR
     public void setNetworkTimeout(final int timeoutInSeconds)
     {
         this.timeoutInSeconds = timeoutInSeconds;
-        if (formViewImpl != null)
-        {
-            formViewImpl.setTimeoutInSeconds(timeoutInSeconds);
-        }
     }
 
     /**
      * Create intent to open default consent screen
+     *
      * @param context to create intent
      * @return Intent that can be used to startActivity
      */
     public Intent createShowWelcomeScreenIntent(Context context)
     {
+        Preconditions.checkArgument(isInitialized(), "Cannot call createShowWelcomeScreenIntent before initialize RingPublishingGDPR library");
+        Preconditions.checkArgument(consentFormListener != null, "Cannot call createShowWelcomeScreenIntent outside shouldShowConsentForm callback");
         return RingPublishingGDPRActivity.createShowWelcomeScreenIntent(context);
     }
 
     /**
      * Create intent to open settings consent screen
+     *
      * @param context to create intent
      * @return Intent that can be used to startActivity
      */
     public Intent createShowSettingsScreenIntent(Context context)
     {
+//        Preconditions.checkArgument(isInitialized(), "Cannot call createShowSettingsScreenIntent before initialize RingPublishingGDPR library");
         return RingPublishingGDPRActivity.createShowSettingsScreenIntent(context);
     }
 
 
     /**
      * Add listener that informs application about saving or updating consents.
+     *
      * @param ringPublishingGDPRListener listener to observe consents update
      */
     public void addRingPublishingGDPRListener(RingPublishingGDPRListener ringPublishingGDPRListener)
     {
-        cmpActionCallbackCreator.addRingPublishingGDPRListener(ringPublishingGDPRListener);
+        ringPublishingGDPRNotifier.addRingPublishingGDPRListener(ringPublishingGDPRListener);
     }
 
     /**
      * Remove listener that informs application about saving or updating consents.
+     *
      * @param ringPublishingGDPRListener listener to observe consents update
      */
     public void removeRingPublishingGDPRListener(RingPublishingGDPRListener ringPublishingGDPRListener)
     {
-        cmpActionCallbackCreator.removeRingPublishingGDPRListener(ringPublishingGDPRListener);
+        ringPublishingGDPRNotifier.removeRingPublishingGDPRListener(ringPublishingGDPRListener);
     }
 
-    @Nullable
-    FormViewImpl createFormView(Context applicationContext)
+    @NonNull
+    FormViewImpl createFormView(@NonNull Context activityContext)
     {
-        final FormViewImpl formViewImpl = new FormViewImpl(applicationContext, formViewController, cmpActionCallbackCreator);
-        cmpActionCallbackCreator.setFormViewImpl(formViewImpl);
-
+        final FormViewImpl formViewImpl = new FormViewImpl(activityContext, api, tenantConfiguration, storage, ringPublishingGDPRNotifier);
+        formViewImpl.setViewStyle(ringPublishingGDPRUIConfig);
         if (timeoutInSeconds > 0)
         {
             formViewImpl.setTimeoutInSeconds(timeoutInSeconds);
         }
 
         return formViewImpl;
-    }
-
-    void setActivityCallback(GDPRActivityCallback gdprActivityCallback)
-    {
-        cmpActionCallbackCreator.setGdprActivityCallback(gdprActivityCallback);
     }
 
     private void initializeInternal(@NonNull final Application application,
@@ -275,30 +268,15 @@ public final class RingPublishingGDPR
             return;
         }
 
-        Context context = application.getApplicationContext();
-        Api api = new Api(context, tenantId, brandName, timeoutInSeconds, forcedGDPRApplies);
+        final Context context = application.getApplicationContext();
+        this.api = new Api(context, tenantId, brandName, timeoutInSeconds, forcedGDPRApplies);
         this.storage = new Storage(context);
-        this.formViewController = new FormViewController(api, ringPublishingGDPRUIConfig);
-        this.gdprApplicationCallback = createRingPublishingGDPRApplicationCallback();
-
-        this.showFromApplicationTask = new ShowFromApplicationTask(new ActivityLifecycleObserver(application));
-        this.cmpActionCallbackCreator = new CmpWebViewAction(this, storage);
-        this.formViewImpl = createFormView(context);
-        this.apiSynchronizationTask = new ApiSynchronizationTask(requestsState, tenantConfiguration, storage, () -> showFromApplicationTask.run(formViewImpl, gdprApplicationCallback));
-        this.fetchConfigurationTask = new FetchConfigurationTask(api, storage, requestsState, tenantConfiguration, formViewController);
+        this.ringPublishingGDPRUIConfig = ringPublishingGDPRUIConfig;
+        this.apiSynchronizationTask = new ApiSynchronizationTask(requestsState, tenantConfiguration, storage);
+        this.fetchConfigurationTask = new FetchConfigurationTask(api, storage, requestsState, tenantConfiguration);
         initialized = true;
 
         runApplicationStartWork(api);
-    }
-
-    @NonNull
-    private GDPRApplicationCallback createRingPublishingGDPRApplicationCallback()
-    {
-        return context -> {
-            final Intent showWelcomeScreenIntent = RingPublishingGDPRActivity.createShowWelcomeScreenIntent(context);
-            showWelcomeScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(showWelcomeScreenIntent);
-        };
     }
 
     private void runApplicationStartWork(Api api)

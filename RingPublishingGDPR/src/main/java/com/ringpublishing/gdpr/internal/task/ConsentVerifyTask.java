@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 
 public class ConsentVerifyTask
 {
-    private final String TAG = ConsentVerifyTask.class.getSimpleName();
+    private final String TAG = ConsentVerifyTask.class.getCanonicalName();
 
     private final Storage storage;
 

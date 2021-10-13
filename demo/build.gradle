@@ -72,7 +72,7 @@ android
 dependencies
 {
     //For demo we include sdk from sources
-    implementation project(path: ':RingPublishingGDPR')
+    implementation project(':RingPublishingGDPR')
 
     // For your project you can use  artifact from GitGub packages
     //In main build.gradle add Github repository (See in this demo)
@@ -85,4 +85,6 @@ dependencies
     //implementation("com.ringpublishing:gdpr:1.5.1")
 
     implementation "androidx.multidex:multidex:2.0.1"
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
+    debugImplementation 'com.squareup.curtains:curtains:1.2.2'//todo fix crash from leakcanary 2.7 remove if leakcanary will get new version 2.8
 }

@@ -1,10 +1,13 @@
 package com.ringpublishing.gdpr.internal.model;
 
+import androidx.annotation.Nullable;
+
 public class TenantConfiguration
 {
 
     private boolean gdprApplies;
 
+    @Nullable
     private String host;
 
     public void setGdprApplies(boolean gdprApplies)
@@ -12,11 +15,12 @@ public class TenantConfiguration
         this.gdprApplies = gdprApplies;
     }
 
-    public void setHost(String host)
+    public void setHost(@Nullable String host)
     {
         this.host = host;
     }
 
+    @Nullable
     public String getHost()
     {
         return host;

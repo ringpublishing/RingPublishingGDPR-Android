@@ -1,40 +1,35 @@
 package com.ringpublishing.gdpr.internal.task;
 
-
 import android.os.Handler;
 
+import com.ringpublishing.gdpr.BuildConfig;
+
 import java.util.concurrent.TimeUnit;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class TimeoutTask
 {
 
-    private final int timeout;
+    private int timeout = BuildConfig.DEFAULT_TIMEOUT;
 
-    private TimeoutCallback timeoutCallback;
-
+    @Nullable
     private Handler handler;
 
-    public TimeoutTask(TimeoutCallback timeoutCallback, final int timeout)
+    public void setTimeout(int timeout)
     {
-        this.timeoutCallback = timeoutCallback;
         this.timeout = timeout;
     }
 
-    public void start()
+    public void start(@NonNull TimeoutCallback timeoutCallback)
     {
         handler = new Handler();
-        handler.postDelayed(() ->
-        {
-            if (timeoutCallback != null)
-            {
-                timeoutCallback.onTimeout();
-            }
-        }, TimeUnit.SECONDS.toMillis(timeout));
+        handler.postDelayed(timeoutCallback::onTimeout, TimeUnit.SECONDS.toMillis(timeout));
     }
 
     public void cancel()
     {
-        timeoutCallback = null;
         if (handler != null)
         {
             handler.removeCallbacksAndMessages(null);

@@ -1,5 +1,7 @@
 package com.ringpublishing.gdpr.internal.model;
 
+import androidx.annotation.NonNull;
+
 public class RequestsState
 {
     private VerifyState verifyState = VerifyState.LOADING;
@@ -30,5 +32,15 @@ public class RequestsState
     public boolean isFailure()
     {
         return tenantState == TenantState.FAILURE || verifyState == VerifyState.FAILURE;
+    }
+
+    @NonNull
+    @Override
+    public String toString()
+    {
+        return "RequestsState{" +
+                "verifyState=" + verifyState +
+                ", tenantState=" + tenantState +
+                '}';
     }
 }

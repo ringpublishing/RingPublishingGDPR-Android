@@ -41,7 +41,7 @@ public class DemoApplication extends MultiDexApplication
         final String appBrandingName = ""; // Fill here application brandName. Obtain from Ring Publishing. Example: "myAppName"
 
         // Just for this example to set tenantId and brandingName before install demo application.
-        if(TextUtils.isEmpty(appTenantId) || TextUtils.isEmpty(appBrandingName))
+        if (TextUtils.isEmpty(appTenantId) || TextUtils.isEmpty(appBrandingName))
         {
             Toast.makeText(this, R.string.demo_configuration_warning, Toast.LENGTH_LONG).show();
         }

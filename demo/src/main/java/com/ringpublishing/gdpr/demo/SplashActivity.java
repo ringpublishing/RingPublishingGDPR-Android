@@ -1,12 +1,13 @@
 package com.ringpublishing.gdpr.demo;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.ringpublishing.gdpr.RingPublishingGDPR;
 import com.ringpublishing.gdpr.ConsentFormListener;
+import com.ringpublishing.gdpr.RingPublishingGDPR;
 import com.ringpublishing.gdpr.demo.databinding.ActivitySplashBinding;
 
 import androidx.annotation.Nullable;
@@ -16,10 +17,11 @@ import androidx.databinding.DataBindingUtil;
 /**
  * Example Splash activity used common by apps to initialize application components and fetch content.
  * Here we decide that consent view should be displayed or application should continue initialize external libraries.
- *
+ * <p>
  * Start activity should be used with startActivityForResult to make sure handle consent screen complete.
  * In onActivityResult we are sure that application can continue initialization
  */
+@SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity
 {
 
@@ -67,7 +69,7 @@ public class SplashActivity extends AppCompatActivity
     private void showAppContent()
     {
         // Here you can check if user agreed on all available vendors
-        if(RingPublishingGDPR.getInstance().areVendorConsentsGiven())
+        if (RingPublishingGDPR.getInstance().areVendorConsentsGiven())
         {
             // If you app uses SDK's from vendors, which are not part of the official TCF 2.0 vendor list
             // you can use this flag to check if you can enable / initialize them as user agreed on all vendors
