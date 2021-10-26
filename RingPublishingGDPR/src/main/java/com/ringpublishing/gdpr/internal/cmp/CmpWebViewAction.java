@@ -4,38 +4,34 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.CookieManager;
 
-import com.ringpublishing.gdpr.RingPublishingGDPR;
-import com.ringpublishing.gdpr.RingPublishingGDPRListener;
-import com.ringpublishing.gdpr.internal.callback.GDPRActivityCallback;
+import com.ringpublishing.gdpr.RingPublishingGDPRNotifier;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
 import com.ringpublishing.gdpr.internal.storage.Storage;
 import com.ringpublishing.gdpr.internal.view.FormViewImpl;
 
 import org.json.JSONException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import androidx.annotation.NonNull;
 
 public class CmpWebViewAction implements CmpWebViewActionCallback
 {
 
-    private final String TAG = CmpWebViewAction.class.getSimpleName();
+    private final String TAG = CmpWebViewAction.class.getCanonicalName();
 
-    private final RingPublishingGDPR ringPublishingGDPR;
-
+    @NonNull
     private final Storage storage;
 
-    private FormViewImpl formViewImpl;
+    @NonNull
+    private final FormViewImpl formViewImpl;
 
-    private GDPRActivityCallback gdprActivityCallback;
+    @NonNull
+    private final RingPublishingGDPRNotifier ringPublishingGDPRNotifier;
 
-    private final List<RingPublishingGDPRListener> ringPublishingGDPRListeners = Collections.synchronizedList(new ArrayList<>());
-
-    public CmpWebViewAction(RingPublishingGDPR ringPublishingGDPR, Storage storage)
+    public CmpWebViewAction(@NonNull Storage storage, @NonNull RingPublishingGDPRNotifier ringPublishingGDPRNotifier, @NonNull FormViewImpl formViewImpl)
     {
-        this.ringPublishingGDPR = ringPublishingGDPR;
         this.storage = storage;
+        this.ringPublishingGDPRNotifier = ringPublishingGDPRNotifier;
+        this.formViewImpl = formViewImpl;
     }
 
     @Override
@@ -55,9 +51,9 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
     public void onActionError(String error)
     {
         Log.w(TAG, "Error: " + error);
-        if(formViewImpl.isOnline())
+        if (formViewImpl.isOnline())
         {
-            closeForm(gdprActivityCallback);
+            closeForm();
         }
         else
         {
@@ -76,13 +72,13 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
             }
             catch (JSONException e)
             {
-                ringPublishingGDPR.clearConsentsData();
+                storage.clearAllConsentData();
                 Log.e(TAG, "saveTCData fail!!", e);
             }
         }
         else
         {
-            ringPublishingGDPR.clearConsentsData();
+            storage.clearAllConsentData();
             Log.e(TAG, "Save TCData fail");
         }
 
@@ -91,8 +87,8 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
         boolean closeForm = formViewImpl.waitingActionFinish(ActionType.GET_TC_DATA);
         if (closeForm)
         {
-            closeForm(gdprActivityCallback);
-            notifyConsentsUpdated();
+            closeForm();
+            ringPublishingGDPRNotifier.notifyConsentsUpdated();
         }
     }
 
@@ -107,13 +103,13 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
             }
             catch (JSONException e)
             {
-                ringPublishingGDPR.clearConsentsData();
+                storage.clearAllConsentData();
                 Log.e(TAG, "Fail saving consent data", e);
             }
         }
         else
         {
-            ringPublishingGDPR.clearConsentsData();
+            storage.clearAllConsentData();
             Log.e(TAG, "Save dlData fail");
         }
 
@@ -122,52 +118,16 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
         boolean closeForm = formViewImpl.waitingActionFinish(ActionType.GET_COMPLETE_CONSENT_DATA);
         if (closeForm)
         {
-            closeForm(gdprActivityCallback);
-            notifyConsentsUpdated();
+            closeForm();
+            ringPublishingGDPRNotifier.notifyConsentsUpdated();
         }
     }
 
-    private void closeForm(GDPRActivityCallback gdprActivityCallback)
+    private void closeForm()
     {
         storage.saveLastAPIConsentsCheckStatus(null);
         storage.setConsentOutdated(false);
-        if(gdprActivityCallback != null)
-        {
-            gdprActivityCallback.hideForm();
-        }
+        formViewImpl.hideForm();
     }
 
-    private void notifyConsentsUpdated()
-    {
-        if (ringPublishingGDPRListeners != null)
-        {
-            synchronized (ringPublishingGDPRListeners)
-            {
-                for (RingPublishingGDPRListener listener: ringPublishingGDPRListeners)
-                {
-                    listener.onConsentsUpdated();
-                }
-            }
-        }
-    }
-
-    public void setGdprActivityCallback(GDPRActivityCallback gdprActivityCallback)
-    {
-        this.gdprActivityCallback = gdprActivityCallback;
-    }
-
-    public void setFormViewImpl(FormViewImpl formViewImpl)
-    {
-        this.formViewImpl = formViewImpl;
-    }
-
-    public void addRingPublishingGDPRListener(RingPublishingGDPRListener ringPublishingGDPRListener)
-    {
-        ringPublishingGDPRListeners.add(ringPublishingGDPRListener);
-    }
-
-    public void removeRingPublishingGDPRListener(RingPublishingGDPRListener ringPublishingGDPRListener)
-    {
-        ringPublishingGDPRListeners.remove(ringPublishingGDPRListener);
-    }
 }

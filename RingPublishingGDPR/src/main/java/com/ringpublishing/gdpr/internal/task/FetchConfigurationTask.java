@@ -8,30 +8,33 @@ import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.model.TenantState;
 import com.ringpublishing.gdpr.internal.storage.Storage;
-import com.ringpublishing.gdpr.internal.view.FormViewController;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class FetchConfigurationTask
 {
 
-    private final String TAG = FetchConfigurationTask.class.getSimpleName();
+    private final String TAG = FetchConfigurationTask.class.getCanonicalName();
 
+    @NonNull
     private final Api api;
 
+    @NonNull
     private final Storage storage;
 
+    @NonNull
     private final RequestsState requestsState;
 
+    @NonNull
     private final TenantConfiguration tenantConfiguration;
 
-    private final FormViewController formViewController;
-
-    public FetchConfigurationTask(Api api, Storage storage, RequestsState requestsState, TenantConfiguration tenantConfiguration, FormViewController formViewController)
+    public FetchConfigurationTask(@NonNull Api api, @NonNull Storage storage, @NonNull RequestsState requestsState, @NonNull TenantConfiguration tenantConfiguration)
     {
         this.api = api;
         this.storage = storage;
         this.requestsState = requestsState;
         this.tenantConfiguration = tenantConfiguration;
-        this.formViewController = formViewController;
     }
 
     public void run(Runnable finishCallback)
@@ -55,13 +58,12 @@ public class FetchConfigurationTask
         });
     }
 
-    private void setTenantConfiguration(boolean success, String url, boolean gdprApplies)
+    private void setTenantConfiguration(boolean success, @Nullable String url, boolean gdprApplies)
     {
         storage.configureGDPRApplies(gdprApplies);
         requestsState.setTenantState(success ? TenantState.SUCCESS : TenantState.FAILURE);
         tenantConfiguration.setHost(url);
         tenantConfiguration.setGdprApplies(gdprApplies);
-        formViewController.setTenantConfiguration(tenantConfiguration);
     }
 
 }
