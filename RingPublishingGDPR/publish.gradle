@@ -2,7 +2,7 @@ apply plugin: 'maven-publish'
 
 def LIB_GROUP_ID = 'com.ringpublishing'
 def LIB_ARTIFACT_ID = 'gdpr'
-def LIB_VERSION = "$gdpr_version_name"
+def LIB_VERSION = "$sdk_version_name"
 
 task sourceJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
