@@ -11,3 +11,6 @@ build
 /build
 /captures
 /vendor
+local.properties
+fastlane/*
+!fastlane/.env
