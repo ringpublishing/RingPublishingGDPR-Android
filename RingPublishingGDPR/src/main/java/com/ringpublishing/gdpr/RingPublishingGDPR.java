@@ -46,6 +46,9 @@ public final class RingPublishingGDPR
     @NonNull
     private final RingPublishingGDPRNotifier ringPublishingGDPRNotifier = new RingPublishingGDPRNotifier();
 
+    @NonNull
+    private RingPublishingGDPROnErrorListener ringPublishingGDPROnErrorListener = (int errorCode, String errorMessage) -> {};
+
     private ApiSynchronizationTask apiSynchronizationTask;
 
     private FetchConfigurationTask fetchConfigurationTask;
@@ -239,6 +242,15 @@ public final class RingPublishingGDPR
         ringPublishingGDPRNotifier.removeRingPublishingGDPRListener(ringPublishingGDPRListener);
     }
 
+    /**
+     * Set listener for ring GDPRs errors
+     * @param ringPublishingGDPROnErrorListener error listener  (int errorCode, @NonNull String errorMessage) -> {}
+     */
+    public void setRingPublishingGDPROnErrorListener(@NonNull RingPublishingGDPROnErrorListener ringPublishingGDPROnErrorListener)
+    {
+        this.ringPublishingGDPROnErrorListener = ringPublishingGDPROnErrorListener;
+    }
+
     @NonNull
     FormViewImpl createFormView(@NonNull Context activityContext)
     {
@@ -268,8 +280,8 @@ public final class RingPublishingGDPR
         this.api = new Api(context, tenantId, brandName, timeoutInSeconds, forcedGDPRApplies);
         this.storage = new Storage(context);
         this.ringPublishingGDPRUIConfig = ringPublishingGDPRUIConfig;
-        this.apiSynchronizationTask = new ApiSynchronizationTask(requestsState, tenantConfiguration, storage);
-        this.fetchConfigurationTask = new FetchConfigurationTask(api, storage, requestsState, tenantConfiguration);
+        this.apiSynchronizationTask = new ApiSynchronizationTask(requestsState, tenantConfiguration, storage, ringPublishingGDPROnErrorListener);
+        this.fetchConfigurationTask = new FetchConfigurationTask(api, storage, requestsState, tenantConfiguration, ringPublishingGDPROnErrorListener);
         initialized = true;
 
         runApplicationStartWork(api);
@@ -289,7 +301,7 @@ public final class RingPublishingGDPR
         {
             if (storage.didAskUserForConsents())
             {
-                new ConsentVerifyTask(storage, api, requestsState).run(() -> apiSynchronizationTask.run(consentFormListener));
+                new ConsentVerifyTask(storage, api, requestsState, ringPublishingGDPROnErrorListener).run(() -> apiSynchronizationTask.run(consentFormListener));
             }
             else
             {

@@ -3,6 +3,7 @@ package com.ringpublishing.gdpr.demo;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.TextUtils;
+import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Toast;
 
@@ -46,6 +47,8 @@ public class DemoApplication extends MultiDexApplication
             Toast.makeText(this, R.string.demo_configuration_warning, Toast.LENGTH_LONG).show();
         }
 
+
+        ringPublishingGDPR.setRingPublishingGDPROnErrorListener((errorCode, errorMessage) -> Log.e("GDPR_ERROR", String.format("Error code %d, message = %s",errorCode,errorMessage)));
         // Create UI configuration for consent screen
         final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig = new RingPublishingGDPRUIConfig(yourAppTypeFace, yourAppThemeColor);
 

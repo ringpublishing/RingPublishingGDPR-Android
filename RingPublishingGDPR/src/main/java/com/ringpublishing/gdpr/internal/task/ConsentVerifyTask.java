@@ -2,6 +2,7 @@ package com.ringpublishing.gdpr.internal.task;
 
 import android.util.Log;
 
+import com.ringpublishing.gdpr.RingPublishingGDPROnErrorListener;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.api.Api.VerifyCallback;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 
 public class ConsentVerifyTask
 {
+
     private final String TAG = ConsentVerifyTask.class.getCanonicalName();
 
     private final Storage storage;
@@ -22,11 +24,15 @@ public class ConsentVerifyTask
 
     private RequestsState requestsState;
 
-    public ConsentVerifyTask(@NonNull Storage storage, @NonNull Api api, RequestsState requestsState)
+    @NonNull
+    private final RingPublishingGDPROnErrorListener ringPublishingGDPROnErrorListener;
+
+    public ConsentVerifyTask(@NonNull Storage storage, @NonNull Api api, RequestsState requestsState, @NonNull RingPublishingGDPROnErrorListener ringPublishingGDPROnErrorListener)
     {
         this.storage = storage;
         this.api = api;
         this.requestsState = requestsState;
+        this.ringPublishingGDPROnErrorListener = ringPublishingGDPROnErrorListener;
     }
 
     public void run(Runnable finishCallback)
@@ -37,6 +43,7 @@ public class ConsentVerifyTask
         {
             Log.w(TAG, "Fail verify consents. Consents are empty");
             requestsState.setVerifyState(VerifyState.FAILURE);
+            ringPublishingGDPROnErrorListener.onError(RingPublishingGDPROnErrorListener.ERROR_CODE_5, "Fail verify consents. Consents are empty");
             finishCallback.run();
             return;
         }
@@ -44,7 +51,7 @@ public class ConsentVerifyTask
         api.verify(consents, new VerifyCallback()
         {
             @Override
-            public void onOutdated(String rawStatus)
+            public void onOutdated(@NonNull String rawStatus)
             {
                 storage.setConsentOutdated(true);
                 storage.saveLastAPIConsentsCheckStatus(rawStatus);
@@ -53,7 +60,7 @@ public class ConsentVerifyTask
             }
 
             @Override
-            public void onActual(String rawStatus)
+            public void onActual(@NonNull String rawStatus)
             {
                 storage.setConsentOutdated(false);
                 storage.saveLastAPIConsentsCheckStatus(rawStatus);
@@ -62,11 +69,12 @@ public class ConsentVerifyTask
             }
 
             @Override
-            public void onFailure(String status)
+            public void onFailure(@NonNull String status)
             {
                 storage.saveLastAPIConsentsCheckStatus(status);
                 requestsState.setVerifyState(VerifyState.FAILURE);
                 finishCallback.run();
+                ringPublishingGDPROnErrorListener.onError(RingPublishingGDPROnErrorListener.ERROR_CODE_6, status);
             }
         });
     }
