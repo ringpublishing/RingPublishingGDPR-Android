@@ -43,11 +43,8 @@ public final class RingPublishingGDPR
     @NonNull
     private final TenantConfiguration tenantConfiguration = new TenantConfiguration();
 
-    @NonNull
-    private final RingPublishingGDPRNotifier ringPublishingGDPRNotifier = new RingPublishingGDPRNotifier();
-
-    @NonNull
-    private RingPublishingGDPROnErrorListener ringPublishingGDPROnErrorListener = (int errorCode, String errorMessage) -> {};
+    @Nullable
+    private RingPublishingGDPRListener ringPublishingGDPRListener = null;
 
     private ApiSynchronizationTask apiSynchronizationTask;
 
@@ -221,40 +218,20 @@ public final class RingPublishingGDPR
         return RingPublishingGDPRActivity.createShowSettingsScreenIntent(context);
     }
 
-
     /**
-     * Add listener that informs application about saving or updating consents.
+     * Set listener that informs application about saving or updating consents and about errors.
      *
      * @param ringPublishingGDPRListener listener to observe consents update
      */
-    public void addRingPublishingGDPRListener(RingPublishingGDPRListener ringPublishingGDPRListener)
+    public void setRingPublishingGDPRListener(@Nullable RingPublishingGDPRListener ringPublishingGDPRListener)
     {
-        ringPublishingGDPRNotifier.addRingPublishingGDPRListener(ringPublishingGDPRListener);
-    }
-
-    /**
-     * Remove listener that informs application about saving or updating consents.
-     *
-     * @param ringPublishingGDPRListener listener to observe consents update
-     */
-    public void removeRingPublishingGDPRListener(RingPublishingGDPRListener ringPublishingGDPRListener)
-    {
-        ringPublishingGDPRNotifier.removeRingPublishingGDPRListener(ringPublishingGDPRListener);
-    }
-
-    /**
-     * Set listener for ring GDPRs errors
-     * @param ringPublishingGDPROnErrorListener error listener  (int errorCode, @NonNull String errorMessage) -> {}
-     */
-    public void setRingPublishingGDPROnErrorListener(@NonNull RingPublishingGDPROnErrorListener ringPublishingGDPROnErrorListener)
-    {
-        this.ringPublishingGDPROnErrorListener = ringPublishingGDPROnErrorListener;
+        this.ringPublishingGDPRListener = ringPublishingGDPRListener;
     }
 
     @NonNull
     FormViewImpl createFormView(@NonNull Context activityContext)
     {
-        final FormViewImpl formViewImpl = new FormViewImpl(activityContext, api, tenantConfiguration, storage, ringPublishingGDPRNotifier);
+        final FormViewImpl formViewImpl = new FormViewImpl(activityContext, api, tenantConfiguration, storage, ringPublishingGDPRListener);
         formViewImpl.setViewStyle(ringPublishingGDPRUIConfig);
         if (timeoutInSeconds > 0)
         {
@@ -280,8 +257,8 @@ public final class RingPublishingGDPR
         this.api = new Api(context, tenantId, brandName, timeoutInSeconds, forcedGDPRApplies);
         this.storage = new Storage(context);
         this.ringPublishingGDPRUIConfig = ringPublishingGDPRUIConfig;
-        this.apiSynchronizationTask = new ApiSynchronizationTask(requestsState, tenantConfiguration, storage, ringPublishingGDPROnErrorListener);
-        this.fetchConfigurationTask = new FetchConfigurationTask(api, storage, requestsState, tenantConfiguration, ringPublishingGDPROnErrorListener);
+        this.apiSynchronizationTask = new ApiSynchronizationTask(requestsState, tenantConfiguration, storage, ringPublishingGDPRListener);
+        this.fetchConfigurationTask = new FetchConfigurationTask(api, storage, requestsState, tenantConfiguration, ringPublishingGDPRListener);
         initialized = true;
 
         runApplicationStartWork(api);
@@ -301,7 +278,7 @@ public final class RingPublishingGDPR
         {
             if (storage.didAskUserForConsents())
             {
-                new ConsentVerifyTask(storage, api, requestsState, ringPublishingGDPROnErrorListener).run(() -> apiSynchronizationTask.run(consentFormListener));
+                new ConsentVerifyTask(storage, api, requestsState, ringPublishingGDPRListener).run(() -> apiSynchronizationTask.run(consentFormListener));
             }
             else
             {

@@ -4,7 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.CookieManager;
 
-import com.ringpublishing.gdpr.RingPublishingGDPRNotifier;
+import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
 import com.ringpublishing.gdpr.internal.storage.Storage;
 import com.ringpublishing.gdpr.internal.view.FormViewImpl;
@@ -25,12 +25,12 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
     private final FormViewImpl formViewImpl;
 
     @NonNull
-    private final RingPublishingGDPRNotifier ringPublishingGDPRNotifier;
+    private final RingPublishingGDPRListener ringPublishingGDPRListener;
 
-    public CmpWebViewAction(@NonNull Storage storage, @NonNull RingPublishingGDPRNotifier ringPublishingGDPRNotifier, @NonNull FormViewImpl formViewImpl)
+    public CmpWebViewAction(@NonNull Storage storage, @NonNull RingPublishingGDPRListener ringPublishingGDPRListener, @NonNull FormViewImpl formViewImpl)
     {
         this.storage = storage;
-        this.ringPublishingGDPRNotifier = ringPublishingGDPRNotifier;
+        this.ringPublishingGDPRListener = ringPublishingGDPRListener;
         this.formViewImpl = formViewImpl;
     }
 
@@ -88,7 +88,7 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
         if (closeForm)
         {
             closeForm();
-            ringPublishingGDPRNotifier.notifyConsentsUpdated();
+            ringPublishingGDPRListener.onConsentsUpdated();
         }
     }
 
@@ -119,7 +119,7 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
         if (closeForm)
         {
             closeForm();
-            ringPublishingGDPRNotifier.notifyConsentsUpdated();
+            ringPublishingGDPRListener.onConsentsUpdated();
         }
     }
 

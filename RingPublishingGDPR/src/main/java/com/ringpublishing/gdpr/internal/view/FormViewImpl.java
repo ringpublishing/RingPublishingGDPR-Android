@@ -10,8 +10,10 @@ import android.webkit.WebResourceRequest;
 import android.widget.ProgressBar;
 
 import com.ringpublishing.gdpr.R;
-import com.ringpublishing.gdpr.RingPublishingGDPRNotifier;
+import com.ringpublishing.gdpr.RingPublishingGDPRListener;
+import com.ringpublishing.gdpr.RingPublishingGDPRError;
 import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
+import com.ringpublishing.gdpr.internal.EmptyRingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.callback.GDPRActivityCallback;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction;
@@ -58,17 +60,22 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     @Nullable
     private GDPRActivityCallback gdprActivityCallback;
 
+    @NonNull
+    private final RingPublishingGDPRListener ringPublishingGDPRListener;
+
     public FormViewImpl(@NonNull final Context context,
                         @NonNull final Api api,
                         @NonNull TenantConfiguration tenantConfiguration,
                         @NonNull Storage storage,
-                        @NonNull RingPublishingGDPRNotifier ringPublishingGDPRNotifier)
+                        @Nullable RingPublishingGDPRListener ringPublishingGDPRListener)
     {
         super(context);
 
         this.formViewController = new FormViewController(this);
         this.tenantConfiguration = tenantConfiguration;
-        this.cmpWebViewCallback = new CmpWebViewAction(storage, ringPublishingGDPRNotifier, this);
+        this.ringPublishingGDPRListener = ringPublishingGDPRListener == null ? new EmptyRingPublishingGDPRListener() : ringPublishingGDPRListener;
+
+        this.cmpWebViewCallback = new CmpWebViewAction(storage, this.ringPublishingGDPRListener, this);
 
         LayoutInflater.from(context).inflate(R.layout.ring_publishing_gdpr_contest_view, this);
 
@@ -146,6 +153,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         else
         {
             onFailure("Loading cmp site fail. TenantConfiguration is null");
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_WEBVIEW_MISSING_HOST);
         }
     }
 
@@ -215,6 +223,8 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         {
             showError();
         }
+
+        ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_WEBVIEW_LOADING_FAIL);
 
         Log.w(TAG, "Receive error loading resources" + error.toString());
     }

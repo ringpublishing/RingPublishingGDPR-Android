@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import com.ringpublishing.gdpr.BuildConfig;
 import com.ringpublishing.gdpr.RingPublishingGDPR;
+import com.ringpublishing.gdpr.RingPublishingGDPRError;
+import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
 
 import androidx.multidex.MultiDexApplication;
@@ -47,8 +49,30 @@ public class DemoApplication extends MultiDexApplication
             Toast.makeText(this, R.string.demo_configuration_warning, Toast.LENGTH_LONG).show();
         }
 
+        // Optional listener that informs application about saving or updating consents.
+        // You can add more listeners on each place where you initialize SDK.
+        // Remember call ringPublishingGDPR.removeRingPublishingGDPRListeners() on your object destroy
+        ringPublishingGDPR.setRingPublishingGDPRListener(new RingPublishingGDPRListener()
+        {
+            @Override
+            public void onConsentsUpdated()
+            {
+                // Here you can check if user agreed on all available vendors
+                if (RingPublishingGDPR.getInstance().areVendorConsentsGiven())
+                {
+                    // If you app uses SDK's from vendors, which are not part of the official TCF 2.0 vendor list
+                    // you can use this flag to check if you can enable / initialize them as user agreed on all vendors
+                    DemoApplication.this.initializeApplicationExternalLibraries();
+                }
+            }
 
-        ringPublishingGDPR.setRingPublishingGDPROnErrorListener((errorCode, errorMessage) -> Log.e("GDPR_ERROR", String.format("Error code %d, message = %s",errorCode,errorMessage)));
+            @Override
+            public void onError(RingPublishingGDPRError error)
+            {
+                Log.e("GDPR_ERROR", String.format("Error %s", error.name()));
+            }
+        });
+
         // Create UI configuration for consent screen
         final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig = new RingPublishingGDPRUIConfig(yourAppTypeFace, yourAppThemeColor);
 
@@ -60,21 +84,6 @@ public class DemoApplication extends MultiDexApplication
         // If you want, you can also use alternative initialization method with additional parameter: forcedGDPRApplies
         // ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig, true);
         // ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig, false);
-
-
-        // Optional listener that informs application about saving or updating consents.
-        // You can add more listeners on each place where you initialize SDK.
-        // Remember call ringPublishingGDPR.removeRingPublishingGDPRListeners() on your object destroy
-        ringPublishingGDPR.addRingPublishingGDPRListener(() ->
-        {
-            // Here you can check if user agreed on all available vendors
-            if(RingPublishingGDPR.getInstance().areVendorConsentsGiven())
-            {
-                // If you app uses SDK's from vendors, which are not part of the official TCF 2.0 vendor list
-                // you can use this flag to check if you can enable / initialize them as user agreed on all vendors
-                initializeApplicationExternalLibraries();
-            }
-        });
     }
 
     private void initializeApplicationExternalLibraries()

@@ -3,7 +3,9 @@ package com.ringpublishing.gdpr.internal.task;
 import android.util.Log;
 
 import com.ringpublishing.gdpr.ConsentFormListener;
-import com.ringpublishing.gdpr.RingPublishingGDPROnErrorListener;
+import com.ringpublishing.gdpr.RingPublishingGDPRListener;
+import com.ringpublishing.gdpr.RingPublishingGDPRError;
+import com.ringpublishing.gdpr.internal.EmptyRingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.storage.Storage;
@@ -26,14 +28,14 @@ public class ApiSynchronizationTask
     private final Storage storage;
 
     @NonNull
-    private final RingPublishingGDPROnErrorListener ringPublishingGDPROnErrorListener;
+    private final RingPublishingGDPRListener ringPublishingGDPRListener;
 
-    public ApiSynchronizationTask(@NonNull RequestsState requestsState, @NonNull TenantConfiguration tenantConfiguration, @NonNull Storage storage, @NonNull RingPublishingGDPROnErrorListener ringPublishingGDPROnErrorListener)
+    public ApiSynchronizationTask(@NonNull RequestsState requestsState, @NonNull TenantConfiguration tenantConfiguration, @NonNull Storage storage, @Nullable RingPublishingGDPRListener ringPublishingGDPRListener)
     {
         this.requestsState = requestsState;
         this.tenantConfiguration = tenantConfiguration;
         this.storage = storage;
-        this.ringPublishingGDPROnErrorListener = ringPublishingGDPROnErrorListener;
+        this.ringPublishingGDPRListener = ringPublishingGDPRListener == null ? new EmptyRingPublishingGDPRListener() : ringPublishingGDPRListener;
     }
 
     public synchronized void run(@Nullable ConsentFormListener consentFormListener)
@@ -47,20 +49,20 @@ public class ApiSynchronizationTask
         if (consentFormListener == null)
         {
             Log.e(TAG, "consentFormListener is null");
-            ringPublishingGDPROnErrorListener.onError(RingPublishingGDPROnErrorListener.ERROR_CODE_1, "consentFormListener is null");
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_EMPTY_CONSENT_FORM_LISTER);
             return;
         }
 
         if (requestsState.isFailure())
         {
             Log.d(TAG, "requestsState.isFailure()  -> onConsentsUpToDate");
-            ringPublishingGDPROnErrorListener.onError(RingPublishingGDPROnErrorListener.ERROR_CODE_2, "requestsState isFailure");
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_REQUESTS_STATE_FAILURE);
             consentFormListener.onConsentsUpToDate();
         }
         else if (!tenantConfiguration.isGdprApplies())
         {
             Log.d(TAG, "tenantConfiguration is not set -> onConsentsUpToDate");
-            ringPublishingGDPROnErrorListener.onError(RingPublishingGDPROnErrorListener.ERROR_CODE_3, "tenantConfiguration is not set");
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_MISSING_TENANT_CONFIGURATION);
             consentFormListener.onConsentsUpToDate();
         }
         else

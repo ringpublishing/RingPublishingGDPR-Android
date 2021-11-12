@@ -2,7 +2,9 @@ package com.ringpublishing.gdpr.internal.task;
 
 import android.util.Log;
 
-import com.ringpublishing.gdpr.RingPublishingGDPROnErrorListener;
+import com.ringpublishing.gdpr.RingPublishingGDPRListener;
+import com.ringpublishing.gdpr.RingPublishingGDPRError;
+import com.ringpublishing.gdpr.internal.EmptyRingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.api.Api.VerifyCallback;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
@@ -12,6 +14,7 @@ import com.ringpublishing.gdpr.internal.storage.Storage;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class ConsentVerifyTask
 {
@@ -22,17 +25,17 @@ public class ConsentVerifyTask
 
     private final Api api;
 
-    private RequestsState requestsState;
+    private final RequestsState requestsState;
 
     @NonNull
-    private final RingPublishingGDPROnErrorListener ringPublishingGDPROnErrorListener;
+    private final RingPublishingGDPRListener ringPublishingGDPRListener;
 
-    public ConsentVerifyTask(@NonNull Storage storage, @NonNull Api api, RequestsState requestsState, @NonNull RingPublishingGDPROnErrorListener ringPublishingGDPROnErrorListener)
+    public ConsentVerifyTask(@NonNull Storage storage, @NonNull Api api, RequestsState requestsState, @Nullable RingPublishingGDPRListener ringPublishingGDPRListener)
     {
         this.storage = storage;
         this.api = api;
         this.requestsState = requestsState;
-        this.ringPublishingGDPROnErrorListener = ringPublishingGDPROnErrorListener;
+        this.ringPublishingGDPRListener = ringPublishingGDPRListener == null ? new EmptyRingPublishingGDPRListener() : ringPublishingGDPRListener;
     }
 
     public void run(Runnable finishCallback)
@@ -43,7 +46,7 @@ public class ConsentVerifyTask
         {
             Log.w(TAG, "Fail verify consents. Consents are empty");
             requestsState.setVerifyState(VerifyState.FAILURE);
-            ringPublishingGDPROnErrorListener.onError(RingPublishingGDPROnErrorListener.ERROR_CODE_5, "Fail verify consents. Consents are empty");
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_EMPTY_CONSENTS);
             finishCallback.run();
             return;
         }
@@ -74,7 +77,7 @@ public class ConsentVerifyTask
                 storage.saveLastAPIConsentsCheckStatus(status);
                 requestsState.setVerifyState(VerifyState.FAILURE);
                 finishCallback.run();
-                ringPublishingGDPROnErrorListener.onError(RingPublishingGDPROnErrorListener.ERROR_CODE_6, status);
+                ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_CANNOT_VERIFY_CONSENTS);
             }
         });
     }
