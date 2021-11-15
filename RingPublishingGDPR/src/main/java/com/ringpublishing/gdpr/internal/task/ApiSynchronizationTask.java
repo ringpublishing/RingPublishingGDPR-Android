@@ -48,20 +48,20 @@ public class ApiSynchronizationTask
         if (consentFormListener == null)
         {
             Log.e(TAG, "consentFormListener is null");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_EMPTY_CONSENT_FORM_LISTER);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.EMPTY_CONSENT_FORM_LISTER);
             return;
         }
 
         if (requestsState.isFailure())
         {
             Log.d(TAG, "requestsState.isFailure()  -> onConsentsUpToDate");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_REQUESTS_STATE_FAILURE);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.REQUESTS_STATE_FAILURE);
             consentFormListener.onConsentsUpToDate();
         }
         else if (!tenantConfiguration.isGdprApplies())
         {
             Log.d(TAG, "tenantConfiguration is not set -> onConsentsUpToDate");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_MISSING_TENANT_CONFIGURATION);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.MISSING_TENANT_CONFIGURATION);
             consentFormListener.onConsentsUpToDate();
         }
         else

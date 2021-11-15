@@ -64,7 +64,7 @@ public class FetchConfigurationTask
                 setTenantConfiguration(false, null, false);
                 Log.w(TAG, "Failure onConfigurationFailure");
                 finishCallback.run();
-                ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_CANNOT_FETCH_CONFIGURATION);
+                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_FETCH_TENANT_CONFIGURATION);
             }
         });
     }

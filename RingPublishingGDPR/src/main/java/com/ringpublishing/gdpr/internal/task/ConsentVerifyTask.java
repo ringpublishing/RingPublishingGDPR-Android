@@ -44,7 +44,7 @@ public class ConsentVerifyTask
         {
             Log.w(TAG, "Fail verify consents. Consents are empty");
             requestsState.setVerifyState(VerifyState.FAILURE);
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_EMPTY_CONSENTS);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.LOCAL_STORAGE_CONSENTS_EMPTY);
             finishCallback.run();
             return;
         }
@@ -75,7 +75,7 @@ public class ConsentVerifyTask
                 storage.saveLastAPIConsentsCheckStatus(status);
                 requestsState.setVerifyState(VerifyState.FAILURE);
                 finishCallback.run();
-                ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_CANNOT_VERIFY_CONSENTS);
+                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_VERIFY_CONSENTS_STATE);
             }
         });
     }

@@ -152,7 +152,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         else
         {
             onFailure("Loading cmp site fail. TenantConfiguration is null");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_WEBVIEW_MISSING_HOST);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_MISSING_HOST);
         }
     }
 
@@ -223,7 +223,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
             showError();
         }
 
-        ringPublishingGDPRListener.onError(RingPublishingGDPRError.ERROR_WEBVIEW_LOADING_FAIL);
+        ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL);
 
         Log.w(TAG, "Receive error loading resources" + error.toString());
     }

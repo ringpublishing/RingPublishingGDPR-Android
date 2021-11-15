@@ -50,8 +50,7 @@ public class DemoApplication extends MultiDexApplication
         }
 
         // Optional listener that informs application about saving or updating consents.
-        // You can add more listeners on each place where you initialize SDK.
-        // Remember call ringPublishingGDPR.removeRingPublishingGDPRListeners() on your object destroy
+        // You can set one listener, if you need to clear it set null value
         ringPublishingGDPR.setRingPublishingGDPRListener(new RingPublishingGDPRListener()
         {
             @Override
