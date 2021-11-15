@@ -4,7 +4,7 @@
 ### Changes
 
 * Removed addRingPublishingGDPRListener and removeRingPublishingGDPRListener and replace by setRingPublishingGDPRListener
-* New method in RingPublishingGDPRListener - onError 
+* New method in RingPublishingGDPRListener - onError
 
 1.5.2 Release notes (2021-10-26)
 =============================================================

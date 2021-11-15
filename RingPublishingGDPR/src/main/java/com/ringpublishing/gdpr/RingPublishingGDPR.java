@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.ringpublishing.gdpr.internal.EmptyRingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
@@ -43,8 +44,8 @@ public final class RingPublishingGDPR
     @NonNull
     private final TenantConfiguration tenantConfiguration = new TenantConfiguration();
 
-    @Nullable
-    private RingPublishingGDPRListener ringPublishingGDPRListener = null;
+    @NonNull
+    private RingPublishingGDPRListener ringPublishingGDPRListener = new EmptyRingPublishingGDPRListener();
 
     private ApiSynchronizationTask apiSynchronizationTask;
 
@@ -221,11 +222,11 @@ public final class RingPublishingGDPR
     /**
      * Set listener that informs application about saving or updating consents and about errors.
      *
-     * @param ringPublishingGDPRListener listener to observe consents update
+     * @param ringPublishingGDPRListener listener to observe consents update, null listener will reset listener
      */
     public void setRingPublishingGDPRListener(@Nullable RingPublishingGDPRListener ringPublishingGDPRListener)
     {
-        this.ringPublishingGDPRListener = ringPublishingGDPRListener;
+        this.ringPublishingGDPRListener = ringPublishingGDPRListener == null ? new EmptyRingPublishingGDPRListener() : ringPublishingGDPRListener;
     }
 
     @NonNull

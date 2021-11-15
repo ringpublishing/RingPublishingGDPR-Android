@@ -3,9 +3,8 @@ package com.ringpublishing.gdpr.internal.task;
 import android.util.Log;
 
 import com.ringpublishing.gdpr.ConsentFormListener;
-import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.RingPublishingGDPRError;
-import com.ringpublishing.gdpr.internal.EmptyRingPublishingGDPRListener;
+import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.storage.Storage;
@@ -30,12 +29,12 @@ public class ApiSynchronizationTask
     @NonNull
     private final RingPublishingGDPRListener ringPublishingGDPRListener;
 
-    public ApiSynchronizationTask(@NonNull RequestsState requestsState, @NonNull TenantConfiguration tenantConfiguration, @NonNull Storage storage, @Nullable RingPublishingGDPRListener ringPublishingGDPRListener)
+    public ApiSynchronizationTask(@NonNull RequestsState requestsState, @NonNull TenantConfiguration tenantConfiguration, @NonNull Storage storage, @NonNull RingPublishingGDPRListener ringPublishingGDPRListener)
     {
         this.requestsState = requestsState;
         this.tenantConfiguration = tenantConfiguration;
         this.storage = storage;
-        this.ringPublishingGDPRListener = ringPublishingGDPRListener == null ? new EmptyRingPublishingGDPRListener() : ringPublishingGDPRListener;
+        this.ringPublishingGDPRListener = ringPublishingGDPRListener;
     }
 
     public synchronized void run(@Nullable ConsentFormListener consentFormListener)

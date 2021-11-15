@@ -2,9 +2,8 @@ package com.ringpublishing.gdpr.internal.task;
 
 import android.util.Log;
 
-import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.RingPublishingGDPRError;
-import com.ringpublishing.gdpr.internal.EmptyRingPublishingGDPRListener;
+import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.api.Api.ConfigurationCallback;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
@@ -39,13 +38,13 @@ public class FetchConfigurationTask
                                   @NonNull Storage storage,
                                   @NonNull RequestsState requestsState,
                                   @NonNull TenantConfiguration tenantConfiguration,
-                                  @Nullable RingPublishingGDPRListener ringPublishingGDPRListener)
+                                  @NonNull RingPublishingGDPRListener ringPublishingGDPRListener)
     {
         this.api = api;
         this.storage = storage;
         this.requestsState = requestsState;
         this.tenantConfiguration = tenantConfiguration;
-        this.ringPublishingGDPRListener = ringPublishingGDPRListener == null ? new EmptyRingPublishingGDPRListener() : ringPublishingGDPRListener;
+        this.ringPublishingGDPRListener = ringPublishingGDPRListener;
     }
 
     public void run(Runnable finishCallback)

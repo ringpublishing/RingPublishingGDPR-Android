@@ -2,9 +2,8 @@ package com.ringpublishing.gdpr.internal.task;
 
 import android.util.Log;
 
-import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.RingPublishingGDPRError;
-import com.ringpublishing.gdpr.internal.EmptyRingPublishingGDPRListener;
+import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.api.Api.VerifyCallback;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
@@ -14,7 +13,6 @@ import com.ringpublishing.gdpr.internal.storage.Storage;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class ConsentVerifyTask
 {
@@ -30,12 +28,12 @@ public class ConsentVerifyTask
     @NonNull
     private final RingPublishingGDPRListener ringPublishingGDPRListener;
 
-    public ConsentVerifyTask(@NonNull Storage storage, @NonNull Api api, RequestsState requestsState, @Nullable RingPublishingGDPRListener ringPublishingGDPRListener)
+    public ConsentVerifyTask(@NonNull Storage storage, @NonNull Api api, RequestsState requestsState, @NonNull RingPublishingGDPRListener ringPublishingGDPRListener)
     {
         this.storage = storage;
         this.api = api;
         this.requestsState = requestsState;
-        this.ringPublishingGDPRListener = ringPublishingGDPRListener == null ? new EmptyRingPublishingGDPRListener() : ringPublishingGDPRListener;
+        this.ringPublishingGDPRListener = ringPublishingGDPRListener;
     }
 
     public void run(Runnable finishCallback)

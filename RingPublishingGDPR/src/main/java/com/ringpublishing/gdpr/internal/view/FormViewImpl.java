@@ -10,10 +10,9 @@ import android.webkit.WebResourceRequest;
 import android.widget.ProgressBar;
 
 import com.ringpublishing.gdpr.R;
-import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.RingPublishingGDPRError;
+import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
-import com.ringpublishing.gdpr.internal.EmptyRingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.callback.GDPRActivityCallback;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction;
@@ -67,13 +66,13 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
                         @NonNull final Api api,
                         @NonNull TenantConfiguration tenantConfiguration,
                         @NonNull Storage storage,
-                        @Nullable RingPublishingGDPRListener ringPublishingGDPRListener)
+                        @NonNull RingPublishingGDPRListener ringPublishingGDPRListener)
     {
         super(context);
 
         this.formViewController = new FormViewController(this);
         this.tenantConfiguration = tenantConfiguration;
-        this.ringPublishingGDPRListener = ringPublishingGDPRListener == null ? new EmptyRingPublishingGDPRListener() : ringPublishingGDPRListener;
+        this.ringPublishingGDPRListener = ringPublishingGDPRListener;
 
         this.cmpWebViewCallback = new CmpWebViewAction(storage, this.ringPublishingGDPRListener, this);
 
