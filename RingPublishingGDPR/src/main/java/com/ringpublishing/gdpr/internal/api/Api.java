@@ -163,17 +163,17 @@ public class Api
     public interface VerifyCallback
     {
 
-        void onActual(String status);
+        void onActual(@NonNull String status);
 
-        void onOutdated(String status);
+        void onOutdated(@NonNull String status);
 
-        void onFailure(String status);
+        void onFailure(@NonNull String status);
     }
 
     public interface ConfigurationCallback
     {
 
-        void onSuccess(String host, boolean gdprApplies);
+        void onSuccess(@NonNull String host, boolean gdprApplies);
 
         void onFailure();
     }

@@ -41,17 +41,6 @@ public class MainActivity extends AppCompatActivity implements RingPublishingGDP
             final Intent startSettingScreenIntent = RingPublishingGDPR.getInstance().createShowSettingsScreenIntent(this);
             startActivity(startSettingScreenIntent);
         });
-
-        // Optional example: You can add consentsUpdate listener where you want
-        // Remember to remove listener when object is destroying
-        RingPublishingGDPR.getInstance().addRingPublishingGDPRListener(this);
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        RingPublishingGDPR.getInstance().removeRingPublishingGDPRListener(this);
-        super.onDestroy();
     }
 
     @Override

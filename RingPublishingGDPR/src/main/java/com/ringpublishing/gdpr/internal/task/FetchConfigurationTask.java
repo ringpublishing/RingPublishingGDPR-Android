@@ -2,6 +2,8 @@ package com.ringpublishing.gdpr.internal.task;
 
 import android.util.Log;
 
+import com.ringpublishing.gdpr.RingPublishingGDPRError;
+import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.api.Api.ConfigurationCallback;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
@@ -29,12 +31,20 @@ public class FetchConfigurationTask
     @NonNull
     private final TenantConfiguration tenantConfiguration;
 
-    public FetchConfigurationTask(@NonNull Api api, @NonNull Storage storage, @NonNull RequestsState requestsState, @NonNull TenantConfiguration tenantConfiguration)
+    @NonNull
+    private final RingPublishingGDPRListener ringPublishingGDPRListener;
+
+    public FetchConfigurationTask(@NonNull Api api,
+                                  @NonNull Storage storage,
+                                  @NonNull RequestsState requestsState,
+                                  @NonNull TenantConfiguration tenantConfiguration,
+                                  @NonNull RingPublishingGDPRListener ringPublishingGDPRListener)
     {
         this.api = api;
         this.storage = storage;
         this.requestsState = requestsState;
         this.tenantConfiguration = tenantConfiguration;
+        this.ringPublishingGDPRListener = ringPublishingGDPRListener;
     }
 
     public void run(Runnable finishCallback)
@@ -42,7 +52,7 @@ public class FetchConfigurationTask
         api.configuration(new ConfigurationCallback()
         {
             @Override
-            public void onSuccess(String url, boolean gdprApplies)
+            public void onSuccess(@NonNull String url, boolean gdprApplies)
             {
                 setTenantConfiguration(true, url, gdprApplies);
                 finishCallback.run();
@@ -54,6 +64,7 @@ public class FetchConfigurationTask
                 setTenantConfiguration(false, null, false);
                 Log.w(TAG, "Failure onConfigurationFailure");
                 finishCallback.run();
+                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_FETCH_TENANT_CONFIGURATION);
             }
         });
     }
