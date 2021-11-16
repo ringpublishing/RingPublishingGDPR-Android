@@ -1,3 +1,11 @@
+1.6.0 Release notes (2021-11-12)
+=============================================================
+
+### Changes
+
+* Removed addRingPublishingGDPRListener and removeRingPublishingGDPRListener and replace by setRingPublishingGDPRListener
+* New method in RingPublishingGDPRListener - onError - method for log case when library cannot show correct form or cannot create correct configuration.
+
 1.5.2 Release notes (2021-10-26)
 =============================================================
 
