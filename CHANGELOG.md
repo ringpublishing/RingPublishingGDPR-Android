@@ -1,3 +1,10 @@
+1.6.1 Release notes (2022-11-03)
+=============================================================
+
+### Changes
+
+* Update dependencies for common library
+* Update target and compile sdk version
 1.6.0 Release notes (2021-11-12)
 =============================================================
 
