@@ -67,6 +67,7 @@ android
         "UnsafeExperimentalUsageWarning",
         "GradleDependency"
     }
+    namespace 'com.ringpublishing.gdpr.demo'
 }
 
 dependencies
