@@ -86,6 +86,9 @@ dependencies
     //implementation("com.ringpublishing:gdpr:1.5.3")
 
     implementation "androidx.multidex:multidex:2.0.1"
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
+
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
     debugImplementation 'com.squareup.curtains:curtains:1.2.2'//todo fix crash from leakcanary 2.7 remove if leakcanary will get new version 2.8
 }
