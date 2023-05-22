@@ -2,11 +2,11 @@ package com.ringpublishing.gdpr.internal.storage;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.ringpublishing.gdpr.internal.android.Preferences;
+import com.ringpublishing.gdpr.internal.log.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,8 +17,6 @@ import java.util.Map;
 
 public class Storage extends Preferences
 {
-
-    private static final String TAG = Storage.class.getCanonicalName();
 
     private static final String KEY_PREFIX_RING_PUBLISHING = "RingPublishing_";
 
@@ -84,7 +82,7 @@ public class Storage extends Preferences
             else
             {
                 remove(consent.key);
-                Log.i(TAG, "Missing consent for field: " + consent.key);
+                Logger.get().info( "Missing consent for field: " + consent.key);
             }
         }
     }
@@ -97,7 +95,7 @@ public class Storage extends Preferences
 
         if (publisher == null)
         {
-            Log.i(TAG, "No publisher restrictions to save");
+            Logger.get().info( "No publisher restrictions to save");
             return;
         }
 
@@ -122,7 +120,7 @@ public class Storage extends Preferences
 
         if (json == null)
         {
-            Log.w(TAG, "No dlData to save");
+            Logger.get().warn("No dlData to save");
         }
         // Ring
         for (ConsentRing key : ConsentRing.values())
@@ -133,7 +131,7 @@ public class Storage extends Preferences
             }
             else
             {
-                Log.w(TAG, "Missing ring consent for field: " + key.key);
+                Logger.get().warn("Missing ring consent for field: " + key.key);
             }
         }
     }
@@ -189,11 +187,11 @@ public class Storage extends Preferences
         }
         catch (JsonSyntaxException e)
         {
-            Log.e(TAG, "Fail to reade saved ring consents to verify method", e);
+            Logger.get().error("Fail to reade saved ring consents to verify method" + e.getLocalizedMessage());
         }
         catch (ClassCastException e)
         {
-            Log.e(TAG, "Fail to reade saved ring consents to verify method", e);
+            Logger.get().error("Fail to reade saved ring consents to verify method" + e.getLocalizedMessage());
         }
 
         return consents;

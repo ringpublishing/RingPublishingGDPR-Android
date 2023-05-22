@@ -1,11 +1,11 @@
 package com.ringpublishing.gdpr.internal.cmp;
 
 import android.text.TextUtils;
-import android.util.Log;
 import android.webkit.CookieManager;
 
 import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
+import com.ringpublishing.gdpr.internal.log.Logger;
 import com.ringpublishing.gdpr.internal.storage.Storage;
 import com.ringpublishing.gdpr.internal.view.FormViewImpl;
 
@@ -15,9 +15,6 @@ import androidx.annotation.NonNull;
 
 public class CmpWebViewAction implements CmpWebViewActionCallback
 {
-
-    private final String TAG = CmpWebViewAction.class.getCanonicalName();
-
     @NonNull
     private final Storage storage;
 
@@ -37,26 +34,28 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
     @Override
     public void onActionLoaded()
     {
-        Log.i(TAG, "Cmp site is ready");
+        Logger.get().info( "Cmp site is ready onActionLoaded");
         formViewImpl.post(formViewImpl::cmpReady);
     }
 
     @Override
     public void onActionComplete()
     {
+        Logger.get().info( "Cmp site onActionComplete");
         formViewImpl.formSubmittedAction();
     }
 
     @Override
     public void onActionError(String error)
     {
-        Log.w(TAG, "Error: " + error);
         if (formViewImpl.isOnline())
         {
+            Logger.get().error("Cmp site closeForm. Error: " + error);
             closeForm();
         }
         else
         {
+            Logger.get().error("Cmp site error: " + error);
             formViewImpl.showError();
         }
     }
@@ -66,6 +65,7 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
     {
         if (success)
         {
+            Logger.get().info("Save TCData success");
             try
             {
                 storage.saveTCData(tcData);
@@ -73,13 +73,13 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
             catch (JSONException e)
             {
                 storage.clearAllConsentData();
-                Log.e(TAG, "saveTCData fail!!", e);
+                Logger.get().error("saveTCData fail!!" + e.getLocalizedMessage());
             }
         }
         else
         {
             storage.clearAllConsentData();
-            Log.e(TAG, "Save TCData fail");
+            Logger.get().error("Save TCData fail");
         }
 
         CookieManager.getInstance().flush();
@@ -104,13 +104,13 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
             catch (JSONException e)
             {
                 storage.clearAllConsentData();
-                Log.e(TAG, "Fail saving consent data", e);
+                Logger.get().error("Fail saving consent data" + e.getLocalizedMessage());
             }
         }
         else
         {
             storage.clearAllConsentData();
-            Log.e(TAG, "Save dlData fail");
+            Logger.get().error("Save dlData fail");
         }
 
         CookieManager.getInstance().flush();
@@ -125,6 +125,7 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
 
     private void closeForm()
     {
+        Logger.get().info("Cmp closeForm");
         storage.saveLastAPIConsentsCheckStatus(null);
         storage.setConsentOutdated(false);
         formViewImpl.hideForm();

@@ -1,8 +1,7 @@
 package com.ringpublishing.gdpr.internal;
 
-import android.util.Log;
-
 import com.ringpublishing.gdpr.RingPublishingGDPRListener;
+import com.ringpublishing.gdpr.internal.log.Logger;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -14,7 +13,7 @@ public class EmptyRingPublishingGDPRListener implements RingPublishingGDPRListen
     @Override
     public void onConsentsUpdated()
     {
-        Log.d(RingPublishingGDPRListener.class.getCanonicalName(), "onConsentsUpdated");
+        Logger.get().debug("onConsentsUpdated");
     }
 
 }

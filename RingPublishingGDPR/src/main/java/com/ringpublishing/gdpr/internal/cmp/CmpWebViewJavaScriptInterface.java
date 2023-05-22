@@ -3,6 +3,8 @@ package com.ringpublishing.gdpr.internal.cmp;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
+import com.ringpublishing.gdpr.internal.log.Logger;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,6 +20,8 @@ public class CmpWebViewJavaScriptInterface
     private static final String TD_DATA_KEY_EVENT_STATUS = "eventStatus";
 
     private final CmpWebViewActionCallback webViewCallback;
+
+    private final Logger log = Logger.get();
 
     CmpWebViewJavaScriptInterface(@NonNull CmpWebViewActionCallback webViewCallback)
     {
@@ -36,65 +40,65 @@ public class CmpWebViewJavaScriptInterface
             {
                 case tcloaded:
                 {
-                    Log.i(TAG, "Event: TC_LOADED");
+                    log.info( "Event: TC_LOADED");
                     webViewCallback.onActionLoaded();
                     break;
                 }
                 case cmpuishown:
                 {
-                    Log.i(TAG, "Event: SHOWN");
+                    log.info( "Event: SHOWN");
                     webViewCallback.onActionLoaded();
                     break;
                 }
                 case useractioncomplete:
                 {
+                    log.info( "Event: USER ACTION COMPLETTE");
                     webViewCallback.onActionComplete();
                     break;
                 }
                 default:
                 {
-                    Log.w(TAG, "Event: WARNING UNKNOWN EVENT" + eventStatus);
+                    log.warn("Event: WARNING UNKNOWN EVENT" + eventStatus);
                 }
             }
         }
         catch (JSONException e)
         {
-            Log.w(TAG, "Event Error parsing tcData: " + tcData, e);
+            log.warn("Event Error parsing tcData: " + tcData + e.getLocalizedMessage());
         }
     }
-
 
     @JavascriptInterface
     public void onError(String error)
     {
-        Log.i(TAG, "Error" + error);
+        log.info( "Cmp WebView Error" + error);
         webViewCallback.onActionError(error);
     }
 
     @JavascriptInterface
     public void getInAppTCData(String tcData, boolean success)
     {
-        Log.i(TAG, "getInAppTCData" + tcData);
+        log.info( "getInAppTCData" + tcData);
         webViewCallback.onActionInAppTCData(tcData, success);
     }
 
     @JavascriptInterface
     public void getCompleteConsentData(String error, String dlData)
     {
-        Log.i(TAG, "getCompleteConsentData(error=" + error + ",data=" + dlData);
+        log.info( "getCompleteConsentData(error=" + error + ",data=" + dlData);
         webViewCallback.getCompleteConsentData(error, dlData);
     }
 
     @JavascriptInterface
     public void showWelcomeScreen()
     {
-        Log.i(TAG, "showWelcomeScreen call success");
+        log.info( "showWelcomeScreen call success");
     }
 
     @JavascriptInterface
     public void showSettingsScreen()
     {
-        Log.i(TAG, "showSettingsScreen call success");
+        log.info( "showSettingsScreen call success");
     }
 
 }

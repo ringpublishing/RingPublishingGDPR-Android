@@ -1,9 +1,8 @@
 package com.ringpublishing.gdpr.internal.view;
 
-import android.util.Log;
-
 import com.ringpublishing.gdpr.internal.cmp.CmpAction;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
+import com.ringpublishing.gdpr.internal.log.Logger;
 import com.ringpublishing.gdpr.internal.task.TimeoutTask;
 import com.ringpublishing.gdpr.internal.task.TimeoutTask.TimeoutCallback;
 
@@ -14,9 +13,6 @@ import androidx.annotation.NonNull;
 
 public class FormViewController implements TimeoutCallback
 {
-
-    private final String TAG = FormViewController.class.getCanonicalName();
-
     @NonNull
     private final List<String> actionsQueue = new ArrayList<>();
 
@@ -28,6 +24,9 @@ public class FormViewController implements TimeoutCallback
 
     @NonNull
     private final TimeoutTask timeoutTask = new TimeoutTask();
+
+    private final Logger log = Logger.get();
+
 
     public FormViewController(@NonNull FormViewImpl formView)
     {
@@ -51,7 +50,7 @@ public class FormViewController implements TimeoutCallback
 
     void executeWaitingActions()
     {
-        Log.i(TAG, "FormViewImpl. call executeWaitingActions() action: " + actionsQueue.size());
+        log.info( "FormViewImpl. call executeWaitingActions() action: " + actionsQueue.size());
         if (actionsQueue.isEmpty())
         {
             return;
@@ -60,7 +59,7 @@ public class FormViewController implements TimeoutCallback
         for (String action : actionsQueue)
         {
             formViewImpl.performAction(action);
-            Log.i(TAG, "FormViewImpl.executeWaitingActions() action: " + action);
+            log.info( "FormViewImpl.executeWaitingActions() action: " + action);
         }
 
         actionsQueue.clear();
@@ -79,7 +78,7 @@ public class FormViewController implements TimeoutCallback
     @Override
     public void onTimeout()
     {
-        Log.w(TAG, "Loading cmp site timeout");
+        log.warn("Loading cmp site timeout");
         formViewImpl.onFailure("Loading cmp site timeout");
     }
 

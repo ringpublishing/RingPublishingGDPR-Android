@@ -3,7 +3,8 @@ package com.ringpublishing.gdpr.internal.android;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
-import android.util.Log;
+
+import com.ringpublishing.gdpr.internal.log.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,10 +16,9 @@ import androidx.preference.PreferenceManager;
 
 public class Preferences
 {
-
-    private static final String TAG = Preferences.class.getCanonicalName();
-
     private SharedPreferences preferences;
+
+    private final Logger log = Logger.get();
 
     public Preferences(Context context)
     {
@@ -32,13 +32,13 @@ public class Preferences
 
     public void setBoolean(String key, boolean value)
     {
-        Log.i(TAG, "Save Boolean preference: " + key + " value:" + value);
+        log.info("Save Boolean preference: " + key + " value:" + value);
         preferences.edit().putBoolean(key, value).apply();
     }
 
     public void setString(String key, String value)
     {
-        Log.i(TAG, "Save String preference: " + key + " value:" + value);
+        log.info( "Save String preference: " + key + " value:" + value);
         preferences.edit().putString(key, value).apply();
     }
 
@@ -74,7 +74,7 @@ public class Preferences
         }
         else
         {
-            Log.e(TAG, "Unsupported object to save. Fail. Key" + key + " value " + value);
+            log.error("Unsupported object to save. Fail. Key" + key + " value " + value);
         }
     }
 
@@ -95,7 +95,7 @@ public class Preferences
 
     public void setInt(String key, int value)
     {
-        Log.i(TAG, "Save Int preference: " + key + " value:" + value);
+        log.info( "Save Int preference: " + key + " value:" + value);
         preferences.edit().putInt(key, value).apply();
     }
 

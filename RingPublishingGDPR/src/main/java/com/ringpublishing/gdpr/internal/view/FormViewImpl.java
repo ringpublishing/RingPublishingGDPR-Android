@@ -2,7 +2,6 @@ package com.ringpublishing.gdpr.internal.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.WebResourceError;
@@ -20,6 +19,7 @@ import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
 import com.ringpublishing.gdpr.internal.cmp.CmpWebView;
 import com.ringpublishing.gdpr.internal.cmp.CmpWebViewAction;
 import com.ringpublishing.gdpr.internal.cmp.CmpWebViewClientCallback;
+import com.ringpublishing.gdpr.internal.log.Logger;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.network.NetworkInfo;
 import com.ringpublishing.gdpr.internal.storage.Storage;
@@ -61,6 +61,8 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
     @NonNull
     private final RingPublishingGDPRListener ringPublishingGDPRListener;
+
+    private final Logger log = Logger.get();
 
     public FormViewImpl(@NonNull final Context context,
                         @NonNull final Api api,
@@ -109,7 +111,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
     public void showLoading()
     {
-        Log.i(TAG, "showLoading()");
+        log.info( "showLoading()");
         errorView.setVisibility(View.GONE);
         loadingView.setVisibility(View.VISIBLE);
         cmpWebView.setVisibility(View.GONE);
@@ -117,7 +119,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
     public void showContent()
     {
-        Log.i(TAG, "showContent()");
+        log.info( "showContent()");
         errorView.setVisibility(View.GONE);
         loadingView.setVisibility(View.GONE);
         cmpWebView.setVisibility(View.VISIBLE);
@@ -161,11 +163,11 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         if (tenantConfiguration.getHost() != null && url.startsWith(tenantConfiguration.getHost()))
         {
             cmpWebView.attachJavaScriptInterface();
-            Log.i(TAG, "attachJavascript()");
+            log.info( "attachJavascript()");
         }
         else
         {
-            Log.e(TAG, "attachJavascript() not called wrong url" + url);
+            log.error("attachJavascript() not called wrong url" + url);
         }
     }
 
@@ -189,7 +191,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
     private void performActionWithBuffer(String action)
     {
-        Log.i(TAG, "performActionWithBuffer() add action to queue" + action);
+        log.info( "performActionWithBuffer() add action to queue" + action);
         formViewController.addAction(action);
     }
 
@@ -202,14 +204,14 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     @Override
     public void onPageStarted(String url)
     {
-        Log.i(TAG, "onPageStarted()");
+        log.info( "onPageStarted()");
         showLoading();
     }
 
     @Override
     public void onPageFinished(String url)
     {
-        Log.i(TAG, "onPageFinished()");
+        log.info( "onPageFinished()");
         attachJavascript(url);
         formViewController.executeWaitingActions();
     }
@@ -225,7 +227,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
         ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL);
 
-        Log.w(TAG, "Receive error loading resources" + error.toString());
+        log.warn("Receive error loading resources" + error.toString());
     }
 
     public boolean isOnline()
