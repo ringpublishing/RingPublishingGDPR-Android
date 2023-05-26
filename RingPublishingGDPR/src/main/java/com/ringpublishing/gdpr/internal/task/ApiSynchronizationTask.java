@@ -39,26 +39,26 @@ public class ApiSynchronizationTask
     {
         if (requestsState.isLoading())
         {
-            log.warn("Update apiMethodFinished, but still state is loading");
+            log.warn("In api synchronization task update apiMethodFinished, but still state is loading, so ignored");
             return;
         }
 
         if (consentFormListener == null)
         {
-            log.error("consentFormListener is null");
+            log.error("In Api synchronization task consentFormListener is null. Listener should be assigned to GDPR");
             ringPublishingGDPRListener.onError(RingPublishingGDPRError.EMPTY_CONSENT_FORM_LISTER, "ApiSynchronizationTask consentFormListener == null");
             return;
         }
 
         if (requestsState.isFailure())
         {
-            log.debug("requestsState.isFailure()  -> onConsentsUpToDate");
+            log.debug("In Api synchronization task in requests state check is Failure. Ignore check and deliver onConsentsUpToDate callback");
             ringPublishingGDPRListener.onError(RingPublishingGDPRError.REQUESTS_STATE_FAILURE, "ApiSynchronizationTask requestsState.isFailure()");
             consentFormListener.onConsentsUpToDate();
         }
         else if (!tenantConfiguration.isGdprApplies())
         {
-            log.debug( "tenantConfiguration is not set -> onConsentsUpToDate");
+            log.debug( "In Api synchronization task tenantConfiguration is not set. Ignore check and deliver onConsentsUpToDate callback");
             ringPublishingGDPRListener.onError(RingPublishingGDPRError.MISSING_TENANT_CONFIGURATION, "ApiSynchronizationTask !tenantConfiguration.isGdprApplies()");
             consentFormListener.onConsentsUpToDate();
         }
@@ -66,12 +66,12 @@ public class ApiSynchronizationTask
         {
             if (storage.isConsentOutdated() || !storage.didAskUserForConsents())
             {
-                log.debug("isConsentOutdated | not didAskUserForConsents  -> onReadyToShowForm");
+                log.debug("In Api synchronization task consent is outdated or not ask User for for consents before. So call ");
                 consentFormListener.onReadyToShowForm();
             }
             else
             {
-                log.debug("requestsState:" + requestsState.toString() + " other case  -> onConsentsUpToDate");
+                log.debug("In Api synchronization task consents are up to date with requestsState: " + requestsState.toString());
                 consentFormListener.onConsentsUpToDate();
             }
         }

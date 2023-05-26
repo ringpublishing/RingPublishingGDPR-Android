@@ -74,7 +74,7 @@ public class Preferences
         }
         else
         {
-            log.error("Unsupported object to save. Fail. Key" + key + " value " + value);
+            log.error("Unsupported object to save in preferences. Fail save " + key + " value " + value);
         }
     }
 
@@ -95,7 +95,7 @@ public class Preferences
 
     public void setInt(String key, int value)
     {
-        log.info( "Save Int preference: " + key + " value:" + value);
+        log.info( "Save Int preference: " + key + " value: " + value);
         preferences.edit().putInt(key, value).apply();
     }
 

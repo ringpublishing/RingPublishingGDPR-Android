@@ -47,12 +47,12 @@ public class Api
                         final VerifyResponse body = response.body();
                         if (body == null || !body.isValid())
                         {
-                            log.info( "Verify response outdated");
+                            log.info( "After call verify api on response we have information, that consents are outdated");
                             callback.onOutdated(response.raw().toString());
                         }
                         else
                         {
-                            log.info( "Verify response actual");
+                            log.info( "After call verify api on response we have information, that consents are actual");
                             callback.onActual(response.raw().toString());
                         }
                     }
@@ -60,7 +60,7 @@ public class Api
                     @Override
                     public void onFailure(@NonNull Call<VerifyResponse> call, @NonNull Throwable throwable)
                     {
-                        log.warn("Verify request failure" + throwable.getLocalizedMessage());
+                        log.warn("After call verify api on failure response we have error: " + throwable.getLocalizedMessage());
 
                         callback.onFailure("Request fail: " + throwable.getLocalizedMessage());
                     }
@@ -89,14 +89,14 @@ public class Api
             {
                 if (!response.isSuccessful())
                 {
-                    log.warn("Configuration response not successful");
+                    log.warn("After configuration api call response is not successful");
                     callback.onFailure();
                     return;
                 }
                 final JsonObject jsonObject = response.body();
                 if (jsonObject == null)
                 {
-                    log.warn("Configuration response body is null");
+                    log.warn("After configuration api call response body is null");
                     callback.onFailure();
                     return;
                 }
@@ -109,7 +109,7 @@ public class Api
                 final JsonElement urlElement = jsonObject.get(BuildConfig.CMP_JSON_CONFIGURATION_FIELD_HOST);
                 if (urlElement == null)
                 {
-                    log.warn("Configuration response body parameter HOST is null");
+                    log.warn("Configuration response body parameter CMP_JSON_CONFIGURATION_FIELD_HOST is null");
                     callback.onFailure();
                     return;
                 }
@@ -117,7 +117,7 @@ public class Api
                 final String url = urlElement.getAsString();
                 if (TextUtils.isEmpty(url))
                 {
-                    log.warn("Configuration response body parameter is empty");
+                    log.warn("Configuration response body parameter CMP_JSON_CONFIGURATION_FIELD_HOST is empty");
                     callback.onFailure();
                     return;
                 }
@@ -131,7 +131,7 @@ public class Api
                     try
                     {
                         gdprApplies = gdprAppliesElement.getAsBoolean();
-                        log.warn(String.format("Configuration response url with brandName is:%s gdprApplies:%s ", url, gdprApplies));
+                        log.info(String.format("Configuration response url with brandName is:%s gdprApplies:%s ", url, gdprApplies));
                     }
                     catch (ClassCastException | IllegalStateException cce)
                     {
@@ -148,7 +148,7 @@ public class Api
             public void onFailure(@NonNull Call<JsonObject> call, @NonNull Throwable throwable)
             {
                 //Only when we received invalid data
-                log.warn("Configuration response failure" + throwable.getLocalizedMessage());
+                log.warn("Configuration response is failure. Error: " + throwable.getLocalizedMessage());
                 callback.onFailure();
             }
         };

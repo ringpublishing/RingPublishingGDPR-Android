@@ -53,6 +53,7 @@ public class FetchConfigurationTask
             @Override
             public void onSuccess(@NonNull String url, boolean gdprApplies)
             {
+                log.info( "Fetch api configuration task success");
                 setTenantConfiguration(true, gdprApplies);
                 tenantConfiguration.setHost(url);
                 finishCallback.run();
@@ -62,9 +63,9 @@ public class FetchConfigurationTask
             public void onFailure()
             {
                 setTenantConfiguration(false, false);
-                log.warn( "Failure onConfigurationFailure");
+                log.warn( "Fetch api configuration task failure");
                 finishCallback.run();
-                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_FETCH_TENANT_CONFIGURATION, "FetchConfigurationTask onFailure()");
+                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_FETCH_TENANT_CONFIGURATION, "Fetch api configuration task failure");
             }
         });
     }

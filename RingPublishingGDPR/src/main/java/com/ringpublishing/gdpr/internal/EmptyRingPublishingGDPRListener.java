@@ -13,7 +13,7 @@ public class EmptyRingPublishingGDPRListener implements RingPublishingGDPRListen
     @Override
     public void onConsentsUpdated()
     {
-        Logger.get().debug("onConsentsUpdated");
+        Logger.get().debug("Empty implementation method onConsentsUpdated() called");
     }
 
 }

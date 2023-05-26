@@ -280,7 +280,7 @@ public final class RingPublishingGDPR
     {
         if (initialized)
         {
-            log.warn("Second initialization ignored");
+            log.warn("initializeInternal() called more that one time. This initialization ignored");
             return;
         }
 

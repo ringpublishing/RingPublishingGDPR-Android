@@ -29,7 +29,7 @@ public class CmpWebViewClient extends WebViewClient
     @Override
     public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error)
     {
-        log.warn("WebView loading error " + error.toString());
+        log.warn("Webview load url: " +  view.getUrl() +" is fail. WebView receive error: " + error.toString());
         super.onReceivedError(view, request, error);
         callback.onReceivedError(request, error);
     }
@@ -37,7 +37,7 @@ public class CmpWebViewClient extends WebViewClient
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon)
     {
-        log.info( "Load url " + url);
+        log.info( "Webview load started with url: " + url);
 
         callback.onPageStarted(url);
         super.onPageStarted(view, url, favicon);
@@ -46,7 +46,7 @@ public class CmpWebViewClient extends WebViewClient
     @Override
     public void onPageFinished(WebView view, String url)
     {
-        log.info("Load url finish " + url);
+        log.info("Webview load url page finish with url: " + url);
 
         super.onPageFinished(view, url);
         callback.onPageFinished(url);
@@ -71,7 +71,7 @@ public class CmpWebViewClient extends WebViewClient
             }
             catch (ActivityNotFoundException e)
             {
-                log.error("Activity not found to open link" + e.getLocalizedMessage());
+                log.error("Activity not found exception when try open link: " + url + " Error: " + e.getLocalizedMessage());
                 return false;
             }
         }

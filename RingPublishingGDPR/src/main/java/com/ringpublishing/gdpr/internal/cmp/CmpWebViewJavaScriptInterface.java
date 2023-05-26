@@ -38,65 +38,65 @@ public class CmpWebViewJavaScriptInterface
             {
                 case tcloaded:
                 {
-                    log.info( "Event: TC_LOADED");
+                    log.info( "TCF Event: TC_LOADED");
                     webViewCallback.onActionLoaded();
                     break;
                 }
                 case cmpuishown:
                 {
-                    log.info( "Event: SHOWN");
+                    log.info( "TCF Event: SHOWN");
                     webViewCallback.onActionLoaded();
                     break;
                 }
                 case useractioncomplete:
                 {
-                    log.info( "Event: USER ACTION COMPLETTE");
+                    log.info( "TCF Event: USER ACTION COMPLETE");
                     webViewCallback.onActionComplete();
                     break;
                 }
                 default:
                 {
-                    log.warn("Event: WARNING UNKNOWN EVENT" + eventStatus);
+                    log.warn("TCF Event: WARNING UNKNOWN EVENT eventStatus: " + eventStatus);
                 }
             }
         }
         catch (JSONException e)
         {
-            log.warn("Event Error parsing tcData: " + tcData + e.getLocalizedMessage());
+            log.warn("Event Error parsing tcData form javascript interface. Tcdata: " + tcData + " Error: " + e.getLocalizedMessage());
         }
     }
 
     @JavascriptInterface
     public void onError(String error)
     {
-        log.info( "Cmp WebView Error: " + error);
+        log.info( "Error from WebView javascript interface. Cmp error: " + error);
         webViewCallback.onActionError(error);
     }
 
     @JavascriptInterface
     public void getInAppTCData(String tcData, boolean success)
     {
-        log.info( "getInAppTCData" + tcData);
+        log.info( "Webview obtain tcData from javascript interface with value: " + tcData);
         webViewCallback.onActionInAppTCData(tcData, success);
     }
 
     @JavascriptInterface
     public void getCompleteConsentData(String error, String dlData)
     {
-        log.info( "getCompleteConsentData(error=" + error + " ,data=" + dlData);
+        log.info( "Webview get consent data from javascript interface with data: " + dlData + " and error: " + error);
         webViewCallback.getCompleteConsentData(error, dlData);
     }
 
     @JavascriptInterface
     public void showWelcomeScreen()
     {
-        log.info( "showWelcomeScreen call success");
+        log.info( "Javascript interface method showWelcomeScreen() call success");
     }
 
     @JavascriptInterface
     public void showSettingsScreen()
     {
-        log.info( "showSettingsScreen call success");
+        log.info( "Javascript interface method showSettingsScreen() call success");
     }
 
 }

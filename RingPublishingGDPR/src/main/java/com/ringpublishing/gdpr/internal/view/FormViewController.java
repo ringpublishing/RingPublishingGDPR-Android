@@ -50,7 +50,7 @@ public class FormViewController implements TimeoutCallback
 
     void executeWaitingActions()
     {
-        log.info( "FormViewImpl. call executeWaitingActions() action: " + actionsQueue.size());
+        log.info( "FormViewImpl. call executeWaitingActions() with action: " + actionsQueue.size());
         if (actionsQueue.isEmpty())
         {
             return;
@@ -59,7 +59,7 @@ public class FormViewController implements TimeoutCallback
         for (String action : actionsQueue)
         {
             formViewImpl.performAction(action);
-            log.info( "FormViewImpl.executeWaitingActions() action: " + action);
+            log.info( "FormViewImpl call executeWaitingActions() with action: " + action);
         }
 
         actionsQueue.clear();
@@ -78,8 +78,8 @@ public class FormViewController implements TimeoutCallback
     @Override
     public void onTimeout()
     {
-        log.warn("Loading cmp site timeout");
-        formViewImpl.onFailure("Loading cmp site timeout");
+        log.warn("Loading cmp site timeout reached. Respond with failure callback");
+        formViewImpl.onFailure("Loading cmp site timeout reached");
     }
 
     public void callFormSubmittedActions()

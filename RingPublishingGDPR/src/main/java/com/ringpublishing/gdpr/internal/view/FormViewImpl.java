@@ -109,7 +109,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
     public void showLoading()
     {
-        log.info( "showLoading()");
+        log.info( "Form view showLoading()");
         errorView.setVisibility(View.GONE);
         loadingView.setVisibility(View.VISIBLE);
         cmpWebView.setVisibility(View.GONE);
@@ -117,7 +117,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
     public void showContent()
     {
-        log.info( "showContent()");
+        log.info( "Form view showContent()");
         errorView.setVisibility(View.GONE);
         loadingView.setVisibility(View.GONE);
         cmpWebView.setVisibility(View.VISIBLE);
@@ -160,13 +160,13 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     {
         if (tenantConfiguration.getHost() != null && url.startsWith(tenantConfiguration.getHost()))
         {
+            log.info( "Form view attachJavascript()");
             cmpWebView.attachJavaScriptInterface();
-            log.info( "attachJavascript()");
         }
         else
         {
-            log.error("attachJavascript() not called wrong url" + url);
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_MISSING_HOST, "attachJavascript tenantConfiguration.getHost()=" + tenantConfiguration.getHost());
+            log.error("Form view attachJavascript() not called because of wrong url: " + url);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_MISSING_HOST, "Form view attachJavascript() not called because of wrong url: " + tenantConfiguration.getHost());
         }
     }
 
@@ -190,7 +190,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
     private void performActionWithBuffer(String action)
     {
-        log.info( "performActionWithBuffer() add action to queue" + action);
+        log.info( "Form view performActionWithBuffer() add to queue action: " + action);
         formViewController.addAction(action);
     }
 
@@ -203,14 +203,14 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     @Override
     public void onPageStarted(String url)
     {
-        log.info( "onPageStarted()");
+        log.info( "Form view onPageStarted()");
         showLoading();
     }
 
     @Override
     public void onPageFinished(String url)
     {
-        log.info( "onPageFinished()");
+        log.info( "Form view onPageFinished()");
         attachJavascript(url);
         formViewController.executeWaitingActions();
     }
@@ -222,11 +222,11 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         if (!networkInfo.isOnline())
         {
             showError();
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "onReceivedError() User is offline. Request:" + request.getMethod() + " error:" + error.getDescription());
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "Receive error loading resources. Called onReceivedError() User is offline. Request:" + request.getMethod() + " error:" + error.getDescription());
         }
         else
         {
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "onReceivedError() User is online. Request:" + request.getMethod() + " error:" + error.getDescription());
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "Receive error loading resources. Called onReceivedError() User is online. Request:" + request.getMethod() + " error:" + error.getDescription());
             log.warn("Receive error loading resources" + error.toString());
         }
     }

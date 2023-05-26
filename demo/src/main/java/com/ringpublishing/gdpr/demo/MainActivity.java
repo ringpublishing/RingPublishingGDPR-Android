@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements RingPublishingGDP
         final Map<String, ?> all = preferences.getAll();
         for (String preference : all.keySet())
         {
-            Log.i(TAG, "Preference key=" + preference + " value= " + all.get(preference));
+            Log.i(TAG, "Saved preference key=" + preference + " value= " + all.get(preference));
         }
     }
 
