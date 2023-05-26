@@ -80,7 +80,7 @@ public class CmpWebView
         catch (IOException e)
         {
             Logger.get().error("Load JavaScript error" + e.getLocalizedMessage());
-            cmpWebViewJavaScriptInterface.onError("Fail attach javascript intefrace" + e.getLocalizedMessage());
+            cmpWebViewJavaScriptInterface.onError("Fail attach javascript interface" + e.getLocalizedMessage());
         }
     }
 

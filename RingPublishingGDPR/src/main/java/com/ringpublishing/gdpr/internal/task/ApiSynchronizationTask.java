@@ -46,20 +46,20 @@ public class ApiSynchronizationTask
         if (consentFormListener == null)
         {
             log.error("consentFormListener is null");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.EMPTY_CONSENT_FORM_LISTER);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.EMPTY_CONSENT_FORM_LISTER, "ApiSynchronizationTask consentFormListener == null");
             return;
         }
 
         if (requestsState.isFailure())
         {
             log.debug("requestsState.isFailure()  -> onConsentsUpToDate");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.REQUESTS_STATE_FAILURE);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.REQUESTS_STATE_FAILURE, "ApiSynchronizationTask requestsState.isFailure()");
             consentFormListener.onConsentsUpToDate();
         }
         else if (!tenantConfiguration.isGdprApplies())
         {
             log.debug( "tenantConfiguration is not set -> onConsentsUpToDate");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.MISSING_TENANT_CONFIGURATION);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.MISSING_TENANT_CONFIGURATION, "ApiSynchronizationTask !tenantConfiguration.isGdprApplies()");
             consentFormListener.onConsentsUpToDate();
         }
         else
@@ -71,7 +71,7 @@ public class ApiSynchronizationTask
             }
             else
             {
-                log.debug(requestsState.toString() + " other case  -> onConsentsUpToDate");
+                log.debug("requestsState:" + requestsState.toString() + " other case  -> onConsentsUpToDate");
                 consentFormListener.onConsentsUpToDate();
             }
         }

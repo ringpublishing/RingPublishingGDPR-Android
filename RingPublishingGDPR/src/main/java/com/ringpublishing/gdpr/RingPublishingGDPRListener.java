@@ -18,9 +18,9 @@ public interface RingPublishingGDPRListener
      *
      * @param error @{@link RingPublishingGDPRError}
      */
-    default void onError(RingPublishingGDPRError error)
+    default void onError(RingPublishingGDPRError error, String detailMessage)
     {
-        Logger.get().warn(String.format("Error: %s", error.name()));
+        Logger.get().warn(String.format("RingPublishingGDPRListener Error: %s %s", error.name(), detailMessage));
     }
 
 }

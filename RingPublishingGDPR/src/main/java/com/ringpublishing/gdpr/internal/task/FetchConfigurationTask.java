@@ -53,26 +53,26 @@ public class FetchConfigurationTask
             @Override
             public void onSuccess(@NonNull String url, boolean gdprApplies)
             {
-                setTenantConfiguration(true, url, gdprApplies);
+                setTenantConfiguration(true, gdprApplies);
+                tenantConfiguration.setHost(url);
                 finishCallback.run();
             }
 
             @Override
             public void onFailure()
             {
-                setTenantConfiguration(false, null, false);
+                setTenantConfiguration(false, false);
                 log.warn( "Failure onConfigurationFailure");
                 finishCallback.run();
-                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_FETCH_TENANT_CONFIGURATION);
+                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_FETCH_TENANT_CONFIGURATION, "FetchConfigurationTask onFailure()");
             }
         });
     }
 
-    private void setTenantConfiguration(boolean success, @Nullable String url, boolean gdprApplies)
+    private void setTenantConfiguration(boolean success, boolean gdprApplies)
     {
         storage.configureGDPRApplies(gdprApplies);
         requestsState.setTenantState(success ? TenantState.SUCCESS : TenantState.FAILURE);
-        tenantConfiguration.setHost(url);
         tenantConfiguration.setGdprApplies(gdprApplies);
     }
 

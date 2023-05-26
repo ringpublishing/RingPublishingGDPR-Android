@@ -49,7 +49,7 @@ public class Logger
     public void debugLogEnabled(boolean enabled)
     {
         debugLogEnabled = enabled;
-        info("Set debug log enabled: $enabled");
+        info("Set debug log enabled: " + enabled);
     }
 
     /**

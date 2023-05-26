@@ -3,6 +3,7 @@ package com.ringpublishing.gdpr.internal.cmp;
 import android.text.TextUtils;
 import android.webkit.CookieManager;
 
+import com.ringpublishing.gdpr.RingPublishingGDPRError;
 import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
 import com.ringpublishing.gdpr.internal.log.Logger;
@@ -52,11 +53,13 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
         {
             Logger.get().error("Cmp site closeForm. Error: " + error);
             closeForm();
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, error);
         }
         else
         {
             Logger.get().error("Cmp site error: " + error);
             formViewImpl.showError();
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "User is offline. " + error);
         }
     }
 
@@ -74,12 +77,16 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
             {
                 storage.clearAllConsentData();
                 Logger.get().error("saveTCData fail!!" + e.getLocalizedMessage());
+                closeForm();
+                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_VERIFY_CONSENTS_STATE, e.getLocalizedMessage());
             }
         }
         else
         {
             storage.clearAllConsentData();
             Logger.get().error("Save TCData fail");
+            closeForm();
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_VERIFY_CONSENTS_STATE, "onActionInAppTCData() not success" + tcData);
         }
 
         CookieManager.getInstance().flush();
@@ -100,27 +107,31 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
             try
             {
                 storage.saveConsentData(dlData);
+
+                boolean closeForm = formViewImpl.waitingActionFinish(ActionType.GET_COMPLETE_CONSENT_DATA);
+                if (closeForm)
+                {
+                    closeForm();
+                    ringPublishingGDPRListener.onConsentsUpdated();
+                }
             }
             catch (JSONException e)
             {
                 storage.clearAllConsentData();
+                closeForm();
                 Logger.get().error("Fail saving consent data" + e.getLocalizedMessage());
+                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_VERIFY_CONSENTS_STATE, "Parse dlData exception: " + e.getLocalizedMessage());
             }
         }
         else
         {
             storage.clearAllConsentData();
-            Logger.get().error("Save dlData fail");
+            closeForm();
+            Logger.get().error("Save dlData fail.Error " + error);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_VERIFY_CONSENTS_STATE, "getCompleteConsentData error: " + error + " dlData:" + dlData);
         }
 
         CookieManager.getInstance().flush();
-
-        boolean closeForm = formViewImpl.waitingActionFinish(ActionType.GET_COMPLETE_CONSENT_DATA);
-        if (closeForm)
-        {
-            closeForm();
-            ringPublishingGDPRListener.onConsentsUpdated();
-        }
     }
 
     private void closeForm()

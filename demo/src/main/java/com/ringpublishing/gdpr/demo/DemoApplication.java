@@ -67,9 +67,9 @@ public class DemoApplication extends MultiDexApplication
             }
 
             @Override
-            public void onError(RingPublishingGDPRError error)
+            public void onError(RingPublishingGDPRError error, String detailMessage)
             {
-                Log.e("GDPR_ERROR", String.format("Error %s", error.name()));
+                Log.e("GDPR_ERROR", String.format("Error %s message %s", error.name(), detailMessage));
             }
         });
 

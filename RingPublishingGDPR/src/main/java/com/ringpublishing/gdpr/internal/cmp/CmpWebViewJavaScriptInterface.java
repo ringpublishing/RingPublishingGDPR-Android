@@ -15,8 +15,6 @@ import static com.ringpublishing.gdpr.internal.cmp.CmpEvent.valueOf;
 public class CmpWebViewJavaScriptInterface
 {
 
-    private static final String TAG = CmpWebViewJavaScriptInterface.class.getCanonicalName();
-
     private static final String TD_DATA_KEY_EVENT_STATUS = "eventStatus";
 
     private final CmpWebViewActionCallback webViewCallback;
@@ -71,7 +69,7 @@ public class CmpWebViewJavaScriptInterface
     @JavascriptInterface
     public void onError(String error)
     {
-        log.info( "Cmp WebView Error" + error);
+        log.info( "Cmp WebView Error: " + error);
         webViewCallback.onActionError(error);
     }
 
@@ -85,7 +83,7 @@ public class CmpWebViewJavaScriptInterface
     @JavascriptInterface
     public void getCompleteConsentData(String error, String dlData)
     {
-        log.info( "getCompleteConsentData(error=" + error + ",data=" + dlData);
+        log.info( "getCompleteConsentData(error=" + error + " ,data=" + dlData);
         webViewCallback.getCompleteConsentData(error, dlData);
     }
 

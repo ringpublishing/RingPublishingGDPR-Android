@@ -33,8 +33,6 @@ import androidx.core.graphics.drawable.DrawableCompat;
 public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewClientCallback
 {
 
-    public static final String TAG = FormViewImpl.class.getCanonicalName();
-
     @NonNull
     private final NetworkInfo networkInfo;
 
@@ -154,7 +152,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         else
         {
             onFailure("Loading cmp site fail. TenantConfiguration is null");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_MISSING_HOST);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_MISSING_HOST, "loadCmpSite missing host " + tenantConfiguration.getHost());
         }
     }
 
@@ -168,6 +166,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         else
         {
             log.error("attachJavascript() not called wrong url" + url);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_MISSING_HOST, "attachJavascript tenantConfiguration.getHost()=" + tenantConfiguration.getHost());
         }
     }
 
@@ -223,11 +222,13 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         if (!networkInfo.isOnline())
         {
             showError();
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "onReceivedError() User is offline. Request:" + request.getMethod() + " error:" + error.getDescription());
         }
-
-        ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL);
-
-        log.warn("Receive error loading resources" + error.toString());
+        else
+        {
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "onReceivedError() User is online. Request:" + request.getMethod() + " error:" + error.getDescription());
+            log.warn("Receive error loading resources" + error.toString());
+        }
     }
 
     public boolean isOnline()

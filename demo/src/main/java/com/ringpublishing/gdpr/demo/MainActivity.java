@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.ringpublishing.gdpr.RingPublishingGDPR;
+import com.ringpublishing.gdpr.RingPublishingGDPRError;
 import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.demo.databinding.ActivityMainBinding;
 
