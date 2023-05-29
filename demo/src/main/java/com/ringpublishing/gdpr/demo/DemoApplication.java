@@ -8,6 +8,7 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.ringpublishing.gdpr.BuildConfig;
+import com.ringpublishing.gdpr.LogListener;
 import com.ringpublishing.gdpr.RingPublishingGDPR;
 import com.ringpublishing.gdpr.RingPublishingGDPRError;
 import com.ringpublishing.gdpr.RingPublishingGDPRListener;
@@ -66,9 +67,9 @@ public class DemoApplication extends MultiDexApplication
             }
 
             @Override
-            public void onError(RingPublishingGDPRError error)
+            public void onError(RingPublishingGDPRError error, String detailMessage)
             {
-                Log.e("GDPR_ERROR", String.format("Error %s", error.name()));
+                Log.e("GDPR_ERROR", String.format("Error: %s message: %s", error.name(), detailMessage));
             }
         });
 
@@ -83,6 +84,43 @@ public class DemoApplication extends MultiDexApplication
         // If you want, you can also use alternative initialization method with additional parameter: forcedGDPRApplies
         // ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig, true);
         // ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig, false);
+
+
+        if (BuildConfig.DEBUG)
+        {
+            RingPublishingGDPR.getInstance().enableDebugLogs(true);
+            addOptionalCustomLogger();
+        }
+    }
+
+    private static void addOptionalCustomLogger()
+    {
+        RingPublishingGDPR.getInstance().addLogListener(new LogListener()
+        {
+            @Override
+            public void debug(String message)
+            {
+                //Your local or remote log handler
+            }
+
+            @Override
+            public void info(String message)
+            {
+                //Your local or remote log handler
+            }
+
+            @Override
+            public void warn(String message)
+            {
+                //Your local or remote log handler
+            }
+
+            @Override
+            public void error(String message)
+            {
+                //Your local or remote log handler
+            }
+        });
     }
 
     private void initializeApplicationExternalLibraries()

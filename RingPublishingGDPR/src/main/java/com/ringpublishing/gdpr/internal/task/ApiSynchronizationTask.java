@@ -1,10 +1,9 @@
 package com.ringpublishing.gdpr.internal.task;
 
-import android.util.Log;
-
 import com.ringpublishing.gdpr.ConsentFormListener;
 import com.ringpublishing.gdpr.RingPublishingGDPRError;
 import com.ringpublishing.gdpr.RingPublishingGDPRListener;
+import com.ringpublishing.gdpr.internal.log.Logger;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.storage.Storage;
@@ -14,9 +13,6 @@ import androidx.annotation.Nullable;
 
 public class ApiSynchronizationTask
 {
-
-    private final String TAG = ApiSynchronizationTask.class.getCanonicalName();
-
     @NonNull
     private final RequestsState requestsState;
 
@@ -28,6 +24,8 @@ public class ApiSynchronizationTask
 
     @NonNull
     private final RingPublishingGDPRListener ringPublishingGDPRListener;
+
+    private final Logger log = Logger.get();
 
     public ApiSynchronizationTask(@NonNull RequestsState requestsState, @NonNull TenantConfiguration tenantConfiguration, @NonNull Storage storage, @NonNull RingPublishingGDPRListener ringPublishingGDPRListener)
     {
@@ -41,39 +39,39 @@ public class ApiSynchronizationTask
     {
         if (requestsState.isLoading())
         {
-            Log.w(TAG, "Update apiMethodFinished, but still state is loading");
+            log.warn("In api synchronization task update apiMethodFinished, but still state is loading, so ignored");
             return;
         }
 
         if (consentFormListener == null)
         {
-            Log.e(TAG, "consentFormListener is null");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.EMPTY_CONSENT_FORM_LISTER);
+            log.error("In Api synchronization task consentFormListener is null. Listener should be assigned to GDPR");
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.EMPTY_CONSENT_FORM_LISTER, "ApiSynchronizationTask consentFormListener == null");
             return;
         }
 
         if (requestsState.isFailure())
         {
-            Log.d(TAG, "requestsState.isFailure()  -> onConsentsUpToDate");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.REQUESTS_STATE_FAILURE);
+            log.debug("In Api synchronization task in requests state check is Failure. Ignore check and deliver onConsentsUpToDate callback");
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.REQUESTS_STATE_FAILURE, "ApiSynchronizationTask requestsState.isFailure()");
             consentFormListener.onConsentsUpToDate();
         }
         else if (!tenantConfiguration.isGdprApplies())
         {
-            Log.d(TAG, "tenantConfiguration is not set -> onConsentsUpToDate");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.MISSING_TENANT_CONFIGURATION);
+            log.debug( "In Api synchronization task tenantConfiguration is not set. Ignore check and deliver onConsentsUpToDate callback");
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.MISSING_TENANT_CONFIGURATION, "ApiSynchronizationTask !tenantConfiguration.isGdprApplies()");
             consentFormListener.onConsentsUpToDate();
         }
         else
         {
             if (storage.isConsentOutdated() || !storage.didAskUserForConsents())
             {
-                Log.d(TAG, "isConsentOutdated | not didAskUserForConsents  -> onReadyToShowForm");
+                log.debug("In Api synchronization task consent is outdated or not ask User for for consents before. So call ");
                 consentFormListener.onReadyToShowForm();
             }
             else
             {
-                Log.d(TAG, requestsState.toString() + " other case  -> onConsentsUpToDate");
+                log.debug("In Api synchronization task consents are up to date with requestsState: " + requestsState.toString());
                 consentFormListener.onConsentsUpToDate();
             }
         }

@@ -6,6 +6,11 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
 import com.ringpublishing.gdpr.internal.android.Device;
+import com.ringpublishing.gdpr.internal.log.Logger;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class UserAgent
 {
@@ -46,6 +51,17 @@ public class UserAgent
         {
             result = aInfo.packageName;
         }
+
+        try
+        {
+            result = URLEncoder.encode(result, StandardCharsets.UTF_8.toString());
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            result = "AppName";
+            Logger.get().warn("User agent encode fail:" +e.getLocalizedMessage());
+        }
+
         return result;
     }
 

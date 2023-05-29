@@ -2,7 +2,6 @@ package com.ringpublishing.gdpr.internal.cmp;
 
 public interface CmpWebViewActionCallback
 {
-
     void onActionLoaded();
 
     void onActionComplete();
