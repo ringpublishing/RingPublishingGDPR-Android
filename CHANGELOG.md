@@ -1,3 +1,12 @@
+1.7.0 Release notes (2023-05-26)
+=============================================================
+
+### Changes
+
+* New option to add or remove additional custom logger in class 'RingPublishingGDPR' by method 'addLogListener()'
+* New parameter 'detailMessage' on method 'void onError(RingPublishingGDPRError error, String detailMessage)' in 'RingPublishingGDPRListener'
+* Parameter 'detailMessage' is used for get more information about errors during loading and display consent form
+
 1.6.1 Release notes (2022-11-03)
 =============================================================
 
