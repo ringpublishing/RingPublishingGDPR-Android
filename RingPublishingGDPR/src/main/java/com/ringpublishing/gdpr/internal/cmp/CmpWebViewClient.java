@@ -29,7 +29,7 @@ public class CmpWebViewClient extends WebViewClient
     @Override
     public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error)
     {
-        log.warn("Webview load url: " +  view.getUrl() +" is fail. WebView receive error: " + error.toString());
+        log.warn("Webview load url: " +  view.getUrl() +" is fail. WebView receive error: " + error.getDescription() + " code: " + error.getErrorCode());
         super.onReceivedError(view, request, error);
         callback.onReceivedError(request, error);
     }

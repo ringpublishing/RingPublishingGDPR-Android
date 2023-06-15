@@ -45,8 +45,7 @@ public class ApiSynchronizationTask
 
         if (consentFormListener == null)
         {
-            log.error("In Api synchronization task consentFormListener is null. Listener should be assigned to GDPR");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.EMPTY_CONSENT_FORM_LISTER, "ApiSynchronizationTask consentFormListener == null");
+            log.info("In Api synchronization task consentFormListener is null. Listener is currently not assigned to GDPR. Nothing to inform");
             return;
         }
 
