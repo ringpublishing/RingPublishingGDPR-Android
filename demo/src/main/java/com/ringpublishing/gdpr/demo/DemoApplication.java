@@ -69,7 +69,14 @@ public class DemoApplication extends MultiDexApplication
             @Override
             public void onError(RingPublishingGDPRError error, String detailMessage)
             {
-                Log.e("GDPR_ERROR", String.format("Error: %s message: %s", error.name(), detailMessage));
+                if (error == RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR)
+                {
+                    Log.e("GDPR_ERROR", String.format("Cmp form closed by Error: %s", detailMessage));
+                }
+                else
+                {
+                    Log.e("GDPR_ERROR", String.format("Error: %s message: %s", error.name(), detailMessage));
+                }
             }
         });
 

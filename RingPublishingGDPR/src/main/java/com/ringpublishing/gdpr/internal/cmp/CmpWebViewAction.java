@@ -51,15 +51,13 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
     {
         if (formViewImpl.isOnline())
         {
-            Logger.get().error("Cmp site closeForm. Error: " + error);
-            closeForm();
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, error);
+            closeFormByError("Error when try execute action in webview. Error: " + error);
         }
         else
         {
-            Logger.get().error("Cmp site error: " + error);
+            Logger.get().error("User is offline. Error when try execute action in webview. Error: " + error);
             formViewImpl.showError();
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "User is offline. " + error);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "User is offline. Error when try execute action in webview. Error: " + error);
         }
     }
 
@@ -68,25 +66,23 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
     {
         if (success)
         {
-            Logger.get().info("Save TCData success");
             try
             {
+                Logger.get().info("Try to save TCData from javascript");
                 storage.saveTCData(tcData);
+
             }
             catch (JSONException e)
             {
                 storage.clearAllConsentData();
-                Logger.get().error("saveTCData fail!!" + e.getLocalizedMessage());
-                closeForm();
-                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_VERIFY_CONSENTS_STATE, e.getLocalizedMessage());
+                closeFormByError("When receive tcData from javascript and want to save TCData, " +
+                        "then have JSONException error:" + e.getLocalizedMessage() + " TcData to parse is: " + tcData);
             }
         }
         else
         {
             storage.clearAllConsentData();
-            Logger.get().error("Save TCData fail");
-            closeForm();
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_VERIFY_CONSENTS_STATE, "onActionInAppTCData() not success" + tcData);
+            closeFormByError("When receive tcData from javascript, result is not success. TcData is: " + tcData);
         }
 
         CookieManager.getInstance().flush();
@@ -118,20 +114,30 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
             catch (JSONException e)
             {
                 storage.clearAllConsentData();
-                closeForm();
                 Logger.get().error("Fail saving consent data" + e.getLocalizedMessage());
-                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_VERIFY_CONSENTS_STATE, "Parse dlData exception: " + e.getLocalizedMessage());
+                closeFormByError("When try to save consent data, then have JSONException with error: "
+                        + e.getLocalizedMessage() + " Parsed data is: " + dlData);
             }
         }
         else
         {
             storage.clearAllConsentData();
-            closeForm();
             Logger.get().error("Save dlData fail.Error " + error);
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_VERIFY_CONSENTS_STATE, "getCompleteConsentData error: " + error + " dlData:" + dlData);
+            closeFormByError("When try to get complete consent data, then have error: " + error + " dlData:" + dlData);
         }
 
         CookieManager.getInstance().flush();
+    }
+
+    private void closeFormByError(String errorMessage)
+    {
+        Logger.get().error("Close form by error. Error message: " + errorMessage);
+
+        if (ringPublishingGDPRListener != null)
+        {
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR, errorMessage);
+        }
+        closeForm();
     }
 
     private void closeForm()

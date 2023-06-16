@@ -73,7 +73,6 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         this.formViewController = new FormViewController(this);
         this.tenantConfiguration = tenantConfiguration;
         this.ringPublishingGDPRListener = ringPublishingGDPRListener;
-
         this.cmpWebViewCallback = new CmpWebViewAction(storage, this.ringPublishingGDPRListener, this);
 
         LayoutInflater.from(context).inflate(R.layout.ring_publishing_gdpr_contest_view, this);
@@ -166,7 +165,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         else
         {
             log.error("Form view attachJavascript() not called because of wrong url: " + url);
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_MISSING_HOST, "Form view attachJavascript() not called because of wrong url: " + tenantConfiguration.getHost());
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_MISSING_HOST, "Form view attachJavascript() not called because of wrong url: " + url);
         }
     }
 
@@ -222,12 +221,14 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         if (!networkInfo.isOnline())
         {
             showError();
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "Receive error loading resources. Called onReceivedError() User is offline. Request:" + request.getMethod() + " error:" + error.getDescription());
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "Receive error loading resources. Called onReceivedError() " +
+                    "User is offline. Request:" + request.getMethod() + " error:" + error.getDescription());
         }
         else
         {
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "Receive error loading resources. Called onReceivedError() User is online. Request:" + request.getMethod() + " error:" + error.getDescription());
             log.warn("Receive error loading resources: " + error.getDescription() + " code: " + error.getErrorCode());
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "Receive error loading resources. Called onReceivedError() " +
+                    "User is online. Request:" + request.getMethod() + " error:" + error.getDescription());
         }
     }
 
