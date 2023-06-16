@@ -227,7 +227,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         else
         {
             ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_LOADING_FAIL, "Receive error loading resources. Called onReceivedError() User is online. Request:" + request.getMethod() + " error:" + error.getDescription());
-            log.warn("Receive error loading resources" + error.toString());
+            log.warn("Receive error loading resources: " + error.getDescription() + " code: " + error.getErrorCode());
         }
     }
 
