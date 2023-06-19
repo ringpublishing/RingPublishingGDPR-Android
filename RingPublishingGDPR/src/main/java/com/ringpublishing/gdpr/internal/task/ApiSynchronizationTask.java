@@ -51,13 +51,13 @@ public class ApiSynchronizationTask
 
         if (requestsState.isFailure())
         {
-            log.debug("In Api synchronization task in requests state check is Failure. Ignore check and deliver onConsentsUpToDate callback");
+            log.error("In Api synchronization task in requests state check is Failure. Ignore check and deliver onConsentsUpToDate callback");
             ringPublishingGDPRListener.onError(RingPublishingGDPRError.REQUESTS_STATE_FAILURE, "ApiSynchronizationTask requestsState.isFailure()");
             consentFormListener.onConsentsUpToDate();
         }
         else if (!tenantConfiguration.isGdprApplies())
         {
-            log.debug( "In Api synchronization task tenantConfiguration is not set. Ignore check and deliver onConsentsUpToDate callback");
+            log.error( "In Api synchronization task tenantConfiguration is not set. Ignore check and deliver onConsentsUpToDate callback");
             ringPublishingGDPRListener.onError(RingPublishingGDPRError.MISSING_TENANT_CONFIGURATION, "ApiSynchronizationTask !tenantConfiguration.isGdprApplies()");
             consentFormListener.onConsentsUpToDate();
         }

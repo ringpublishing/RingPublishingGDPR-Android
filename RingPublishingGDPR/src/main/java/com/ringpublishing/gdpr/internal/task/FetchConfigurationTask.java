@@ -63,7 +63,7 @@ public class FetchConfigurationTask
             public void onFailure()
             {
                 setTenantConfiguration(false, false);
-                log.warn( "Fetch api configuration task failure");
+                log.error( "Fetch api configuration task failure");
                 finishCallback.run();
                 ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_FETCH_TENANT_CONFIGURATION, "Fetch api configuration task failure");
             }
