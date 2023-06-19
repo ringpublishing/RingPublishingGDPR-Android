@@ -1,3 +1,11 @@
+1.7.2 Release notes (2023-06-16)
+=============================================================
+
+### Changes
+
+* Add to 'RingPublishingGDPRError' new type of error 'CLOSE_FORM_WITH_ERROR' that inform about closed form.
+* Inform about close for errors in 'RingPublishingGDPRListener' in method 'onError()'
+
 1.7.1 Release notes (2023-06-15)
 =============================================================
 
