@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 apply from: '../bamboo.gradle'
 android
 {
-    compileSdkVersion APP_COMPILE_SDK_VERSION
-    buildToolsVersion APP_BUILD_TOOLS_VERSION
+    namespace 'com.ringpublishing.gdpr.demo'
+    compileSdk APP_COMPILE_SDK_VERSION
 
     compileOptions
     {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     buildFeatures
@@ -26,7 +26,6 @@ android
 
     defaultConfig
     {
-        applicationId "com.ringpublishing.gdpr.demo"
         minSdkVersion APP_MIN_SDK_VERSION
         targetSdkVersion APP_TARGET_SDK_VERSION
 
@@ -88,6 +87,8 @@ dependencies
     implementation "androidx.multidex:multidex:2.0.1"
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
+
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
     debugImplementation 'com.squareup.curtains:curtains:1.2.2'//todo fix crash from leakcanary 2.7 remove if leakcanary will get new version 2.8
