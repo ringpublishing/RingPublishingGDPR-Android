@@ -1,3 +1,27 @@
+1.7.2 Release notes (2023-06-16)
+=============================================================
+
+### Changes
+
+* Add to 'RingPublishingGDPRError' new type of error 'CLOSE_FORM_WITH_ERROR' that inform about closed form.
+* Inform about close for errors in 'RingPublishingGDPRListener' in method 'onError()'
+
+1.7.1 Release notes (2023-06-15)
+=============================================================
+
+### Changes
+
+* Remove error log about missing consentFormListener
+
+1.7.0 Release notes (2023-05-26)
+=============================================================
+
+### Changes
+
+* New option to add or remove additional custom logger in class 'RingPublishingGDPR' by method 'addLogListener()'
+* New parameter 'detailMessage' on method 'void onError(RingPublishingGDPRError error, String detailMessage)' in 'RingPublishingGDPRListener'
+* Parameter 'detailMessage' is used for get more information about errors during loading and display consent form
+
 1.6.1 Release notes (2022-11-03)
 =============================================================
 

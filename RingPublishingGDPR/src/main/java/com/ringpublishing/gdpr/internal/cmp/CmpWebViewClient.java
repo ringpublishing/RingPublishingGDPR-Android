@@ -4,22 +4,21 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.util.Log;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.ringpublishing.gdpr.BuildConfig;
+import com.ringpublishing.gdpr.internal.log.Logger;
 
 public class CmpWebViewClient extends WebViewClient
 {
-
-    private static final String TAG = CmpWebViewClient.class.getCanonicalName();
-
     private final CmpWebViewClientCallback callback;
 
     private final WebView webView;
+
+    private final Logger log = Logger.get();
 
     public CmpWebViewClient(CmpWebViewClientCallback callback, WebView webView)
     {
@@ -30,8 +29,7 @@ public class CmpWebViewClient extends WebViewClient
     @Override
     public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error)
     {
-        Log.w(TAG, "WebView loading error " + error.toString());
-
+        log.warn("Webview load url: " +  view.getUrl() +" is fail. WebView receive error: " + error.getDescription() + " code: " + error.getErrorCode());
         super.onReceivedError(view, request, error);
         callback.onReceivedError(request, error);
     }
@@ -39,7 +37,7 @@ public class CmpWebViewClient extends WebViewClient
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon)
     {
-        Log.i(TAG, "Load url " + url);
+        log.info( "Webview load started with url: " + url);
 
         callback.onPageStarted(url);
         super.onPageStarted(view, url, favicon);
@@ -48,7 +46,7 @@ public class CmpWebViewClient extends WebViewClient
     @Override
     public void onPageFinished(WebView view, String url)
     {
-        Log.i("Load url finish %s", url);
+        log.info("Webview load url page finish with url: " + url);
 
         super.onPageFinished(view, url);
         callback.onPageFinished(url);
@@ -73,7 +71,7 @@ public class CmpWebViewClient extends WebViewClient
             }
             catch (ActivityNotFoundException e)
             {
-                Log.e(TAG, "Activity not found to open link" + e.getLocalizedMessage());
+                log.error("Activity not found exception when try open link: " + url + " Error: " + e.getLocalizedMessage());
                 return false;
             }
         }

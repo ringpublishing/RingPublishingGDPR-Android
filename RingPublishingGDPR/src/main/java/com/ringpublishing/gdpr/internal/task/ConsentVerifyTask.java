@@ -1,11 +1,10 @@
 package com.ringpublishing.gdpr.internal.task;
 
-import android.util.Log;
-
 import com.ringpublishing.gdpr.RingPublishingGDPRError;
 import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.api.Api.VerifyCallback;
+import com.ringpublishing.gdpr.internal.log.Logger;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.model.VerifyState;
 import com.ringpublishing.gdpr.internal.storage.Storage;
@@ -16,9 +15,6 @@ import androidx.annotation.NonNull;
 
 public class ConsentVerifyTask
 {
-
-    private final String TAG = ConsentVerifyTask.class.getCanonicalName();
-
     private final Storage storage;
 
     private final Api api;
@@ -27,6 +23,8 @@ public class ConsentVerifyTask
 
     @NonNull
     private final RingPublishingGDPRListener ringPublishingGDPRListener;
+
+    private final Logger log = Logger.get();
 
     public ConsentVerifyTask(@NonNull Storage storage, @NonNull Api api, RequestsState requestsState, @NonNull RingPublishingGDPRListener ringPublishingGDPRListener)
     {
@@ -42,9 +40,9 @@ public class ConsentVerifyTask
 
         if (consents == null || consents.isEmpty())
         {
-            Log.w(TAG, "Fail verify consents. Consents are empty");
+            log.error("Fail verify consents. Consents are empty");
             requestsState.setVerifyState(VerifyState.FAILURE);
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.LOCAL_STORAGE_CONSENTS_EMPTY);
+            ringPublishingGDPRListener.onError(RingPublishingGDPRError.LOCAL_STORAGE_CONSENTS_EMPTY, "Missing consents: " + consents);
             finishCallback.run();
             return;
         }
@@ -74,8 +72,9 @@ public class ConsentVerifyTask
             {
                 storage.saveLastAPIConsentsCheckStatus(status);
                 requestsState.setVerifyState(VerifyState.FAILURE);
+                log.error("Verify consents failure. Status: " + status);
+                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_VERIFY_CONSENTS_STATE, "Verify consents failure: " + status);
                 finishCallback.run();
-                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_VERIFY_CONSENTS_STATE);
             }
         });
     }

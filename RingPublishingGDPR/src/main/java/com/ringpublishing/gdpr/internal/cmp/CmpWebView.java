@@ -1,11 +1,11 @@
 package com.ringpublishing.gdpr.internal.cmp;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.ringpublishing.gdpr.R;
+import com.ringpublishing.gdpr.internal.log.Logger;
 
 import java.io.IOException;
 
@@ -13,9 +13,6 @@ import androidx.annotation.NonNull;
 
 public class CmpWebView
 {
-
-    private static final String TAG = CmpWebView.class.getCanonicalName();
-
     private static final String JAVA_SCRIPT_INTERFACE_NAME = "Android";
 
     private final WebView webView;
@@ -42,7 +39,7 @@ public class CmpWebView
 
     private void addUserAgent(String userAgentHeader)
     {
-        Log.i(TAG, "User agent: " + userAgentHeader);
+        Logger.get().info( "User agent: " + userAgentHeader);
         webSettings.setUserAgentString(userAgentHeader);
     }
 
@@ -82,8 +79,8 @@ public class CmpWebView
         }
         catch (IOException e)
         {
-            Log.e(TAG, "Load JavaScript error", e);
-            cmpWebViewJavaScriptInterface.onError("Fail attach javascript intefrace" + e.getLocalizedMessage());
+            Logger.get().error("Load JavaScript error" + e.getLocalizedMessage());
+            cmpWebViewJavaScriptInterface.onError("Fail attach javascript interface" + e.getLocalizedMessage());
         }
     }
 

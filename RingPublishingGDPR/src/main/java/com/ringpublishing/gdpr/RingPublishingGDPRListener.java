@@ -1,6 +1,6 @@
 package com.ringpublishing.gdpr;
 
-import android.util.Log;
+import com.ringpublishing.gdpr.internal.log.Logger;
 
 /**
  * Listener for consents changes
@@ -18,9 +18,9 @@ public interface RingPublishingGDPRListener
      *
      * @param error @{@link RingPublishingGDPRError}
      */
-    default void onError(RingPublishingGDPRError error)
+    default void onError(RingPublishingGDPRError error, String detailMessage)
     {
-        Log.w(RingPublishingGDPRListener.class.getCanonicalName(), String.format("Error: %s", error.name()));
+        Logger.get().warn(String.format("RingPublishingGDPRListener Error: %s %s", error.name(), detailMessage));
     }
 
 }

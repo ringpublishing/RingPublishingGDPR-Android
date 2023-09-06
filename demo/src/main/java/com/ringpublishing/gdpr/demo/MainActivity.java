@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.ringpublishing.gdpr.RingPublishingGDPR;
+import com.ringpublishing.gdpr.RingPublishingGDPRError;
 import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.demo.databinding.ActivityMainBinding;
 
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements RingPublishingGDP
         final Map<String, ?> all = preferences.getAll();
         for (String preference : all.keySet())
         {
-            Log.i(TAG, "Preference key=" + preference + " value= " + all.get(preference));
+            Log.i(TAG, "Saved preference key=" + preference + " value= " + all.get(preference));
         }
     }
 

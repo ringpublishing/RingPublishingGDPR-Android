@@ -3,10 +3,10 @@ package com.ringpublishing.gdpr;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.ringpublishing.gdpr.internal.EmptyRingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.api.Api;
+import com.ringpublishing.gdpr.internal.log.Logger;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.model.VerifyState;
@@ -27,9 +27,6 @@ import androidx.annotation.Nullable;
  */
 public final class RingPublishingGDPR
 {
-
-    private static final String TAG = RingPublishingGDPR.class.getCanonicalName();
-
     private static RingPublishingGDPR instance;
 
     private boolean initialized;
@@ -57,6 +54,8 @@ public final class RingPublishingGDPR
     private Api api;
 
     private RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig;
+
+    private final Logger log = Logger.get();
 
     private RingPublishingGDPR()
     {
@@ -229,6 +228,37 @@ public final class RingPublishingGDPR
         this.ringPublishingGDPRListener = ringPublishingGDPRListener == null ? new EmptyRingPublishingGDPRListener() : ringPublishingGDPRListener;
     }
 
+
+    /**
+     * Add custom logger
+     *
+     * @param logListener is custom application logger that implement 'LogListener'
+     */
+    public void addLogListener(LogListener logListener)
+    {
+        log.addLogListener(logListener);
+    }
+
+    /**
+     * Remove already added custom logger
+     *
+     * @param logListener is logger to remove
+     */
+    public void removeLogListener(LogListener logListener)
+    {
+        log.removeLogListener(logListener);
+    }
+
+    /**
+     * Enable debug logs
+     *
+     * @param enabled is true, then debug logs are delivered
+     */
+    public void enableDebugLogs(boolean enabled)
+    {
+        log.debugLogEnabled(enabled);
+    }
+
     @NonNull
     FormViewImpl createFormView(@NonNull Context activityContext)
     {
@@ -250,7 +280,7 @@ public final class RingPublishingGDPR
     {
         if (initialized)
         {
-            Log.w(TAG, "Second initialization ignored");
+            log.warn("initializeInternal() called more that one time. This initialization ignored");
             return;
         }
 

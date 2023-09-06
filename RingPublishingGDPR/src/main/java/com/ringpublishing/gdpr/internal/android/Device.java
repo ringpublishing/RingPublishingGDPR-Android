@@ -3,7 +3,8 @@ package com.ringpublishing.gdpr.internal.android;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
-import android.util.Log;
+
+import com.ringpublishing.gdpr.internal.log.Logger;
 
 
 public final class Device
@@ -46,7 +47,7 @@ public final class Device
         }
         catch (Exception e)
         {
-            Log.e("User-Agent", "Device resolution error", e);
+            Logger.get().error("Device resolution error" + e.getLocalizedMessage());
             return false;
         }
     }

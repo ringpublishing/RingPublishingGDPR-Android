@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.ringpublishing.gdpr.ConsentFormListener;
+import com.ringpublishing.gdpr.LogListener;
 import com.ringpublishing.gdpr.RingPublishingGDPR;
 import com.ringpublishing.gdpr.demo.databinding.ActivitySplashBinding;
 
@@ -38,6 +39,7 @@ public class SplashActivity extends AppCompatActivity
         binding = DataBindingUtil.setContentView(this, R.layout.activity_splash);
 
         Log.i(TAG, "In onCreate call shouldShowConsentForm and in ConsentFormListener to check that consent screen should be displayed");
+
         RingPublishingGDPR.getInstance().shouldShowConsentForm(new ConsentFormListener()
         {
             @Override

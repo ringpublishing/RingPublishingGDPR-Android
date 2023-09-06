@@ -2,11 +2,11 @@ package com.ringpublishing.gdpr.internal.api;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.ringpublishing.gdpr.BuildConfig;
+import com.ringpublishing.gdpr.internal.log.Logger;
 import com.ringpublishing.gdpr.internal.network.Network;
 
 import java.util.Map;
@@ -18,9 +18,6 @@ import retrofit2.Response;
 
 public class Api
 {
-
-    private final String TAG = Api.class.getCanonicalName();
-
     private final ApiDefinition apiDefinition;
 
     private final Network network;
@@ -28,6 +25,8 @@ public class Api
     private final String brandName;
 
     private final Boolean forcedGDPRApplies;
+
+    private final Logger log = Logger.get();
 
     public Api(@NonNull Context applicationContext, @NonNull String tenantId, @NonNull String brandName, int timeoutInSeconds, Boolean forcedGDPRApplies)
     {
@@ -48,12 +47,12 @@ public class Api
                         final VerifyResponse body = response.body();
                         if (body == null || !body.isValid())
                         {
-                            Log.i(TAG, "Verify response outdated");
+                            log.info( "After call verify api on response we have information, that consents are outdated");
                             callback.onOutdated(response.raw().toString());
                         }
                         else
                         {
-                            Log.i(TAG, "Verify response actual");
+                            log.info( "After call verify api on response we have information, that consents are actual");
                             callback.onActual(response.raw().toString());
                         }
                     }
@@ -61,7 +60,7 @@ public class Api
                     @Override
                     public void onFailure(@NonNull Call<VerifyResponse> call, @NonNull Throwable throwable)
                     {
-                        Log.w(TAG, "Verify request failure", throwable);
+                        log.warn("After call verify api on failure response we have error: " + throwable.getLocalizedMessage());
 
                         callback.onFailure("Request fail: " + throwable.getLocalizedMessage());
                     }
@@ -90,14 +89,14 @@ public class Api
             {
                 if (!response.isSuccessful())
                 {
-                    Log.w(TAG, "Configuration response not successful");
+                    log.warn("After configuration api call response is not successful");
                     callback.onFailure();
                     return;
                 }
                 final JsonObject jsonObject = response.body();
                 if (jsonObject == null)
                 {
-                    Log.w(TAG, "Configuration response body is null");
+                    log.warn("After configuration api call response body is null");
                     callback.onFailure();
                     return;
                 }
@@ -110,7 +109,7 @@ public class Api
                 final JsonElement urlElement = jsonObject.get(BuildConfig.CMP_JSON_CONFIGURATION_FIELD_HOST);
                 if (urlElement == null)
                 {
-                    Log.w(TAG, "Configuration response body parameter HOST is null");
+                    log.warn("Configuration response body parameter CMP_JSON_CONFIGURATION_FIELD_HOST is null");
                     callback.onFailure();
                     return;
                 }
@@ -118,7 +117,7 @@ public class Api
                 final String url = urlElement.getAsString();
                 if (TextUtils.isEmpty(url))
                 {
-                    Log.w(TAG, "Configuration response body parameter is empty");
+                    log.warn("Configuration response body parameter CMP_JSON_CONFIGURATION_FIELD_HOST is empty");
                     callback.onFailure();
                     return;
                 }
@@ -132,11 +131,11 @@ public class Api
                     try
                     {
                         gdprApplies = gdprAppliesElement.getAsBoolean();
-                        Log.w(TAG, String.format("Configuration response url with brandName is:%s gdprApplies:%s ", url, gdprApplies));
+                        log.info(String.format("Configuration response url with brandName is:%s gdprApplies:%s ", url, gdprApplies));
                     }
                     catch (ClassCastException | IllegalStateException cce)
                     {
-                        Log.w(TAG, "Configuration response body parameter gdprApplies is not boolean!");
+                        log.warn("Configuration response body parameter gdprApplies is not boolean!");
                         callback.onFailure();
                         return;
                     }
@@ -149,7 +148,7 @@ public class Api
             public void onFailure(@NonNull Call<JsonObject> call, @NonNull Throwable throwable)
             {
                 //Only when we received invalid data
-                Log.w(TAG, "Configuration response failure", throwable);
+                log.warn("Configuration response is failure. Error: " + throwable.getLocalizedMessage());
                 callback.onFailure();
             }
         };
