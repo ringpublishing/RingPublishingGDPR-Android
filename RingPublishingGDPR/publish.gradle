@@ -6,7 +6,7 @@ def LIB_VERSION = "$sdk_version_name"
 
 task sourceJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier "sources"
+    archiveClassifier.set("sources")
 }
 
 publishing {
