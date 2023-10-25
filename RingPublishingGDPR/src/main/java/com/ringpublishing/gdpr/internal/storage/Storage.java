@@ -222,7 +222,7 @@ public class Storage extends Preferences
         IABTCF_PolicyVersion("IABTCF_PolicyVersion", "tcfPolicyVersion", Type.NUMBER),
         IABTCF_gdprApplies("IABTCF_gdprApplies", "gdprApplies", Type.NUMBER),
         IABTCF_PurposeOneTreatment("IABTCF_PurposeOneTreatment", "purposeOneTreatment", Type.NUMBER),
-        IABTCF_UseNonStandardStacks("IABTCF_UseNonStandardStacks", "useNonStandardStacks", Type.NUMBER),
+        IABTCF_UseNonStandardTexts("IABTCF_UseNonStandardTexts", "useNonStandardTexts", Type.NUMBER),
 
         // Standardized consents String
         IABTCF_PublisherCC("IABTCF_PublisherCC", "publisherCC", Type.STRING),
