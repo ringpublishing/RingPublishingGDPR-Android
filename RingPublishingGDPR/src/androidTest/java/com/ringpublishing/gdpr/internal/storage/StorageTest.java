@@ -82,7 +82,7 @@ public class StorageTest
         assertEquals(4, storage.getInt("IABTCF_PolicyVersion"));
         assertEquals(3, storage.getInt("IABTCF_gdprApplies"));
         assertEquals(7, storage.getInt("IABTCF_PurposeOneTreatment"));
-        assertEquals(6, storage.getInt("IABTCF_UseNonStandardStacks"));
+        assertEquals(6, storage.getInt("IABTCF_UseNonStandardTexts"));
 
         assertEquals("PL", storage.getString("IABTCF_PublisherCC"));
         assertEquals(TestAndroidResources.TC_STRING, storage.getString("IABTCF_TCString"));
@@ -118,7 +118,7 @@ public class StorageTest
         assertEquals(4, storage.getInt("IABTCF_PolicyVersion"));
         assertEquals(3, storage.getInt("IABTCF_gdprApplies"));
         assertEquals(7, storage.getInt("IABTCF_PurposeOneTreatment"));
-        assertEquals(6, storage.getInt("IABTCF_UseNonStandardStacks"));
+        assertEquals(6, storage.getInt("IABTCF_UseNonStandardTexts"));
 
         assertEquals("PL", storage.getString("IABTCF_PublisherCC"));
         assertEquals(TestAndroidResources.TC_STRING, storage.getString("IABTCF_TCString"));
@@ -157,7 +157,7 @@ public class StorageTest
         assertEquals(4, storage.getInt("IABTCF_PolicyVersion"));
         // move from here
         assertEquals(7, storage.getInt("IABTCF_PurposeOneTreatment"));
-        assertEquals(6, storage.getInt("IABTCF_UseNonStandardStacks"));
+        assertEquals(6, storage.getInt("IABTCF_UseNonStandardTexts"));
 
         assertEquals("PL", storage.getString("IABTCF_PublisherCC"));
         assertEquals(TestAndroidResources.TC_STRING, storage.getString("IABTCF_TCString"));
