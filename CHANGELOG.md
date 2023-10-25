@@ -1,3 +1,11 @@
+1.8.0 Release notes (2023-10-25)
+=============================================================
+
+### Changes
+
+* Added support for TCF2.2:
+    - replaced 'SharedPreferences' field: 'IABTCF_UseNonStandardStacks' with 'IABTCF_UseNonStandardTexts'
+
 1.7.3 Release notes (2023-09-06)
 =============================================================
 
