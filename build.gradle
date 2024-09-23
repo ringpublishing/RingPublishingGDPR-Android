@@ -8,7 +8,7 @@ buildscript
 
     dependencies
     {
-        classpath "com.android.tools.build:gradle:8.1.0"
+        classpath "com.android.tools.build:gradle:8.6.0"
         classpath "com.github.ben-manes:gradle-versions-plugin:0.43.0"
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.24.18"
     }
@@ -32,13 +32,13 @@ allprojects
     }
 }
 
-task clean(type: Delete) {
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
 }
 
 project.ext {
     APP_MIN_SDK_VERSION = 24
-    APP_COMPILE_SDK_VERSION = 34
-    APP_TARGET_SDK_VERSION = 34
-    APP_BUILD_TOOLS_VERSION = '34.0.0'
+    APP_COMPILE_SDK_VERSION = 35
+    APP_TARGET_SDK_VERSION = 35
+    APP_BUILD_TOOLS_VERSION = '35.0.0'
 }

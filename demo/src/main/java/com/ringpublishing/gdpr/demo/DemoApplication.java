@@ -7,6 +7,8 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import androidx.multidex.MultiDexApplication;
+
 import com.ringpublishing.gdpr.BuildConfig;
 import com.ringpublishing.gdpr.LogListener;
 import com.ringpublishing.gdpr.RingPublishingGDPR;
@@ -14,16 +16,12 @@ import com.ringpublishing.gdpr.RingPublishingGDPRError;
 import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
 
-import androidx.multidex.MultiDexApplication;
-
-public class DemoApplication extends MultiDexApplication
-{
+public class DemoApplication extends MultiDexApplication {
 
     private final RingPublishingGDPR ringPublishingGDPR = RingPublishingGDPR.getInstance();
 
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
         super.onCreate();
         // Optional for debug Demo application webview
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
@@ -45,21 +43,17 @@ public class DemoApplication extends MultiDexApplication
         final String appBrandingName = ""; // Fill here application brandName. Obtain from Ring Publishing. Example: "myAppName"
 
         // Just for this example to set tenantId and brandingName before install demo application.
-        if (TextUtils.isEmpty(appTenantId) || TextUtils.isEmpty(appBrandingName))
-        {
+        if (TextUtils.isEmpty(appTenantId) || TextUtils.isEmpty(appBrandingName)) {
             Toast.makeText(this, R.string.demo_configuration_warning, Toast.LENGTH_LONG).show();
         }
 
         // Optional listener that informs application about saving or updating consents.
         // You can set one listener, if you need to clear it set null value
-        ringPublishingGDPR.setRingPublishingGDPRListener(new RingPublishingGDPRListener()
-        {
+        ringPublishingGDPR.setRingPublishingGDPRListener(new RingPublishingGDPRListener() {
             @Override
-            public void onConsentsUpdated()
-            {
+            public void onConsentsUpdated() {
                 // Here you can check if user agreed on all available vendors
-                if (RingPublishingGDPR.getInstance().areVendorConsentsGiven())
-                {
+                if (RingPublishingGDPR.getInstance().areVendorConsentsGiven()) {
                     // If you app uses SDK's from vendors, which are not part of the official TCF 2.0 vendor list
                     // you can use this flag to check if you can enable / initialize them as user agreed on all vendors
                     DemoApplication.this.initializeApplicationExternalLibraries();
@@ -67,14 +61,10 @@ public class DemoApplication extends MultiDexApplication
             }
 
             @Override
-            public void onError(RingPublishingGDPRError error, String detailMessage)
-            {
-                if (error == RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR)
-                {
+            public void onError(RingPublishingGDPRError error, String detailMessage) {
+                if (error == RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR) {
                     Log.e("GDPR_ERROR", String.format("Cmp form closed by Error: %s", detailMessage));
-                }
-                else
-                {
+                } else {
                     Log.e("GDPR_ERROR", String.format("Error: %s message: %s", error.name(), detailMessage));
                 }
             }
@@ -93,45 +83,37 @@ public class DemoApplication extends MultiDexApplication
         // ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig, false);
 
 
-        if (BuildConfig.DEBUG)
-        {
+        if (BuildConfig.DEBUG) {
             RingPublishingGDPR.getInstance().enableDebugLogs(true);
             addOptionalCustomLogger();
         }
     }
 
-    private static void addOptionalCustomLogger()
-    {
-        RingPublishingGDPR.getInstance().addLogListener(new LogListener()
-        {
+    private static void addOptionalCustomLogger() {
+        RingPublishingGDPR.getInstance().addLogListener(new LogListener() {
             @Override
-            public void debug(String message)
-            {
+            public void debug(String message) {
                 //Your local or remote log handler
             }
 
             @Override
-            public void info(String message)
-            {
+            public void info(String message) {
                 //Your local or remote log handler
             }
 
             @Override
-            public void warn(String message)
-            {
+            public void warn(String message) {
                 //Your local or remote log handler
             }
 
             @Override
-            public void error(String message)
-            {
+            public void error(String message) {
                 //Your local or remote log handler
             }
         });
     }
 
-    private void initializeApplicationExternalLibraries()
-    {
+    private void initializeApplicationExternalLibraries() {
         // Here we can initialize or update initialization all application libraries
         Toast.makeText(DemoApplication.this, R.string.toast_libraries_application, Toast.LENGTH_SHORT).show();
     }
