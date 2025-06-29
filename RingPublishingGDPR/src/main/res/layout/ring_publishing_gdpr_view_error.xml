@@ -14,7 +14,9 @@
         android:layout_centerHorizontal="true"
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_error"
-        tools:ignore="ContentDescription" />
+        app:tint="@color/ring_publishing_gdpr_message_text_color"
+        tools:ignore="ContentDescription"
+        tools:tint="@color/ring_publishing_gdpr_message_text_color" />
 
     <TextView
         android:id="@+id/message_text"
