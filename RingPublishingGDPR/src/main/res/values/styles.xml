@@ -21,6 +21,7 @@
         <item name="android:textSize">@dimen/ring_publishing_gdpr_button_text_size</item>
         <item name="android:layout_marginTop">@dimen/ring_publishing_gdpr_button_top_margin</item>
         <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/ring_publishing_gdpr_message_text_color</item>
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
     </style>
 
