@@ -1,0 +1,1 @@
+import_from_git(url: 'git@github.com:Ringier-Axel-Springer-PL/native-mobile-fastlane.git', branch: "master")
