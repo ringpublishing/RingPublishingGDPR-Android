@@ -1,23 +1,21 @@
-buildscript
-{
-    repositories
-    {
+buildscript {
+    repositories {
         google()
+        mavenCentral()
         gradlePluginPortal()
     }
 
-    dependencies
-    {
-        classpath "com.android.tools.build:gradle:8.6.0"
-        classpath "com.github.ben-manes:gradle-versions-plugin:0.43.0"
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.24.18"
+    dependencies {
+        classpath libs.classpath.gradle.tools
+        classpath libs.classpath.gradle.versions
+        classpath libs.classpath.jfrog.info
+
+        classpath libs.classpath.kotlin
     }
 }
 
-allprojects
-{
-    repositories
-    {
+allprojects {
+    repositories {
         mavenCentral()
         google()
 
@@ -40,5 +38,4 @@ project.ext {
     APP_MIN_SDK_VERSION = 24
     APP_COMPILE_SDK_VERSION = 35
     APP_TARGET_SDK_VERSION = 35
-    APP_BUILD_TOOLS_VERSION = '35.0.0'
 }
