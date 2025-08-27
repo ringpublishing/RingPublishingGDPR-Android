@@ -1,24 +1,18 @@
 apply plugin: 'com.android.library'
 apply from: file('publish.gradle')
 
-android
-{
+android {
     namespace 'com.ringpublishing.gdpr'
     compileSdk APP_COMPILE_SDK_VERSION
 
-    compileOptions
-    {
+    compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    defaultConfig
-    {
+    defaultConfig {
         minSdkVersion APP_MIN_SDK_VERSION
         targetSdkVersion APP_TARGET_SDK_VERSION
-
-
-        multiDexEnabled true
 
         buildConfigField "String", "CMP_HOST", "\"cmp.ringpublishing.com\""
         buildConfigField "String", "CMP_JSON_CONFIGURATION_FIELD_HOST", "\"webview_url\""
@@ -36,20 +30,16 @@ android
         testApplicationId "com.ringpublishing.gdpr.test"
     }
 
-    buildTypes
-    {
-        release
-        {
+    buildTypes {
+        release {
             minifyEnabled false
         }
-        tst
-        {
+        tst {
             testCoverageEnabled = true
         }
     }
 
-    buildFeatures
-    {
+    buildFeatures {
         buildConfig = true
     }
 
@@ -61,8 +51,7 @@ android
     useLibrary 'android.test.base'
     useLibrary 'android.test.mock'
 
-    testOptions
-    {
+    testOptions {
         unitTests.includeAndroidResources = true
         unitTests.returnDefaultValues = true
         unitTests.all {
@@ -78,47 +67,46 @@ android
 
 }
 
-dependencies
-{
-    api "androidx.annotation:annotation:1.7.1"
-    api "com.google.android.material:material:1.11.0"
-    api 'androidx.preference:preference:1.2.1'
-    api 'androidx.appcompat:appcompat:1.6.1'
+dependencies {
+    api libs.annotation
+    api libs.material
+    api libs.preference
+    api libs.appcompat
 
-    api "com.squareup.okhttp3:okhttp:4.12.0"
-    api "com.squareup.retrofit2:retrofit:2.9.0"
-    api "com.squareup.retrofit2:converter-moshi:2.9.0"
-    api "com.squareup.retrofit2:converter-gson:2.9.0"
+    api libs.okhttp3
+    api libs.retrofit
+    api libs.retrofit.moshi
+    api libs.retrofit.gson
 
     // Fix for missing conscrypt hostname verifier in logs
-    api 'org.conscrypt:conscrypt-android:2.5.2'
+    api libs.conscrypt.android
 
     // Core library
 
-    testImplementation "junit:junit:4.13.2"
-    testImplementation 'androidx.test:core:1.5.0'
+    testImplementation libs.junit
+    testImplementation libs.test.core
 
     // AndroidJUnitRunner and JUnit Rules
-    testImplementation 'androidx.test:runner:1.5.2'
-    testImplementation 'androidx.test:rules:1.5.0'
+    testImplementation libs.test.runner
+    testImplementation libs.test.rules
 
     // Assertions
-    testImplementation 'androidx.test.ext:junit:1.1.5'
-    testImplementation 'androidx.test.ext:truth:1.5.0'
-    testImplementation 'com.google.truth:truth:1.0'
+    testImplementation libs.junit.ext
+    testImplementation libs.test.truth.ext
+    testImplementation libs.truth
 
-    testImplementation 'org.json:json:20220320'
+    testImplementation libs.json
 
     // Core library
-    androidTestImplementation 'androidx.test:core:1.5.0'
+    androidTestImplementation libs.test.core
 
     // AndroidJUnitRunner and JUnit Rules
-    androidTestImplementation 'androidx.test:runner:1.5.2'
-    androidTestImplementation 'androidx.test:rules:1.5.0'
+    androidTestImplementation libs.test.runner
+    androidTestImplementation libs.test.rules
 
     // Assertions
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.ext:truth:1.5.0'
-    androidTestImplementation 'com.google.truth:truth:1.0'
+    androidTestImplementation libs.junit.ext
+    androidTestImplementation libs.test.truth.ext
+    androidTestImplementation libs.truth
 }
 

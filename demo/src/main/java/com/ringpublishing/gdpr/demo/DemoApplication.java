@@ -1,13 +1,12 @@
 package com.ringpublishing.gdpr.demo;
 
+import android.app.Application;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Toast;
-
-import androidx.multidex.MultiDexApplication;
 
 import com.ringpublishing.gdpr.BuildConfig;
 import com.ringpublishing.gdpr.LogListener;
@@ -16,7 +15,7 @@ import com.ringpublishing.gdpr.RingPublishingGDPRError;
 import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.RingPublishingGDPRUIConfig;
 
-public class DemoApplication extends MultiDexApplication {
+public class DemoApplication extends Application {
 
     private final RingPublishingGDPR ringPublishingGDPR = RingPublishingGDPR.getInstance();
 

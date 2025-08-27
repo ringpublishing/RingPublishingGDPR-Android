@@ -1,0 +1,58 @@
+[versions]
+conscrypt-android = "2.5.2"
+curtains = "1.2.4"
+json = "20220320"
+junit-ext = "1.1.5"
+kotlin = "2.0.21"
+annotation = "1.7.0"
+appcompat = "1.7.1"
+material = "1.12.0"
+preference = "1.2.1"
+lifecycle = "2.6.+"
+okhttp3 = "4.12.0"
+retrofit = "2.12.0"
+test-rules = "1.5.0"
+test-runner = "1.5.2"
+test-truth = "1.5.0"
+truth = "1.1.3"
+junit = "4.13.2"
+test-core = "1.6.1"
+leakcanary-android = "2.+"
+
+gradle-tools = "8.6.1"
+gradle-versions = "0.52.+"
+gradle-jfrog-info = "5.2.+"
+
+[libraries]
+annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+curtains = { module = "com.squareup.curtains:curtains", version.ref = "curtains" }
+lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+preference = { group = "androidx.preference", name = "preference-ktx", version.ref = "preference" }
+
+conscrypt-android = { group = "org.conscrypt", name = "conscrypt-android", version.ref = "conscrypt-android" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+kotlin-bom = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin" }
+leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary-android" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+retrofit-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "retrofit" }
+okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp3" }
+
+# Test
+test-core = { group = "androidx.test", name = "core", version.ref = "test-core" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+test-runner = { group = "androidx.test", name = "runner", version.ref = "test-runner" }
+test-rules = { group = "androidx.test", name = "rules", version.ref = "test-rules" }
+junit-ext = { group = "androidx.test.ext", name = "junit", version.ref = "junit-ext" }
+json = { group = "org.json", name = "json", version.ref = "json" }
+truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
+test-truth-ext = { group = "androidx.test.ext", name = "truth", version.ref = "test-truth" }
+
+
+# Classpath
+classpath-gradle-tools = { group = "com.android.tools.build", name = "gradle", version.ref = "gradle-tools" }
+classpath-gradle-versions = { group = "com.github.ben-manes", name = "gradle-versions-plugin", version.ref = "gradle-versions" }
+classpath-jfrog-info = { group = "org.jfrog.buildinfo", name = "build-info-extractor-gradle", version.ref = "gradle-jfrog-info" }
+classpath-kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }

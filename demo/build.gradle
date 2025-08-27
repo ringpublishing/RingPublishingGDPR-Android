@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply from: '../bamboo.gradle'
 android
 {
     namespace 'com.ringpublishing.gdpr.demo'
@@ -84,12 +83,11 @@ dependencies
     //Then comment 'implementation project(path: ':RingPublishingGDPR')' and uncomment:
     //implementation("com.ringpublishing:gdpr:1.5.3")
 
-    implementation "androidx.multidex:multidex:2.0.1"
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
+    implementation libs.lifecycle.livedata
+    implementation libs.lifecycle.viewmodel
 
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+    implementation(platform(libs.kotlin.bom))
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.12'
-    debugImplementation 'com.squareup.curtains:curtains:1.2.4'
+    debugImplementation libs.leakcanary.android
+    debugImplementation libs.curtains
 }
