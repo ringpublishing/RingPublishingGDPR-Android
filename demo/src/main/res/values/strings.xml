@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Ring Publishing GDPR Demo</string>
-    <string name="splash_demo">SPLASH</string>
-    <string name="main_demo">MAIN</string>
-    <string name="demo_configuration_warning">Missing configuration tenant and brandName in DemoApplication class</string>
-    <string name="open_consent_view_settings">Open Consent View Settings</string>
-    <string name="toast_libraries_application">Update consents in application libraries</string>
-    <string name="toast_libraries_splash">Initialize Splash external libraries</string>
-    <string name="toast_libraries_main">Update consents in main activity libraries</string>
+    <string name="app_name" translatable="false">Ring Publishing GDPR Demo</string>
+    <string name="splash_demo" translatable="false">SPLASH</string>
+    <string name="main_demo" translatable="false">MAIN</string>
+    <string name="demo_configuration_warning" translatable="false">Missing configuration tenant and brandName in DemoApplication class</string>
+    <string name="open_consent_view_settings" translatable="false">Open Consent View Settings</string>
+    <string name="toast_libraries_application" translatable="false">Update consents in application libraries</string>
+    <string name="toast_libraries_splash" translatable="false">Initialize Splash external libraries</string>
+    <string name="toast_libraries_main" translatable="false">Update consents in main activity libraries</string>
 </resources>

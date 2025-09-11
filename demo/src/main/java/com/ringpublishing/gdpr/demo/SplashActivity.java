@@ -6,7 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
@@ -26,7 +27,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private final String TAG = SplashActivity.class.getCanonicalName();
 
-    private final int REQUEST_CODE_OPEN_CONSENT = 123;
+    private final ActivityResultLauncher<Intent> launcher = createActivityResultLauncher();
 
     ActivitySplashBinding binding;
 
@@ -44,7 +45,7 @@ public class SplashActivity extends AppCompatActivity {
                 // Option to open advanced settings view
                 //RingPublishingGDPR.getInstance().createShowSettingsScreenIntent(this);
                 Log.i(TAG, "RingPublishingGDPR is ready to show consent screen on application start. Consent screen should be displayed.");
-                startActivityForResult(startWelcomeScreenIntent, REQUEST_CODE_OPEN_CONSENT);
+                launcher.launch(startWelcomeScreenIntent);
             }
 
             @Override
@@ -78,13 +79,16 @@ public class SplashActivity extends AppCompatActivity {
         Toast.makeText(this, R.string.toast_libraries_splash, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_OPEN_CONSENT) {
-            Log.i(TAG, "In onActivityResult consent form is accepted or closed by user. Now application content can be shown");
-            showAppContent();
-        }
+    private ActivityResultLauncher<Intent> createActivityResultLauncher() {
+        return registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Log.i(TAG, "In onActivityResult consent form is accepted or closed by user. Now application content can be shown");
+                        showAppContent();
+                    } else {
+                        Log.i(TAG, "In onActivityResult consent form is canceled by user.");
+                        showAppContent();
+                    }
+                }
+        );
     }
-
 }
