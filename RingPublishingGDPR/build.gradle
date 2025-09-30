@@ -91,7 +91,7 @@ dependencies
     api "com.squareup.retrofit2:converter-gson:2.9.0"
 
     // Fix for missing conscrypt hostname verifier in logs
-    api 'org.conscrypt:conscrypt-android:2.5.2'
+    api 'org.conscrypt:conscrypt-android:2.5.3'
 
     // Core library
 
