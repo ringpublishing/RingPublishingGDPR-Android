@@ -1,3 +1,12 @@
+1.9.0 Release notes (2025-09-30)
+=============================================================
+
+### Changes
+
+* compile / target sdk = 36
+* gradle-9.0.0
+* updated some libraries versions
+* fixed some deprecations and code warnings
 1.8.3 Release notes (2025-06-29)
 =============================================================
 
