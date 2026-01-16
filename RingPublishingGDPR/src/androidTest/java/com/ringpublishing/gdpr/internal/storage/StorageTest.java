@@ -56,6 +56,7 @@ public class StorageTest
     @Test
     public void setOutdated_WhensetOutdated_ThenhaveCorrectValue()
     {
+        storage.setConsentOutdated(false);
         boolean outdated = storage.getBoolean("consentOutdated", false);
         assertFalse(outdated);
         storage.setConsentOutdated(true);
@@ -88,6 +89,7 @@ public class StorageTest
         assertEquals(TestAndroidResources.TC_STRING, storage.getString("IABTCF_TCString"));
         assertEquals(TestAndroidResources.TC_VENDOR_CONSENTS, storage.getString("IABTCF_VendorConsents"));
         assertEquals(TestAndroidResources.TC_LEGITIMATE_INTEREST, storage.getString("IABTCF_VendorLegitimateInterests"));
+        assertEquals(TestAndroidResources.TC_DISCLOSED_VENDORS, storage.getString("IABTCF_DisclosedVendors"));
         assertEquals(TestAndroidResources.TC_PURPOSE_CONSENTS, storage.getString("IABTCF_PurposeConsents"));
         assertEquals(TestAndroidResources.TC_PURPOSE_LEGITIMATE_INTEREST, storage.getString("IABTCF_PurposeLegitimateInterests"));
         assertEquals(TestAndroidResources.TC_SPECIAL_FEATURE_OPTIONS, storage.getString("IABTCF_SpecialFeaturesOptIns"));
@@ -124,6 +126,7 @@ public class StorageTest
         assertEquals(TestAndroidResources.TC_STRING, storage.getString("IABTCF_TCString"));
         assertEquals(TestAndroidResources.TC_VENDOR_CONSENTS, storage.getString("IABTCF_VendorConsents"));
         assertEquals(TestAndroidResources.TC_LEGITIMATE_INTEREST, storage.getString("IABTCF_VendorLegitimateInterests"));
+        assertEquals(TestAndroidResources.TC_DISCLOSED_VENDORS, storage.getString("IABTCF_DisclosedVendors"));
         //moved from here
         assertEquals(TestAndroidResources.TC_SPECIAL_FEATURE_OPTIONS, storage.getString("IABTCF_SpecialFeaturesOptIns"));
         assertEquals(TestAndroidResources.TC_PUBLISHER_CONSENTS, storage.getString("IABTCF_PublisherConsent"));
@@ -163,6 +166,7 @@ public class StorageTest
         assertEquals(TestAndroidResources.TC_STRING, storage.getString("IABTCF_TCString"));
         assertEquals(TestAndroidResources.TC_VENDOR_CONSENTS, storage.getString("IABTCF_VendorConsents"));
         assertEquals(TestAndroidResources.TC_LEGITIMATE_INTEREST, storage.getString("IABTCF_VendorLegitimateInterests"));
+        assertEquals(TestAndroidResources.TC_DISCLOSED_VENDORS, storage.getString("IABTCF_DisclosedVendors"));
         assertEquals(TestAndroidResources.TC_PURPOSE_CONSENTS, storage.getString("IABTCF_PurposeConsents"));
         assertEquals(TestAndroidResources.TC_PURPOSE_LEGITIMATE_INTEREST, storage.getString("IABTCF_PurposeLegitimateInterests"));
         assertEquals(TestAndroidResources.TC_SPECIAL_FEATURE_OPTIONS, storage.getString("IABTCF_SpecialFeaturesOptIns"));
