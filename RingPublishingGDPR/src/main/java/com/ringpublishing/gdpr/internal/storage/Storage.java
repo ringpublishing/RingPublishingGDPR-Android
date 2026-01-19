@@ -229,6 +229,7 @@ public class Storage extends Preferences
         IABTCF_TCString("IABTCF_TCString", "tcString", Type.STRING),
         IABTCF_VendorConsents("IABTCF_VendorConsents", "vendor.consents", Type.STRING),
         IABTCF_VendorLegitimateInterests("IABTCF_VendorLegitimateInterests", "vendor.legitimateInterests", Type.STRING),
+        IABTCF_DisclosedVendors("IABTCF_DisclosedVendors", "vendor.vendorsDisclosed", Type.STRING),
         IABTCF_PurposeConsents("IABTCF_PurposeConsents", "purpose.consents", Type.STRING),
         IABTCF_PurposeLegitimateInterests("IABTCF_PurposeLegitimateInterests", "purpose.legitimateInterests", Type.STRING),
         IABTCF_SpecialFeaturesOptIns("IABTCF_SpecialFeaturesOptIns", "specialFeatureOptins", Type.STRING),
