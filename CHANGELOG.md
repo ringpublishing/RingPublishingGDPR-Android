@@ -1,3 +1,11 @@
+1.10.0 Release notes (2026-01-19)
+=============================================================
+
+### Changes
+
+* implementation of TCF 2.3 handling
+* saved vendor.vendorsDisclosed field inside shared preferences
+
 1.9.0 Release notes (2025-09-30)
 =============================================================
 
