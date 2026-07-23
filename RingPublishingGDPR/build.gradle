@@ -91,7 +91,9 @@ dependencies
     api "com.squareup.retrofit2:converter-gson:2.9.0"
 
     // Fix for missing conscrypt hostname verifier in logs
-    api 'org.conscrypt:conscrypt-android:2.5.3'
+    // 2.6.1 aligns the native libconscrypt_jni.so to 16 KB page size (Android 15+ requirement,
+    // clears the Google Play Console 16 KB page-size warning)
+    api 'org.conscrypt:conscrypt-android:2.6.1'
 
     // Core library
 
