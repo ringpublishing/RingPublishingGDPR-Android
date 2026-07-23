@@ -1,3 +1,10 @@
+1.10.2 Release notes (2026-07-23)
+=============================================================
+
+### Changes
+
+* Updated conscrypt to 2.6.1 (latest stable; native libraries stay 16 KB page-aligned for Android 15+)
+
 1.10.0 Release notes (2026-01-19)
 =============================================================
 
