@@ -144,9 +144,10 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     {
         showLoading();
         formViewController.loadCmpSite();
-        if (tenantConfiguration.getHost() != null)
+        final String cmpUrl = tenantConfiguration.getHostWithAdditionalQuery();
+        if (cmpUrl != null)
         {
-            cmpWebView.loadUrl(tenantConfiguration.getHost());
+            cmpWebView.loadUrl(cmpUrl);
         }
         else
         {

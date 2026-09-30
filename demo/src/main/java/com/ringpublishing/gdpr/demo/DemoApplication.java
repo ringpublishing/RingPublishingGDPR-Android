@@ -82,6 +82,9 @@ public class DemoApplication extends MultiDexApplication {
         // ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig, true);
         // ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig, false);
 
+        // You can also provide additional query parameters appended to the URL loaded by the consent form webview
+        // ringPublishingGDPR.initialize(this, appTenantId, appBrandingName, ringPublishingGDPRUIConfig, Collections.singletonMap("app_is", "value"));
+
 
         if (BuildConfig.DEBUG) {
             RingPublishingGDPR.getInstance().enableDebugLogs(true);
