@@ -19,6 +19,8 @@ import com.ringpublishing.gdpr.internal.view.FormViewImpl;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.Map;
+
 /**
  * Main class of RingPublishing GDPR Sdk.
  * Should be initialized on application start with configuration.
@@ -116,6 +118,50 @@ public final class RingPublishingGDPR
                            @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
                            boolean forcedGDPRApplies)
     {
+        initializeInternal(application, tenantId, brandName, ringPublishingGDPRUIConfig, forcedGDPRApplies);
+    }
+
+    /**
+     * Initialization point of SDK with configuration and additional query parameters for the consent form.
+     * Behaves like {@link #initialize(Application, String, String, RingPublishingGDPRUIConfig)}.
+     *
+     * @param application Reference to android application object
+     * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
+     * @param brandName Name of application send to Consent API. Using this parameter Consent view style can be customized
+     * @param ringPublishingGDPRUIConfig UI configuration for TypeFace and theme. Styles error screen.
+     * @param additionalQueryParameters Query parameters appended to the URL loaded by the consent form webview.
+     *                                  Values are URL-encoded by the SDK; a parameter replaces a same-named one already present in the URL.
+     */
+    public void initialize(@NonNull final Application application,
+                           @NonNull final String tenantId,
+                           @NonNull final String brandName,
+                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
+                           @NonNull final Map<String, String> additionalQueryParameters)
+    {
+        tenantConfiguration.setAdditionalQueryParameters(additionalQueryParameters);
+        initializeInternal(application, tenantId, brandName, ringPublishingGDPRUIConfig, null);
+    }
+
+    /**
+     * Initialization point of SDK with configuration, forced GDPR applies state and additional query parameters for the consent form.
+     * Behaves like {@link #initialize(Application, String, String, RingPublishingGDPRUIConfig, boolean)}.
+     *
+     * @param application Reference to android application object
+     * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
+     * @param brandName Name of application send to Consent API. Using this parameter Consent view style can be customized
+     * @param ringPublishingGDPRUIConfig UI configuration for TypeFace and theme. Styles error screen.
+     * @param forcedGDPRApplies Determines if module was initialized with forced GDPR applies state
+     * @param additionalQueryParameters Query parameters appended to the URL loaded by the consent form webview.
+     *                                  Values are URL-encoded by the SDK; a parameter replaces a same-named one already present in the URL.
+     */
+    public void initialize(@NonNull final Application application,
+                           @NonNull final String tenantId,
+                           @NonNull final String brandName,
+                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
+                           boolean forcedGDPRApplies,
+                           @NonNull final Map<String, String> additionalQueryParameters)
+    {
+        tenantConfiguration.setAdditionalQueryParameters(additionalQueryParameters);
         initializeInternal(application, tenantId, brandName, ringPublishingGDPRUIConfig, forcedGDPRApplies);
     }
 

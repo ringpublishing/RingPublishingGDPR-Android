@@ -1,3 +1,10 @@
+1.11.0 Release notes (2026-09-30)
+=============================================================
+
+### Changes
+
+* Added `initialize` overloads accepting `additionalQueryParameters` (`Map<String, String>`), appended to the URL loaded by the consent form webview. Values are URL-encoded once; a parameter replaces a same-named one already in the URL. Existing `initialize` overloads behave as before.
+
 1.10.2 Release notes (2026-07-23)
 =============================================================
 

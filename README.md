@@ -83,3 +83,15 @@ RingPublishingGDPR.getInstance()
 ```
 
 For detailed example see example project in `demo` directory and start with class DemoApplication, SplashActivity and MainActivity or check our documentation.
+
+## Additional query parameters for the consent form
+
+To append your own query parameters to the URL loaded by the consent form webview, use the `initialize` overloads accepting `Map<String, String> additionalQueryParameters`:
+
+```java
+RingPublishingGDPR.getInstance().initialize(application, tenantId, brandName, uiConfig,
+        Collections.singletonMap("app_is", "value"));
+```
+
+Values are URL-encoded by the SDK. A parameter replaces a same-named one already present in the URL; other existing parameters are kept.
+Parameters are read once, at initialization.
