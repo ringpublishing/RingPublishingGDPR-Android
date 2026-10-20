@@ -111,6 +111,7 @@ dependencies
 
     testImplementation 'org.json:json:20220320'
     testImplementation 'org.mockito:mockito-core:5.14.2'
+    testImplementation 'org.robolectric:robolectric:4.16'
 
     // Core library
     androidTestImplementation 'androidx.test:core:1.5.0'
