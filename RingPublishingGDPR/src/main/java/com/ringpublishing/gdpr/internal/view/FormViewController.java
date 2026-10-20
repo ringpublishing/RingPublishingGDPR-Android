@@ -75,6 +75,11 @@ public class FormViewController implements TimeoutCallback
         timeoutTask.cancel();
     }
 
+    void cancelTimeout()
+    {
+        timeoutTask.cancel();
+    }
+
     @Override
     public void onTimeout()
     {

@@ -1,7 +1,11 @@
 package com.ringpublishing.gdpr.internal.view;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Looper;
 import android.view.ViewGroup;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 
 import com.ringpublishing.gdpr.R;
@@ -33,6 +37,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -45,6 +50,8 @@ public class FormViewImplTest
 {
 
     private static final String HOST = "https://cmp.example.com";
+
+    private static final String TIMEOUT_MESSAGE = "Loading cmp site timeout reached";
 
     private Api api;
 
@@ -261,5 +268,26 @@ public class FormViewImplTest
 
         assertEquals(HOST, loadedUrl());
         verify(api, times(1)).configuration(Mockito.any());
+    }
+
+    @Test
+    public void testOfflineError_WhenShown_ThenWaitsForUserAndRetryStartsFreshTimeout()
+    {
+        tenantConfiguration.setHost(HOST);
+        attach();
+        idleMainLooper();
+        final ConnectivityManager connectivityManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+        shadowOf(connectivityManager).clearAllNetworks();
+
+        formView.onReceivedError(Mockito.mock(WebResourceRequest.class), Mockito.mock(WebResourceError.class));
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(40));
+        verify(listener, never()).onError(Mockito.any(), contains(TIMEOUT_MESSAGE));
+        verify(listener, never()).onError(eq(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR), anyString());
+
+        formView.onRetryClicked();
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(9));
+        verify(listener, never()).onError(Mockito.any(), contains(TIMEOUT_MESSAGE));
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2));
+        verify(listener, times(1)).onError(Mockito.any(), contains(TIMEOUT_MESSAGE));
     }
 }
