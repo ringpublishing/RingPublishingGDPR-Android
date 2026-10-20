@@ -207,4 +207,34 @@ public class FetchConfigurationTaskTest
 
         verify(api, Mockito.times(1)).configuration(Mockito.any());
     }
+
+    @Test
+    public void testRun_WhenRefetchRunning_ThenFinishCallbackRunsWhenThatFetchFinishes()
+    {
+        task.refetch();
+        final ArgumentCaptor<ConfigurationCallback> captor = ArgumentCaptor.forClass(ConfigurationCallback.class);
+        verify(api).configuration(captor.capture());
+
+        task.run(finishCallback);
+        verify(api, Mockito.times(1)).configuration(Mockito.any());
+        verify(finishCallback, never()).run();
+
+        captor.getValue().onSuccess("https://host", true);
+
+        verify(finishCallback, Mockito.times(1)).run();
+        assertFalse(task.isRunning());
+    }
+
+    @Test
+    public void testRun_WhenRunningFetchFails_ThenWaitingFinishCallbackStillRuns()
+    {
+        final ConfigurationCallback callback = runAndCaptureCallback();
+        final Runnable secondCallback = Mockito.mock(Runnable.class);
+
+        task.run(secondCallback);
+        callback.onFailure();
+
+        verify(finishCallback, Mockito.times(1)).run();
+        verify(secondCallback, Mockito.times(1)).run();
+    }
 }

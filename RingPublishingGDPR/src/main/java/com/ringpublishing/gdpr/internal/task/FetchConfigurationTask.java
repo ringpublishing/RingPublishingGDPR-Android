@@ -94,7 +94,8 @@ public class FetchConfigurationTask
     }
 
     /**
-     * Fetches the configuration again without running the finish callback of {@link #run(Runnable)}. Waits for a fetch already running.
+     * Fetches the configuration again without running the finish callback of {@link #run(Runnable)}.
+     * Does nothing while a fetch is running; use {@link #addFinishListener(Runnable)} to wait for it.
      */
     public void refetch()
     {
@@ -107,6 +108,10 @@ public class FetchConfigurationTask
         {
             if (running)
             {
+                if (finishCallback != null)
+                {
+                    finishListeners.add(finishCallback);
+                }
                 return;
             }
             running = true;
