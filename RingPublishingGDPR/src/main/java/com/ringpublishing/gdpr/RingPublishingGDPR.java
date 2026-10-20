@@ -124,6 +124,7 @@ public final class RingPublishingGDPR
     /**
      * Initialization point of SDK with configuration and additional query parameters for the consent form.
      * Behaves like {@link #initialize(Application, String, String, RingPublishingGDPRUIConfig)}.
+     * A repeated call with parameters also updates them; the other arguments are ignored.
      *
      * @param application Reference to android application object
      * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
@@ -145,6 +146,7 @@ public final class RingPublishingGDPR
     /**
      * Initialization point of SDK with configuration, forced GDPR applies state and additional query parameters for the consent form.
      * Behaves like {@link #initialize(Application, String, String, RingPublishingGDPRUIConfig, boolean)}.
+     * A repeated call with parameters also updates them; the other arguments are ignored.
      *
      * @param application Reference to android application object
      * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
@@ -163,6 +165,18 @@ public final class RingPublishingGDPR
     {
         tenantConfiguration.setAdditionalQueryParameters(additionalQueryParameters);
         initializeInternal(application, tenantId, brandName, ringPublishingGDPRUIConfig, forcedGDPRApplies);
+    }
+
+    /**
+     * Set additional query parameters appended to the URL loaded by the consent form webview.
+     * Can be called at any time, before or after initialization. Affects forms loaded afterwards and replaces the previously set parameters.
+     * Values are URL-encoded by the SDK; a parameter replaces a same-named one already present in the URL.
+     *
+     * @param additionalQueryParameters parameters to append, copied by the SDK
+     */
+    public synchronized void setAdditionalQueryParameters(@NonNull final Map<String, String> additionalQueryParameters)
+    {
+        tenantConfiguration.setAdditionalQueryParameters(additionalQueryParameters);
     }
 
     /**

@@ -18,6 +18,8 @@ import org.mockito.Mockito;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -87,5 +89,38 @@ public class RingPublishingGDPRTest
     {
         return RingPublishingGDPR.class.getDeclaredMethod("initializeInternal", Application.class, String.class, String.class,
                 RingPublishingGDPRUIConfig.class, Boolean.class);
+    }
+
+    @Test
+    public void testSetAdditionalQueryParameters_WhenCalledBeforeInitialize_ThenStoresCopyAndReplacesPrevious() throws Exception
+    {
+        final RingPublishingGDPR gdpr = RingPublishingGDPR.getInstance();
+        final Map<String, String> first = new HashMap<>();
+        first.put("a", "1");
+
+        gdpr.setAdditionalQueryParameters(first);
+        first.put("b", "2");
+
+        assertEquals(Collections.singletonMap("a", "1"), storedParameters(gdpr));
+
+        gdpr.setAdditionalQueryParameters(Collections.singletonMap("c", "3"));
+
+        assertEquals(Collections.singletonMap("c", "3"), storedParameters(gdpr));
+    }
+
+    @Test
+    public void testSetAdditionalQueryParameters_WhenInspected_ThenSynchronized() throws Exception
+    {
+        assertTrue(Modifier.isSynchronized(RingPublishingGDPR.class.getMethod("setAdditionalQueryParameters", Map.class).getModifiers()));
+    }
+
+    private Object storedParameters(RingPublishingGDPR gdpr) throws Exception
+    {
+        final Field tenantField = RingPublishingGDPR.class.getDeclaredField("tenantConfiguration");
+        tenantField.setAccessible(true);
+        final Object tenantConfiguration = tenantField.get(gdpr);
+        final Field parametersField = tenantConfiguration.getClass().getDeclaredField("additionalQueryParameters");
+        parametersField.setAccessible(true);
+        return parametersField.get(tenantConfiguration);
     }
 }
