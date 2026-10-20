@@ -133,11 +133,8 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
     {
         Logger.get().error("Close form by error. Error message: " + errorMessage);
 
-        if (ringPublishingGDPRListener != null)
-        {
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR, errorMessage);
-        }
-        closeForm();
+        ringPublishingGDPRListener.onError(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR, errorMessage);
+        formViewImpl.hideForm();
     }
 
     private void closeForm()
