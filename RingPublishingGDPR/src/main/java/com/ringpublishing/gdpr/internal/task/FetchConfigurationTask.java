@@ -54,6 +54,7 @@ public class FetchConfigurationTask
             public void onSuccess(@NonNull String url, boolean gdprApplies)
             {
                 log.info( "Fetch api configuration task success");
+                storage.configureGDPRApplies(gdprApplies);
                 setTenantConfiguration(true, gdprApplies);
                 tenantConfiguration.setHost(url);
                 finishCallback.run();
@@ -72,7 +73,6 @@ public class FetchConfigurationTask
 
     private void setTenantConfiguration(boolean success, boolean gdprApplies)
     {
-        storage.configureGDPRApplies(gdprApplies);
         requestsState.setTenantState(success ? TenantState.SUCCESS : TenantState.FAILURE);
         tenantConfiguration.setGdprApplies(gdprApplies);
     }
