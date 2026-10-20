@@ -31,7 +31,7 @@ public final class RingPublishingGDPR
 {
     private static RingPublishingGDPR instance;
 
-    private boolean initialized;
+    private volatile boolean initialized;
 
     private int timeoutInSeconds = BuildConfig.DEFAULT_TIMEOUT;
 
@@ -132,11 +132,11 @@ public final class RingPublishingGDPR
      * @param additionalQueryParameters Query parameters appended to the URL loaded by the consent form webview.
      *                                  Values are URL-encoded by the SDK; a parameter replaces a same-named one already present in the URL.
      */
-    public void initialize(@NonNull final Application application,
-                           @NonNull final String tenantId,
-                           @NonNull final String brandName,
-                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
-                           @NonNull final Map<String, String> additionalQueryParameters)
+    public synchronized void initialize(@NonNull final Application application,
+                                        @NonNull final String tenantId,
+                                        @NonNull final String brandName,
+                                        @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
+                                        @NonNull final Map<String, String> additionalQueryParameters)
     {
         tenantConfiguration.setAdditionalQueryParameters(additionalQueryParameters);
         initializeInternal(application, tenantId, brandName, ringPublishingGDPRUIConfig, null);
@@ -154,12 +154,12 @@ public final class RingPublishingGDPR
      * @param additionalQueryParameters Query parameters appended to the URL loaded by the consent form webview.
      *                                  Values are URL-encoded by the SDK; a parameter replaces a same-named one already present in the URL.
      */
-    public void initialize(@NonNull final Application application,
-                           @NonNull final String tenantId,
-                           @NonNull final String brandName,
-                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
-                           boolean forcedGDPRApplies,
-                           @NonNull final Map<String, String> additionalQueryParameters)
+    public synchronized void initialize(@NonNull final Application application,
+                                        @NonNull final String tenantId,
+                                        @NonNull final String brandName,
+                                        @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
+                                        boolean forcedGDPRApplies,
+                                        @NonNull final Map<String, String> additionalQueryParameters)
     {
         tenantConfiguration.setAdditionalQueryParameters(additionalQueryParameters);
         initializeInternal(application, tenantId, brandName, ringPublishingGDPRUIConfig, forcedGDPRApplies);
@@ -318,11 +318,11 @@ public final class RingPublishingGDPR
         return formViewImpl;
     }
 
-    private void initializeInternal(@NonNull final Application application,
-                                    @NonNull final String tenantId,
-                                    @NonNull final String brandName,
-                                    @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
-                                    @Nullable Boolean forcedGDPRApplies)
+    private synchronized void initializeInternal(@NonNull final Application application,
+                                                 @NonNull final String tenantId,
+                                                 @NonNull final String brandName,
+                                                 @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
+                                                 @Nullable Boolean forcedGDPRApplies)
     {
         if (initialized)
         {
