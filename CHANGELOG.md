@@ -1,3 +1,17 @@
+1.12.0 Release notes (2026-10-19)
+=============================================================
+
+### Changes
+
+* Added `setAdditionalQueryParameters(Map<String, String>)` to set or replace the consent form query parameters at any time. A repeated `initialize` with parameters still updates them (now documented).
+* `RingPublishingGDPRActivity` finishes with `RESULT_CANCELED` when it is started before `initialize()` (e.g. restored after process death) instead of crashing.
+* The consent form waits for a configuration fetch still in progress instead of closing with `WEBVIEW_MISSING_HOST`.
+* Retry on the consent form (and opening the form) refetches a configuration that failed to load.
+* A failed configuration fetch no longer overwrites the persisted `IABTCF_gdprApplies` value.
+* Closing the form by error no longer clears the "consents outdated" state, so the form is shown again on the next check.
+* Fixed an orphaned form timeout after Retry that could close an already loaded form.
+* `initialize` is thread-safe.
+
 1.11.0 Release notes (2026-09-30)
 =============================================================
 
