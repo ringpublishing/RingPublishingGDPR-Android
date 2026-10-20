@@ -24,6 +24,7 @@ public class TimeoutTask
 
     public void start(@NonNull TimeoutCallback timeoutCallback)
     {
+        cancel();
         handler = new Handler();
         handler.postDelayed(timeoutCallback::onTimeout, TimeUnit.SECONDS.toMillis(timeout));
     }
