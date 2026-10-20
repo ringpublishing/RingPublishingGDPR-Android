@@ -88,10 +88,27 @@ public class FetchConfigurationTask
         }
     }
 
-    public void run(Runnable finishCallback)
+    public void run(@NonNull Runnable finishCallback)
+    {
+        fetch(finishCallback);
+    }
+
+    /**
+     * Fetches the configuration again without running the finish callback of {@link #run(Runnable)}. Waits for a fetch already running.
+     */
+    public void refetch()
+    {
+        fetch(null);
+    }
+
+    private void fetch(@Nullable Runnable finishCallback)
     {
         synchronized (finishListeners)
         {
+            if (running)
+            {
+                return;
+            }
             running = true;
         }
 
@@ -106,7 +123,7 @@ public class FetchConfigurationTask
                     storage.configureGDPRApplies(gdprApplies);
                     setTenantConfiguration(true, gdprApplies);
                     tenantConfiguration.setHost(url);
-                    finishCallback.run();
+                    runFinishCallback(finishCallback);
                 }
                 finally
                 {
@@ -121,7 +138,7 @@ public class FetchConfigurationTask
                 {
                     setTenantConfiguration(false, false);
                     log.error( "Fetch api configuration task failure");
-                    finishCallback.run();
+                    runFinishCallback(finishCallback);
                     ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_FETCH_TENANT_CONFIGURATION, "Fetch api configuration task failure");
                 }
                 finally
@@ -130,6 +147,14 @@ public class FetchConfigurationTask
                 }
             }
         });
+    }
+
+    private void runFinishCallback(@Nullable Runnable finishCallback)
+    {
+        if (finishCallback != null)
+        {
+            finishCallback.run();
+        }
     }
 
     private void finishRunning()

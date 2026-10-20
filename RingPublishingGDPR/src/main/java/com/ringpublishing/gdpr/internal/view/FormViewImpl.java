@@ -164,6 +164,12 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
             return;
         }
 
+        if (!fetchConfigurationTask.isRunning())
+        {
+            log.info("Form view refetches the configuration");
+            fetchConfigurationTask.refetch();
+        }
+
         final Runnable listener = () -> post(onConfigurationFetched);
         if (fetchConfigurationTask.addFinishListener(listener))
         {
@@ -172,7 +178,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         }
         else
         {
-            failMissingHost();
+            loadCmpSiteAfterConfiguration();
         }
     }
 
