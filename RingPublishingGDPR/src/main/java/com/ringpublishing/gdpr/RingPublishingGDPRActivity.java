@@ -7,8 +7,10 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
 import com.ringpublishing.gdpr.internal.callback.GDPRActivityCallback;
+import com.ringpublishing.gdpr.internal.log.Logger;
 import com.ringpublishing.gdpr.internal.view.FormView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
@@ -64,10 +66,28 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements GDP
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        if (finishIfNotInitialized(RingPublishingGDPR.getInstance()))
+        {
+            return;
+        }
+
         setContentView(R.layout.activity_ring_publishing_gdpr);
 
         layout = findViewById(R.id.content);
         addViewToLayout();
+    }
+
+    boolean finishIfNotInitialized(@NonNull RingPublishingGDPR gdpr)
+    {
+        if (gdpr.isInitialized())
+        {
+            return false;
+        }
+
+        Logger.get().error("RingPublishingGDPRActivity started before RingPublishingGDPR.initialize(); finishing");
+        setResult(RESULT_CANCELED);
+        finish();
+        return true;
     }
 
     @Override
@@ -97,6 +117,11 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements GDP
 
     private void handleIntent()
     {
+        if (formView == null)
+        {
+            return;
+        }
+
         if (getIntent() != null && getIntent().hasExtra(SCREEN_SETTINGS_BUNDLE_KEY))
         {
             formView.showConsentsSettingsScreen();
@@ -118,7 +143,10 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements GDP
             }
         }
 
-        layout.removeAllViews();
+        if (layout != null)
+        {
+            layout.removeAllViews();
+        }
     }
 
     @Override
