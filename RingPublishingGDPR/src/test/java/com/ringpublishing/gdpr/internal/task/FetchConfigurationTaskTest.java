@@ -82,4 +82,75 @@ public class FetchConfigurationTaskTest
         assertEquals("https://host", tenantConfiguration.getHost());
         verify(finishCallback).run();
     }
+
+    @Test
+    public void testIsRunning_WhenFetchPending_ThenTrueUntilCallback()
+    {
+        assertFalse(task.isRunning());
+
+        final ConfigurationCallback callback = runAndCaptureCallback();
+
+        assertTrue(task.isRunning());
+        callback.onFailure();
+        assertFalse(task.isRunning());
+    }
+
+    @Test
+    public void testFinishListener_WhenFetchSucceeds_ThenRunsOnceAfterFinishCallback()
+    {
+        final Runnable listener = Mockito.mock(Runnable.class);
+        task.run(finishCallback);
+        assertTrue(task.addFinishListener(listener));
+        final ArgumentCaptor<ConfigurationCallback> captor = ArgumentCaptor.forClass(ConfigurationCallback.class);
+        verify(api).configuration(captor.capture());
+
+        captor.getValue().onSuccess("https://host", true);
+
+        final org.mockito.InOrder order = inOrder(finishCallback, listener);
+        order.verify(finishCallback).run();
+        order.verify(listener).run();
+        task.run(finishCallback);
+        verify(api, Mockito.times(2)).configuration(captor.capture());
+        captor.getValue().onSuccess("https://host", true);
+        verify(listener, Mockito.times(1)).run();
+    }
+
+    @Test
+    public void testFinishListener_WhenFetchFails_ThenRunsAfterFinishCallback()
+    {
+        final Runnable listener = Mockito.mock(Runnable.class);
+        task.run(finishCallback);
+        task.addFinishListener(listener);
+        final ArgumentCaptor<ConfigurationCallback> captor = ArgumentCaptor.forClass(ConfigurationCallback.class);
+        verify(api).configuration(captor.capture());
+
+        captor.getValue().onFailure();
+
+        final org.mockito.InOrder order = inOrder(finishCallback, listener);
+        order.verify(finishCallback).run();
+        order.verify(listener).run();
+    }
+
+    @Test
+    public void testFinishListener_WhenRemoved_ThenNotRun()
+    {
+        final Runnable listener = Mockito.mock(Runnable.class);
+        task.run(finishCallback);
+        task.addFinishListener(listener);
+        task.removeFinishListener(listener);
+        final ArgumentCaptor<ConfigurationCallback> captor = ArgumentCaptor.forClass(ConfigurationCallback.class);
+        verify(api).configuration(captor.capture());
+
+        captor.getValue().onSuccess("https://host", true);
+
+        verify(listener, never()).run();
+    }
+
+    @Test
+    public void testFinishListener_WhenAddedWhileNotRunning_ThenNotRegistered()
+    {
+        final Runnable listener = Mockito.mock(Runnable.class);
+
+        assertFalse(task.addFinishListener(listener));
+    }
 }

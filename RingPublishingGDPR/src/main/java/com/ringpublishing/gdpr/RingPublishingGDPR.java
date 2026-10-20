@@ -322,7 +322,7 @@ public final class RingPublishingGDPR
     @NonNull
     FormViewImpl createFormView(@NonNull Context activityContext)
     {
-        final FormViewImpl formViewImpl = new FormViewImpl(activityContext, api, tenantConfiguration, storage, ringPublishingGDPRListener);
+        final FormViewImpl formViewImpl = new FormViewImpl(activityContext, api, tenantConfiguration, storage, ringPublishingGDPRListener, fetchConfigurationTask);
         formViewImpl.setViewStyle(ringPublishingGDPRUIConfig);
         if (timeoutInSeconds > 0)
         {

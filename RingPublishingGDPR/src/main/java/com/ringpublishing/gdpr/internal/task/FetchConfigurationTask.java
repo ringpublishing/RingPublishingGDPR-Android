@@ -10,6 +10,9 @@ import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.model.TenantState;
 import com.ringpublishing.gdpr.internal.storage.Storage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -33,6 +36,11 @@ public class FetchConfigurationTask
 
     private final Logger log = Logger.get();
 
+    @NonNull
+    private final List<Runnable> finishListeners = new ArrayList<>();
+
+    private boolean running;
+
     public FetchConfigurationTask(@NonNull Api api,
                                   @NonNull Storage storage,
                                   @NonNull RequestsState requestsState,
@@ -46,29 +54,98 @@ public class FetchConfigurationTask
         this.ringPublishingGDPRListener = ringPublishingGDPRListener;
     }
 
+    public boolean isRunning()
+    {
+        synchronized (finishListeners)
+        {
+            return running;
+        }
+    }
+
+    /**
+     * Registers a one-shot listener run on the callback thread after the fetch finishes.
+     *
+     * @return false when no fetch is running, then the listener is not stored
+     */
+    public boolean addFinishListener(@NonNull Runnable listener)
+    {
+        synchronized (finishListeners)
+        {
+            if (!running)
+            {
+                return false;
+            }
+            finishListeners.add(listener);
+            return true;
+        }
+    }
+
+    public void removeFinishListener(@NonNull Runnable listener)
+    {
+        synchronized (finishListeners)
+        {
+            finishListeners.remove(listener);
+        }
+    }
+
     public void run(Runnable finishCallback)
     {
+        synchronized (finishListeners)
+        {
+            running = true;
+        }
+
         api.configuration(new ConfigurationCallback()
         {
             @Override
             public void onSuccess(@NonNull String url, boolean gdprApplies)
             {
-                log.info( "Fetch api configuration task success");
-                storage.configureGDPRApplies(gdprApplies);
-                setTenantConfiguration(true, gdprApplies);
-                tenantConfiguration.setHost(url);
-                finishCallback.run();
+                try
+                {
+                    log.info( "Fetch api configuration task success");
+                    storage.configureGDPRApplies(gdprApplies);
+                    setTenantConfiguration(true, gdprApplies);
+                    tenantConfiguration.setHost(url);
+                    finishCallback.run();
+                }
+                finally
+                {
+                    finishRunning();
+                }
             }
 
             @Override
             public void onFailure()
             {
-                setTenantConfiguration(false, false);
-                log.error( "Fetch api configuration task failure");
-                finishCallback.run();
-                ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_FETCH_TENANT_CONFIGURATION, "Fetch api configuration task failure");
+                try
+                {
+                    setTenantConfiguration(false, false);
+                    log.error( "Fetch api configuration task failure");
+                    finishCallback.run();
+                    ringPublishingGDPRListener.onError(RingPublishingGDPRError.CANNOT_FETCH_TENANT_CONFIGURATION, "Fetch api configuration task failure");
+                }
+                finally
+                {
+                    finishRunning();
+                }
             }
         });
+    }
+
+    private void finishRunning()
+    {
+        final List<Runnable> toRun;
+        synchronized (finishListeners)
+        {
+            running = false;
+            toRun = new ArrayList<>(finishListeners);
+            finishListeners.clear();
+        }
+
+        for (Runnable listener : toRun)
+        {
+            listener.run();
+        }
     }
 
     private void setTenantConfiguration(boolean success, boolean gdprApplies)
