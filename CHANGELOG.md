@@ -11,6 +11,7 @@
 * Closing the form by error no longer clears the "consents outdated" state, so the form is shown again on the next check.
 * Fixed an orphaned form timeout after Retry that could close an already loaded form.
 * `initialize` is thread-safe.
+* Network requests (configuration, consent verification) are bounded as a whole by the configured timeout (OkHttp call timeout), previously per connect/read/write phase.
 
 ### Behaviour changes (check your integration)
 
