@@ -206,6 +206,40 @@ public class FormViewImplTest
     }
 
     @Test
+    public void testTimeout_WhenConfigArrivesDuringWaitAndPageNeverLoads_ThenClosesOnceFromFirstLoadAttempt()
+    {
+        fetchTask.run(() -> { });
+        final ConfigurationCallback callback = captureCallback(1);
+        attach();
+        idleMainLooper();
+
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(6));
+        callback.onSuccess(HOST, true);
+        idleMainLooper();
+        assertEquals(HOST, loadedUrl());
+
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(5));
+
+        verify(listener, times(1)).onError(eq(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR), anyString());
+    }
+
+    @Test
+    public void testRetry_WhenWaitingForConfig_ThenRestartsTimeoutFromRetry()
+    {
+        fetchTask.run(() -> { });
+        attach();
+        idleMainLooper();
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(6));
+
+        formView.onRetryClicked();
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(5));
+        verify(listener, never()).onError(eq(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR), anyString());
+
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(6));
+        verify(listener, times(1)).onError(eq(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR), anyString());
+    }
+
+    @Test
     public void testRetry_WhenStillWaiting_ThenOnlyLatestListenerStaysRegistered()
     {
         fetchTask.run(() -> { });
