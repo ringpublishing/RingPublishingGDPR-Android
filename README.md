@@ -95,4 +95,3 @@ RingPublishingGDPR.getInstance().initialize(application, tenantId, brandName, ui
 
 Values are URL-encoded by the SDK. A parameter replaces a same-named one already present in the URL; other existing parameters are kept.
 To change them later, call `RingPublishingGDPR.getInstance().setAdditionalQueryParameters(map)` at any time: it replaces the previous map and applies to forms loaded afterwards.
-Calling `initialize` again with parameters also updates them (other arguments are ignored).

@@ -124,7 +124,7 @@ public final class RingPublishingGDPR
     /**
      * Initialization point of SDK with configuration and additional query parameters for the consent form.
      * Behaves like {@link #initialize(Application, String, String, RingPublishingGDPRUIConfig)}.
-     * A repeated call with parameters also updates them; the other arguments are ignored.
+     * To change the parameters later, use {@link #setAdditionalQueryParameters(Map)}.
      *
      * @param application Reference to android application object
      * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
@@ -146,7 +146,7 @@ public final class RingPublishingGDPR
     /**
      * Initialization point of SDK with configuration, forced GDPR applies state and additional query parameters for the consent form.
      * Behaves like {@link #initialize(Application, String, String, RingPublishingGDPRUIConfig, boolean)}.
-     * A repeated call with parameters also updates them; the other arguments are ignored.
+     * To change the parameters later, use {@link #setAdditionalQueryParameters(Map)}.
      *
      * @param application Reference to android application object
      * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
