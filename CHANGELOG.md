@@ -3,14 +3,15 @@
 
 ### Changes
 
-* Added `setAdditionalQueryParameters(Map<String, String>)` to set or replace the consent form query parameters at any time. A repeated `initialize` with parameters still updates them (now documented).
+* Added `setAdditionalQueryParameters(Map<String, String>)` to set or replace the consent form query parameters at any time.
 * `RingPublishingGDPRActivity` finishes with `RESULT_CANCELED` when it is started before `initialize()` (e.g. restored after process death) instead of crashing.
 * The consent form waits for a configuration fetch still in progress instead of closing with `WEBVIEW_MISSING_HOST`.
 * Retry on the consent form (and opening the form) refetches a configuration that failed to load.
-* A failed configuration fetch no longer overwrites the persisted `IABTCF_gdprApplies` value.
+* A failed configuration fetch no longer overwrites the persisted `IABTCF_gdprApplies` value. `IABTCF_CmpSdkID` is written on every start, also when the fetch fails.
 * Closing the form by error no longer clears the "consents outdated" state, so the form is shown again on the next check.
-* Fixed an orphaned form timeout after Retry that could close an already loaded form.
-* The offline error view ("Try again") cancels the form timeout and waits for the user instead of closing the form by error; Retry starts a new timeout.
+* A late second consent callback after an error is ignored: once TC data or complete consent data fails and the form closes by error, the other answer saves nothing and does not call `onConsentsUpdated`.
+* Loading the consent page has its own timeout, stopped when the page is ready or when the offline error view is shown. The offline error view ("Try again") waits for the user without a timeout; Retry reloads the page with a new load timeout. Fixed an orphaned timeout after Retry that could close an already loaded form.
+* After the user submits the form, a separate timeout waits for the consent data. If it does not arrive in time, also offline, the form closes with `CLOSE_FORM_WITH_ERROR` instead of hanging. Retry discards a pending submit, and a repeated submit no longer accumulates pending answers.
 * `initialize` is thread-safe.
 * Network requests (configuration, consent verification) are bounded as a whole by the configured timeout (OkHttp call timeout), previously per connect/read/write phase.
 
@@ -19,11 +20,7 @@
 * **Restored form before `initialize()` finishes.** A `RingPublishingGDPRActivity` started or restored (e.g. after process death) before `initialize()` has completed now finishes immediately with `RESULT_CANCELED`. Treat `RESULT_CANCELED` as "no decision yet" and ask again after `initialize()`, not as a user refusal.
 * **Error close keeps consents outdated.** When the form closes by error (`CLOSE_FORM_WITH_ERROR`, e.g. "Loading cmp site timeout reached"), `closeForm()` is no longer called, so the outdated state is kept. Apps that call `shouldShowConsentForm` on every start or return to the foreground will show the form again after each CMP failure for users whose consents were outdated (new users already behaved this way). Limit re-asking on your side if that is not wanted.
 * **Failed configuration fetch keeps `IABTCF_gdprApplies`.** On `CANNOT_FETCH_TENANT_CONFIGURATION` the persisted `IABTCF_gdprApplies` is no longer overwritten with `false`; the last successfully fetched value stays in shared preferences.
-* **The form waits for or refetches the configuration.** Opening the form (and Retry) while the configuration fetch is still running waits for it; when the last fetch failed, the form fetches it again. A refetch that fails reports one more `CANNOT_FETCH_TENANT_CONFIGURATION` while the form is open, followed by `WEBVIEW_MISSING_HOST`. One form timeout covers the wait and the page load, so the form closes by error after the configured timeout at the latest, unless the offline error view is shown (it waits for Retry).
-
-### Known issues
-
-* After `closeFormByError`, the `onActionInAppTCData` and `getCompleteConsentData` paths can still call `closeForm()` and `onConsentsUpdated()` once both pending actions finish (e.g. TC data failed but complete consent data succeeded). This double close existed before; with this release the two calls now differ in meaning (the error close keeps consents outdated, `closeForm()` clears it).
+* **The form waits for or refetches the configuration.** Opening the form (and Retry) while the configuration fetch is still running waits for it; when the last fetch failed, the form fetches it again. A refetch that fails reports one more `CANNOT_FETCH_TENANT_CONFIGURATION` while the form is open, followed by `WEBVIEW_MISSING_HOST`. One load timeout covers the wait and the page load, so the form closes by error after the configured timeout at the latest, unless the offline error view is shown (it waits for Retry).
 
 1.11.0 Release notes (2026-09-30)
 =============================================================
