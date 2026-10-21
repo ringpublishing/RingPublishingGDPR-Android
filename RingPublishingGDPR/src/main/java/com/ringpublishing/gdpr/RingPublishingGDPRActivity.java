@@ -77,7 +77,7 @@ public class RingPublishingGDPRActivity extends AppCompatActivity implements GDP
         addViewToLayout();
     }
 
-    boolean finishIfNotInitialized(@NonNull RingPublishingGDPR gdpr)
+    private boolean finishIfNotInitialized(@NonNull RingPublishingGDPR gdpr)
     {
         if (gdpr.isInitialized())
         {
