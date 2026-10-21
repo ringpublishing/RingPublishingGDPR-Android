@@ -357,6 +357,8 @@ public final class RingPublishingGDPR
 
     private void runApplicationStartWork(Api api)
     {
+        storage.configureCmpSdkId();
+
         requestsState.setIsLoading();
 
         fetchConfigurationTask.run(() -> apiSynchronizationTask.run(consentFormListener));

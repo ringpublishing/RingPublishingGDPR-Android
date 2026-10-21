@@ -197,9 +197,13 @@ public class Storage extends Preferences
         return consents;
     }
 
-    public void configureGDPRApplies(boolean gdprApplies)
+    public void configureCmpSdkId()
     {
         setInt(Consent.IABTCF_CmpSdkID.key, GDPRConstants.CMP_SDK_ID);
+    }
+
+    public void configureGDPRApplies(boolean gdprApplies)
+    {
         setInt(Consent.IABTCF_gdprApplies.key, gdprApplies ? 1 : 0);
     }
 

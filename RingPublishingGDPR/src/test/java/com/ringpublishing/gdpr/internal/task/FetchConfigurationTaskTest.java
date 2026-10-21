@@ -65,6 +65,7 @@ public class FetchConfigurationTaskTest
         runAndCaptureCallback().onFailure();
 
         verify(storage, never()).configureGDPRApplies(anyBoolean());
+        verify(storage, never()).configureCmpSdkId();
         assertTrue(requestsState.isFailure());
         assertFalse(tenantConfiguration.isGdprApplies());
         final org.mockito.InOrder order = inOrder(finishCallback, listener);
@@ -78,6 +79,7 @@ public class FetchConfigurationTaskTest
         runAndCaptureCallback().onSuccess("https://host", true);
 
         verify(storage).configureGDPRApplies(true);
+        verify(storage, never()).configureCmpSdkId();
         assertFalse(requestsState.isFailure());
         assertTrue(tenantConfiguration.isGdprApplies());
         assertEquals("https://host", tenantConfiguration.getHost());
