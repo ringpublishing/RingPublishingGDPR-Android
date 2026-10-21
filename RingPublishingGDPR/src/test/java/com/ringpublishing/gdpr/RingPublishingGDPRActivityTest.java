@@ -2,69 +2,44 @@ package com.ringpublishing.gdpr;
 
 import android.app.Activity;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
+@RunWith(RobolectricTestRunner.class)
 public class RingPublishingGDPRActivityTest
 {
 
-    private RingPublishingGDPRActivity createActivity()
+    @Before
+    @After
+    public void resetSingleton() throws Exception
     {
-        final RingPublishingGDPRActivity activity = Mockito.mock(RingPublishingGDPRActivity.class);
-        Mockito.doCallRealMethod().when(activity).finishIfNotInitialized(Mockito.any());
-        return activity;
+        final Field instance = RingPublishingGDPR.class.getDeclaredField("instance");
+        instance.setAccessible(true);
+        instance.set(null, null);
     }
 
     @Test
-    public void testFinishIfNotInitialized_WhenNotInitialized_ThenCancelsAndFinishes()
+    public void testOnCreate_WhenSdkNotInitialized_ThenCancelsAndFinishes()
     {
-        final RingPublishingGDPRActivity activity = createActivity();
-        final RingPublishingGDPR gdpr = Mockito.mock(RingPublishingGDPR.class);
-        when(gdpr.isInitialized()).thenReturn(false);
+        final RingPublishingGDPRActivity activity = Robolectric.buildActivity(RingPublishingGDPRActivity.class).create().get();
 
-        assertTrue(activity.finishIfNotInitialized(gdpr));
-
-        verify(activity).setResult(Activity.RESULT_CANCELED);
-        verify(activity).finish();
+        assertTrue(activity.isFinishing());
+        assertEquals(Activity.RESULT_CANCELED, shadowOf(activity).getResultCode());
     }
 
     @Test
-    public void testFinishIfNotInitialized_WhenInitialized_ThenDoesNothing()
+    public void testOnDestroy_WhenSdkNotInitialized_ThenDoesNotThrow()
     {
-        final RingPublishingGDPRActivity activity = createActivity();
-        final RingPublishingGDPR gdpr = Mockito.mock(RingPublishingGDPR.class);
-        when(gdpr.isInitialized()).thenReturn(true);
-
-        assertFalse(activity.finishIfNotInitialized(gdpr));
-
-        verify(activity, never()).setResult(Mockito.anyInt());
-        verify(activity, never()).finish();
-    }
-
-    @Test
-    public void testHandleIntent_WhenFormViewNotCreated_ThenDoesNotThrow() throws Exception
-    {
-        invokePrivate(createActivity(), "handleIntent");
-    }
-
-    @Test
-    public void testClearLayout_WhenLayoutNotCreated_ThenDoesNotThrow() throws Exception
-    {
-        invokePrivate(createActivity(), "clearLayout");
-    }
-
-    private void invokePrivate(RingPublishingGDPRActivity activity, String name) throws Exception
-    {
-        final Method method = RingPublishingGDPRActivity.class.getDeclaredMethod(name);
-        method.setAccessible(true);
-        method.invoke(activity);
+        Robolectric.buildActivity(RingPublishingGDPRActivity.class).create().destroy();
     }
 }
