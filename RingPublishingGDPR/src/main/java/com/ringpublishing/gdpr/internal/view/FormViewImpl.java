@@ -114,7 +114,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     public void showError()
     {
         // The error view waits for the user; Retry starts a fresh timeout through loadCmpSite().
-        formViewController.cancelTimeout();
+        formViewController.cancelLoadTimeout();
         errorView.setVisibility(View.VISIBLE);
         loadingView.setVisibility(View.GONE);
         cmpWebView.setVisibility(View.GONE);
@@ -317,6 +317,11 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     public void clearWaitingActions()
     {
         formViewController.clearWaitingActions();
+    }
+
+    public void onSubmitTimeout()
+    {
+        cmpWebViewCallback.onSubmitTimeout();
     }
 
     public void setTimeoutInSeconds(int timeoutInSeconds)

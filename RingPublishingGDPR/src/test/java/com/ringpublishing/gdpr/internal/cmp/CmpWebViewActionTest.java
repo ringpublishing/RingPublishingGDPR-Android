@@ -93,6 +93,21 @@ public class CmpWebViewActionTest
     }
 
     @Test
+    public void testOnSubmitTimeout_WhenOffline_ThenClearsWaitingAndClosesByErrorWithoutErrorView()
+    {
+        when(formView.isOnline()).thenReturn(false);
+
+        action.onSubmitTimeout();
+
+        verify(formView).clearWaitingActions();
+        verify(listener).onError(eq(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR), anyString());
+        verify(formView, times(1)).hideForm();
+        verify(formView, never()).showError();
+        verify(listener, never()).onConsentsUpdated();
+        verify(storage, never()).setConsentOutdated(anyBoolean());
+    }
+
+    @Test
     public void testGetCompleteConsentData_WhenSavedAndWaitingFinished_ThenClearsOutdatedAndClosesForm() throws Exception
     {
         when(formView.isWaitingFor(ActionType.GET_COMPLETE_CONSENT_DATA)).thenReturn(true);

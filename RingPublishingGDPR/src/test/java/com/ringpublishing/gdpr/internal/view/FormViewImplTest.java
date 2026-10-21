@@ -13,6 +13,8 @@ import com.ringpublishing.gdpr.RingPublishingGDPRError;
 import com.ringpublishing.gdpr.RingPublishingGDPRListener;
 import com.ringpublishing.gdpr.internal.api.Api;
 import com.ringpublishing.gdpr.internal.api.Api.ConfigurationCallback;
+import com.ringpublishing.gdpr.internal.callback.GDPRActivityCallback;
+import com.ringpublishing.gdpr.internal.cmp.CmpAction.ActionType;
 import com.ringpublishing.gdpr.internal.model.RequestsState;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.network.Network;
@@ -53,6 +55,8 @@ public class FormViewImplTest
 
     private static final String TIMEOUT_MESSAGE = "Loading cmp site timeout reached";
 
+    private static final String SUBMIT_TIMEOUT_MESSAGE = "Consent data response timeout reached";
+
     private Api api;
 
     private RingPublishingGDPRListener listener;
@@ -91,6 +95,27 @@ public class FormViewImplTest
     private void detach()
     {
         ((ViewGroup) formView.getParent()).removeView(formView);
+    }
+
+    private GDPRActivityCallback attachWithActivityCallback()
+    {
+        final GDPRActivityCallback activityCallback = Mockito.mock(GDPRActivityCallback.class);
+        formView.setActivityCallback(activityCallback);
+        tenantConfiguration.setHost(HOST);
+        attach();
+        idleMainLooper();
+        return activityCallback;
+    }
+
+    private void goOffline()
+    {
+        final ConnectivityManager connectivityManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+        shadowOf(connectivityManager).clearAllNetworks();
+    }
+
+    private void idleSeconds(int seconds)
+    {
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(seconds));
     }
 
     private void idleMainLooper()
@@ -289,5 +314,114 @@ public class FormViewImplTest
         verify(listener, never()).onError(Mockito.any(), contains(TIMEOUT_MESSAGE));
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2));
         verify(listener, times(1)).onError(Mockito.any(), contains(TIMEOUT_MESSAGE));
+    }
+
+    @Test
+    public void testLoadTimeout_WhenPageNeverLoadsOnline_ThenClosesByErrorOnce()
+    {
+        final GDPRActivityCallback activityCallback = attachWithActivityCallback();
+
+        idleSeconds(9);
+        verify(activityCallback, never()).hideForm();
+        idleSeconds(40);
+
+        verify(listener, times(1)).onError(eq(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR), contains(TIMEOUT_MESSAGE));
+        verify(activityCallback, times(1)).hideForm();
+    }
+
+    @Test
+    public void testOfflineError_WhenRetryAndPageReady_ThenNothingCloses()
+    {
+        final GDPRActivityCallback activityCallback = attachWithActivityCallback();
+        goOffline();
+        formView.onReceivedError(Mockito.mock(WebResourceRequest.class), Mockito.mock(WebResourceError.class));
+        idleSeconds(40);
+
+        formView.onRetryClicked();
+        formView.cmpReady();
+        idleSeconds(40);
+
+        verify(activityCallback, never()).hideForm();
+        verify(listener, never()).onError(eq(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR), anyString());
+    }
+
+    @Test
+    public void testSubmit_WhenOfflineErrorShownAndNoAnswers_ThenClosesByErrorAfterTimeout()
+    {
+        final GDPRActivityCallback activityCallback = attachWithActivityCallback();
+        formView.cmpReady();
+        formView.formSubmittedAction();
+        goOffline();
+        formView.showError();
+
+        idleSeconds(9);
+        verify(activityCallback, never()).hideForm();
+        idleSeconds(2);
+
+        verify(listener, times(1)).onError(eq(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR), contains(SUBMIT_TIMEOUT_MESSAGE));
+        verify(activityCallback, times(1)).hideForm();
+        assertFalse(formView.isWaitingFor(ActionType.GET_TC_DATA));
+    }
+
+    @Test
+    public void testSubmit_WhenBothAnswersArrive_ThenSubmitTimerCancelled()
+    {
+        final GDPRActivityCallback activityCallback = attachWithActivityCallback();
+        formView.cmpReady();
+        formView.formSubmittedAction();
+
+        assertFalse(formView.waitingActionFinish(ActionType.GET_TC_DATA));
+        assertTrue(formView.waitingActionFinish(ActionType.GET_COMPLETE_CONSENT_DATA));
+        idleSeconds(40);
+
+        verify(activityCallback, never()).hideForm();
+        verify(listener, never()).onError(eq(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR), anyString());
+    }
+
+    @Test
+    public void testSubmit_WhenSubmitRetrySubmit_ThenOnlyTwoActionsWaitAndRealAnswersFinish()
+    {
+        attachWithActivityCallback();
+        formView.cmpReady();
+        formView.formSubmittedAction();
+        formView.onRetryClicked();
+        formView.cmpReady();
+        formView.formSubmittedAction();
+
+        assertTrue(formView.isWaitingFor(ActionType.GET_TC_DATA));
+        assertTrue(formView.isWaitingFor(ActionType.GET_COMPLETE_CONSENT_DATA));
+        assertFalse(formView.waitingActionFinish(ActionType.GET_TC_DATA));
+        assertTrue(formView.waitingActionFinish(ActionType.GET_COMPLETE_CONSENT_DATA));
+        assertFalse(formView.isWaitingFor(ActionType.GET_TC_DATA));
+    }
+
+    @Test
+    public void testRetry_WhenSubmitPending_ThenWaitingClearedAndSubmitTimerCancelled()
+    {
+        final GDPRActivityCallback activityCallback = attachWithActivityCallback();
+        formView.cmpReady();
+        formView.formSubmittedAction();
+
+        formView.onRetryClicked();
+        formView.cmpReady();
+
+        assertFalse(formView.isWaitingFor(ActionType.GET_TC_DATA));
+        assertFalse(formView.isWaitingFor(ActionType.GET_COMPLETE_CONSENT_DATA));
+        idleSeconds(40);
+        verify(activityCallback, never()).hideForm();
+        verify(listener, never()).onError(eq(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR), anyString());
+    }
+
+    @Test
+    public void testDetach_WhenLoadAndSubmitTimersPending_ThenNothingFires()
+    {
+        final GDPRActivityCallback activityCallback = attachWithActivityCallback();
+        formView.formSubmittedAction();
+
+        detach();
+        idleSeconds(40);
+
+        verify(activityCallback, never()).hideForm();
+        verify(listener, never()).onError(eq(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR), anyString());
     }
 }

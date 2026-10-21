@@ -38,4 +38,23 @@ public class TimeoutTaskTest
             verify(second).removeCallbacksAndMessages(null);
         }
     }
+
+    @Test
+    public void testCancel_WhenTwoInstances_ThenOnlyOwnHandlerCancelled()
+    {
+        try (MockedConstruction<Handler> handlers = Mockito.mockConstruction(Handler.class))
+        {
+            final TimeoutTask load = new TimeoutTask();
+            final TimeoutTask submit = new TimeoutTask();
+            load.start(() -> { });
+            submit.start(() -> { });
+
+            load.cancel();
+
+            final Handler loadHandler = handlers.constructed().get(0);
+            final Handler submitHandler = handlers.constructed().get(1);
+            verify(loadHandler).removeCallbacksAndMessages(null);
+            verify(submitHandler, never()).removeCallbacksAndMessages(null);
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package com.ringpublishing.gdpr.internal.task;
 
 import android.os.Handler;
+import android.os.Looper;
 
 import com.ringpublishing.gdpr.BuildConfig;
 
@@ -22,14 +23,14 @@ public class TimeoutTask
         this.timeout = timeout;
     }
 
-    public void start(@NonNull TimeoutCallback timeoutCallback)
+    public synchronized void start(@NonNull TimeoutCallback timeoutCallback)
     {
         cancel();
-        handler = new Handler();
+        handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(timeoutCallback::onTimeout, TimeUnit.SECONDS.toMillis(timeout));
     }
 
-    public void cancel()
+    public synchronized void cancel()
     {
         if (handler != null)
         {

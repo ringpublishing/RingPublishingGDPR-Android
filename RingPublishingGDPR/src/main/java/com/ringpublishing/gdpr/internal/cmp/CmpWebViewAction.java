@@ -148,6 +148,12 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
         }
     }
 
+    public void onSubmitTimeout()
+    {
+        formViewImpl.clearWaitingActions();
+        closeFormByError("Consent data response timeout reached");
+    }
+
     private void closeFormByError(String errorMessage)
     {
         Logger.get().error("Close form by error. Error message: " + errorMessage);
