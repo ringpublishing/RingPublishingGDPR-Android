@@ -309,6 +309,16 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         return formViewController.waitingActionFinish(actionType);
     }
 
+    public boolean isWaitingFor(ActionType actionType)
+    {
+        return formViewController.isWaitingFor(actionType);
+    }
+
+    public void clearWaitingActions()
+    {
+        formViewController.clearWaitingActions();
+    }
+
     public void setTimeoutInSeconds(int timeoutInSeconds)
     {
         formViewController.setTimeoutInSeconds(timeoutInSeconds);

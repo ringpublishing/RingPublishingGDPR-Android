@@ -15,10 +15,17 @@ import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -88,6 +95,7 @@ public class CmpWebViewActionTest
     @Test
     public void testGetCompleteConsentData_WhenSavedAndWaitingFinished_ThenClearsOutdatedAndClosesForm() throws Exception
     {
+        when(formView.isWaitingFor(ActionType.GET_COMPLETE_CONSENT_DATA)).thenReturn(true);
         when(formView.waitingActionFinish(ActionType.GET_COMPLETE_CONSENT_DATA)).thenReturn(true);
 
         action.getCompleteConsentData("", "{}");
@@ -102,11 +110,69 @@ public class CmpWebViewActionTest
     @Test
     public void testGetCompleteConsentData_WhenError_ThenKeepsConsentOutdated()
     {
+        when(formView.isWaitingFor(ActionType.GET_COMPLETE_CONSENT_DATA)).thenReturn(true);
+
         action.getCompleteConsentData("boom", "{}");
 
         verify(storage).clearAllConsentData();
         verify(storage, never()).setConsentOutdated(anyBoolean());
         verify(storage, never()).saveLastAPIConsentsCheckStatus(anyString());
         verify(formView).hideForm();
+        verify(formView).clearWaitingActions();
+    }
+
+    @Test
+    public void testOnActionInAppTCData_WhenErrorThenLateCompleteConsentData_ThenLateCallbackIgnored() throws Exception
+    {
+        stubWaitingState();
+
+        action.onActionInAppTCData("{}", false);
+        action.getCompleteConsentData("", "{}");
+
+        verifyClosedOnlyByError();
+        verify(storage, never()).saveConsentData(anyString());
+    }
+
+    @Test
+    public void testGetCompleteConsentData_WhenErrorThenLateTCData_ThenLateCallbackIgnored() throws Exception
+    {
+        stubWaitingState();
+
+        action.getCompleteConsentData("boom", "{}");
+        action.onActionInAppTCData("{}", true);
+
+        verifyClosedOnlyByError();
+        verify(storage, never()).saveTCData(anyString());
+    }
+
+    @Test
+    public void testCallbacks_WhenNotWaitingForAnything_ThenSuccessCallbacksIgnored() throws Exception
+    {
+        action.onActionInAppTCData("{}", true);
+        action.getCompleteConsentData("", "{}");
+
+        verify(storage, never()).saveTCData(anyString());
+        verify(storage, never()).saveConsentData(anyString());
+        verify(formView, never()).hideForm();
+        verify(listener, never()).onConsentsUpdated();
+        verify(storage, never()).setConsentOutdated(anyBoolean());
+    }
+
+    private void stubWaitingState()
+    {
+        final Set<ActionType> waiting = new HashSet<>(Arrays.asList(ActionType.GET_TC_DATA, ActionType.GET_COMPLETE_CONSENT_DATA));
+        when(formView.isWaitingFor(any())).thenAnswer(i -> waiting.contains(i.<ActionType>getArgument(0)));
+        doAnswer(i -> {
+            waiting.clear();
+            return null;
+        }).when(formView).clearWaitingActions();
+    }
+
+    private void verifyClosedOnlyByError()
+    {
+        verify(formView, times(1)).hideForm();
+        verify(formView).clearWaitingActions();
+        verify(listener, never()).onConsentsUpdated();
+        verify(storage, never()).setConsentOutdated(anyBoolean());
     }
 }

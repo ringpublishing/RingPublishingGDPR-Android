@@ -111,4 +111,15 @@ public class FormViewController implements TimeoutCallback
         return false;
     }
 
+    public boolean isWaitingFor(ActionType action)
+    {
+        return waitingToCloseActions.contains(action);
+    }
+
+    public void clearWaitingActions()
+    {
+        waitingToCloseActions.clear();
+        timeoutTask.cancel();
+    }
+
 }
