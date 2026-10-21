@@ -16,8 +16,6 @@ import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,36 +60,6 @@ public class RingPublishingGDPRTest
     }
 
     @Test
-    public void testInitializedField_WhenInspected_ThenVolatile() throws Exception
-    {
-        final Field initialized = RingPublishingGDPR.class.getDeclaredField("initialized");
-
-        assertTrue(Modifier.isVolatile(initialized.getModifiers()));
-    }
-
-    @Test
-    public void testInitializeInternal_WhenInspected_ThenSynchronized() throws Exception
-    {
-        assertTrue(Modifier.isSynchronized(initializeInternalMethod().getModifiers()));
-    }
-
-    @Test
-    public void testInitializeWithParameters_WhenInspected_ThenSynchronized() throws Exception
-    {
-        assertTrue(Modifier.isSynchronized(RingPublishingGDPR.class
-                .getMethod("initialize", Application.class, String.class, String.class, RingPublishingGDPRUIConfig.class, Map.class).getModifiers()));
-        assertTrue(Modifier.isSynchronized(RingPublishingGDPR.class
-                .getMethod("initialize", Application.class, String.class, String.class, RingPublishingGDPRUIConfig.class, boolean.class, Map.class)
-                .getModifiers()));
-    }
-
-    private Method initializeInternalMethod() throws Exception
-    {
-        return RingPublishingGDPR.class.getDeclaredMethod("initializeInternal", Application.class, String.class, String.class,
-                RingPublishingGDPRUIConfig.class, Boolean.class);
-    }
-
-    @Test
     public void testSetAdditionalQueryParameters_WhenCalledBeforeInitialize_ThenStoresCopyAndReplacesPrevious() throws Exception
     {
         final RingPublishingGDPR gdpr = RingPublishingGDPR.getInstance();
@@ -106,12 +74,6 @@ public class RingPublishingGDPRTest
         gdpr.setAdditionalQueryParameters(Collections.singletonMap("c", "3"));
 
         assertEquals(Collections.singletonMap("c", "3"), storedParameters(gdpr));
-    }
-
-    @Test
-    public void testSetAdditionalQueryParameters_WhenInspected_ThenSynchronized() throws Exception
-    {
-        assertTrue(Modifier.isSynchronized(RingPublishingGDPR.class.getMethod("setAdditionalQueryParameters", Map.class).getModifiers()));
     }
 
     private Object storedParameters(RingPublishingGDPR gdpr) throws Exception

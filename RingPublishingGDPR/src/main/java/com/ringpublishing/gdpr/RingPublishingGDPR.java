@@ -133,11 +133,11 @@ public final class RingPublishingGDPR
      * @param additionalQueryParameters Query parameters appended to the URL loaded by the consent form webview.
      *                                  Values are URL-encoded by the SDK; a parameter replaces a same-named one already present in the URL.
      */
-    public synchronized void initialize(@NonNull final Application application,
-                                        @NonNull final String tenantId,
-                                        @NonNull final String brandName,
-                                        @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
-                                        @NonNull final Map<String, String> additionalQueryParameters)
+    public void initialize(@NonNull final Application application,
+                           @NonNull final String tenantId,
+                           @NonNull final String brandName,
+                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
+                           @NonNull final Map<String, String> additionalQueryParameters)
     {
         tenantConfiguration.setAdditionalQueryParameters(additionalQueryParameters);
         initializeInternal(application, tenantId, brandName, ringPublishingGDPRUIConfig, null);
@@ -156,12 +156,12 @@ public final class RingPublishingGDPR
      * @param additionalQueryParameters Query parameters appended to the URL loaded by the consent form webview.
      *                                  Values are URL-encoded by the SDK; a parameter replaces a same-named one already present in the URL.
      */
-    public synchronized void initialize(@NonNull final Application application,
-                                        @NonNull final String tenantId,
-                                        @NonNull final String brandName,
-                                        @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
-                                        boolean forcedGDPRApplies,
-                                        @NonNull final Map<String, String> additionalQueryParameters)
+    public void initialize(@NonNull final Application application,
+                           @NonNull final String tenantId,
+                           @NonNull final String brandName,
+                           @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
+                           boolean forcedGDPRApplies,
+                           @NonNull final Map<String, String> additionalQueryParameters)
     {
         tenantConfiguration.setAdditionalQueryParameters(additionalQueryParameters);
         initializeInternal(application, tenantId, brandName, ringPublishingGDPRUIConfig, forcedGDPRApplies);
@@ -174,7 +174,7 @@ public final class RingPublishingGDPR
      *
      * @param additionalQueryParameters parameters to append, copied by the SDK
      */
-    public synchronized void setAdditionalQueryParameters(@NonNull final Map<String, String> additionalQueryParameters)
+    public void setAdditionalQueryParameters(@NonNull final Map<String, String> additionalQueryParameters)
     {
         tenantConfiguration.setAdditionalQueryParameters(additionalQueryParameters);
     }
