@@ -31,7 +31,7 @@ public final class RingPublishingGDPR
 {
     private static RingPublishingGDPR instance;
 
-    private boolean initialized;
+    private volatile boolean initialized;
 
     private int timeoutInSeconds = BuildConfig.DEFAULT_TIMEOUT;
 
@@ -124,6 +124,7 @@ public final class RingPublishingGDPR
     /**
      * Initialization point of SDK with configuration and additional query parameters for the consent form.
      * Behaves like {@link #initialize(Application, String, String, RingPublishingGDPRUIConfig)}.
+     * To change the parameters later, use {@link #setAdditionalQueryParameters(Map)}.
      *
      * @param application Reference to android application object
      * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
@@ -145,6 +146,7 @@ public final class RingPublishingGDPR
     /**
      * Initialization point of SDK with configuration, forced GDPR applies state and additional query parameters for the consent form.
      * Behaves like {@link #initialize(Application, String, String, RingPublishingGDPRUIConfig, boolean)}.
+     * To change the parameters later, use {@link #setAdditionalQueryParameters(Map)}.
      *
      * @param application Reference to android application object
      * @param tenantId Identifier of application send in request for Consent configuration to Ring API. Example "1234"
@@ -163,6 +165,18 @@ public final class RingPublishingGDPR
     {
         tenantConfiguration.setAdditionalQueryParameters(additionalQueryParameters);
         initializeInternal(application, tenantId, brandName, ringPublishingGDPRUIConfig, forcedGDPRApplies);
+    }
+
+    /**
+     * Set additional query parameters appended to the URL loaded by the consent form webview.
+     * Can be called at any time, before or after initialization. Affects forms loaded afterwards and replaces the previously set parameters.
+     * Values are URL-encoded by the SDK; a parameter replaces a same-named one already present in the URL.
+     *
+     * @param additionalQueryParameters parameters to append, copied by the SDK
+     */
+    public void setAdditionalQueryParameters(@NonNull final Map<String, String> additionalQueryParameters)
+    {
+        tenantConfiguration.setAdditionalQueryParameters(additionalQueryParameters);
     }
 
     /**
@@ -308,7 +322,7 @@ public final class RingPublishingGDPR
     @NonNull
     FormViewImpl createFormView(@NonNull Context activityContext)
     {
-        final FormViewImpl formViewImpl = new FormViewImpl(activityContext, api, tenantConfiguration, storage, ringPublishingGDPRListener);
+        final FormViewImpl formViewImpl = new FormViewImpl(activityContext, api, tenantConfiguration, storage, ringPublishingGDPRListener, fetchConfigurationTask);
         formViewImpl.setViewStyle(ringPublishingGDPRUIConfig);
         if (timeoutInSeconds > 0)
         {
@@ -318,11 +332,11 @@ public final class RingPublishingGDPR
         return formViewImpl;
     }
 
-    private void initializeInternal(@NonNull final Application application,
-                                    @NonNull final String tenantId,
-                                    @NonNull final String brandName,
-                                    @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
-                                    @Nullable Boolean forcedGDPRApplies)
+    private synchronized void initializeInternal(@NonNull final Application application,
+                                                 @NonNull final String tenantId,
+                                                 @NonNull final String brandName,
+                                                 @NonNull final RingPublishingGDPRUIConfig ringPublishingGDPRUIConfig,
+                                                 @Nullable Boolean forcedGDPRApplies)
     {
         if (initialized)
         {
@@ -343,6 +357,8 @@ public final class RingPublishingGDPR
 
     private void runApplicationStartWork(Api api)
     {
+        storage.configureCmpSdkId();
+
         requestsState.setIsLoading();
 
         fetchConfigurationTask.run(() -> apiSynchronizationTask.run(consentFormListener));

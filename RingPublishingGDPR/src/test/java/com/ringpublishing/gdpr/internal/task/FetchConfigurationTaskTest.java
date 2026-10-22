@@ -1,0 +1,242 @@
+package com.ringpublishing.gdpr.internal.task;
+
+import com.ringpublishing.gdpr.RingPublishingGDPRError;
+import com.ringpublishing.gdpr.RingPublishingGDPRListener;
+import com.ringpublishing.gdpr.internal.api.Api;
+import com.ringpublishing.gdpr.internal.api.Api.ConfigurationCallback;
+import com.ringpublishing.gdpr.internal.model.RequestsState;
+import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
+import com.ringpublishing.gdpr.internal.model.VerifyState;
+import com.ringpublishing.gdpr.internal.storage.Storage;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
+public class FetchConfigurationTaskTest
+{
+
+    private Api api;
+
+    private Storage storage;
+
+    private RingPublishingGDPRListener listener;
+
+    private RequestsState requestsState;
+
+    private TenantConfiguration tenantConfiguration;
+
+    private Runnable finishCallback;
+
+    private FetchConfigurationTask task;
+
+    @Before
+    public void setUp()
+    {
+        api = Mockito.mock(Api.class);
+        storage = Mockito.mock(Storage.class);
+        listener = Mockito.mock(RingPublishingGDPRListener.class);
+        finishCallback = Mockito.mock(Runnable.class);
+        requestsState = new RequestsState();
+        tenantConfiguration = new TenantConfiguration();
+        task = new FetchConfigurationTask(api, storage, requestsState, tenantConfiguration, listener);
+    }
+
+    private ConfigurationCallback runAndCaptureCallback()
+    {
+        task.run(finishCallback);
+        final ArgumentCaptor<ConfigurationCallback> captor = ArgumentCaptor.forClass(ConfigurationCallback.class);
+        verify(api).configuration(captor.capture());
+        return captor.getValue();
+    }
+
+    @Test
+    public void testRun_WhenFetchFails_ThenPersistedGdprAppliesKept()
+    {
+        runAndCaptureCallback().onFailure();
+
+        verify(storage, never()).configureGDPRApplies(anyBoolean());
+        verify(storage, never()).configureCmpSdkId();
+        assertTrue(requestsState.isFailure());
+        assertFalse(tenantConfiguration.isGdprApplies());
+        final org.mockito.InOrder order = inOrder(finishCallback, listener);
+        order.verify(finishCallback).run();
+        order.verify(listener).onError(Mockito.eq(RingPublishingGDPRError.CANNOT_FETCH_TENANT_CONFIGURATION), Mockito.anyString());
+    }
+
+    @Test
+    public void testRun_WhenFetchSucceeds_ThenGdprAppliesPersistedAndHostSet()
+    {
+        runAndCaptureCallback().onSuccess("https://host", true);
+
+        verify(storage).configureGDPRApplies(true);
+        verify(storage, never()).configureCmpSdkId();
+        assertFalse(requestsState.isFailure());
+        assertTrue(tenantConfiguration.isGdprApplies());
+        assertEquals("https://host", tenantConfiguration.getHost());
+        verify(finishCallback).run();
+    }
+
+    @Test
+    public void testIsRunning_WhenFetchPending_ThenTrueUntilCallback()
+    {
+        assertFalse(task.isRunning());
+
+        final ConfigurationCallback callback = runAndCaptureCallback();
+
+        assertTrue(task.isRunning());
+        callback.onFailure();
+        assertFalse(task.isRunning());
+    }
+
+    @Test
+    public void testFinishListener_WhenFetchSucceeds_ThenRunsOnceAfterFinishCallback()
+    {
+        final Runnable listener = Mockito.mock(Runnable.class);
+        task.run(finishCallback);
+        assertTrue(task.addFinishListener(listener));
+        final ArgumentCaptor<ConfigurationCallback> captor = ArgumentCaptor.forClass(ConfigurationCallback.class);
+        verify(api).configuration(captor.capture());
+
+        captor.getValue().onSuccess("https://host", true);
+
+        final org.mockito.InOrder order = inOrder(finishCallback, listener);
+        order.verify(finishCallback).run();
+        order.verify(listener).run();
+        task.run(finishCallback);
+        verify(api, Mockito.times(2)).configuration(captor.capture());
+        captor.getValue().onSuccess("https://host", true);
+        verify(listener, Mockito.times(1)).run();
+    }
+
+    @Test
+    public void testFinishListener_WhenFetchFails_ThenRunsAfterFinishCallback()
+    {
+        final Runnable listener = Mockito.mock(Runnable.class);
+        task.run(finishCallback);
+        task.addFinishListener(listener);
+        final ArgumentCaptor<ConfigurationCallback> captor = ArgumentCaptor.forClass(ConfigurationCallback.class);
+        verify(api).configuration(captor.capture());
+
+        captor.getValue().onFailure();
+
+        final org.mockito.InOrder order = inOrder(finishCallback, listener);
+        order.verify(finishCallback).run();
+        order.verify(listener).run();
+    }
+
+    @Test
+    public void testFinishListener_WhenRemoved_ThenNotRun()
+    {
+        final Runnable listener = Mockito.mock(Runnable.class);
+        task.run(finishCallback);
+        task.addFinishListener(listener);
+        task.removeFinishListener(listener);
+        final ArgumentCaptor<ConfigurationCallback> captor = ArgumentCaptor.forClass(ConfigurationCallback.class);
+        verify(api).configuration(captor.capture());
+
+        captor.getValue().onSuccess("https://host", true);
+
+        verify(listener, never()).run();
+    }
+
+    @Test
+    public void testFinishListener_WhenAddedWhileNotRunning_ThenNotRegistered()
+    {
+        final Runnable listener = Mockito.mock(Runnable.class);
+
+        assertFalse(task.addFinishListener(listener));
+    }
+
+    @Test
+    public void testRefetch_WhenPreviousFetchFailed_ThenFetchesAgainWithoutFinishCallbackOrLoadingState()
+    {
+        requestsState.setVerifyState(VerifyState.ACTUAL);
+        runAndCaptureCallback().onFailure();
+        Mockito.reset(finishCallback, listener);
+        assertTrue(requestsState.isFailure());
+
+        task.refetch();
+
+        final ArgumentCaptor<ConfigurationCallback> captor = ArgumentCaptor.forClass(ConfigurationCallback.class);
+        verify(api, Mockito.times(2)).configuration(captor.capture());
+        assertTrue(task.isRunning());
+        assertTrue(requestsState.isFailure());
+        captor.getValue().onSuccess("https://host", true);
+        assertFalse(requestsState.isLoading());
+        assertFalse(requestsState.isFailure());
+        assertEquals("https://host", tenantConfiguration.getHost());
+        verify(storage).configureGDPRApplies(true);
+        verify(finishCallback, never()).run();
+        verify(listener, never()).onError(Mockito.any(), Mockito.anyString());
+    }
+
+    @Test
+    public void testRefetch_WhenRefetchFails_ThenReportsErrorAndRunsListenersOnce()
+    {
+        runAndCaptureCallback().onFailure();
+        Mockito.reset(finishCallback, listener);
+        final Runnable finishListener = Mockito.mock(Runnable.class);
+
+        task.refetch();
+        assertTrue(task.addFinishListener(finishListener));
+        final ArgumentCaptor<ConfigurationCallback> captor = ArgumentCaptor.forClass(ConfigurationCallback.class);
+        verify(api, Mockito.times(2)).configuration(captor.capture());
+        captor.getValue().onFailure();
+
+        assertTrue(requestsState.isFailure());
+        verify(listener).onError(Mockito.eq(RingPublishingGDPRError.CANNOT_FETCH_TENANT_CONFIGURATION), Mockito.anyString());
+        verify(finishListener, Mockito.times(1)).run();
+        verify(finishCallback, never()).run();
+        assertFalse(task.isRunning());
+    }
+
+    @Test
+    public void testRefetch_WhenFetchRunning_ThenDoesNotCallApiAgain()
+    {
+        task.run(finishCallback);
+
+        task.refetch();
+
+        verify(api, Mockito.times(1)).configuration(Mockito.any());
+    }
+
+    @Test
+    public void testRun_WhenRefetchRunning_ThenFinishCallbackRunsWhenThatFetchFinishes()
+    {
+        task.refetch();
+        final ArgumentCaptor<ConfigurationCallback> captor = ArgumentCaptor.forClass(ConfigurationCallback.class);
+        verify(api).configuration(captor.capture());
+
+        task.run(finishCallback);
+        verify(api, Mockito.times(1)).configuration(Mockito.any());
+        verify(finishCallback, never()).run();
+
+        captor.getValue().onSuccess("https://host", true);
+
+        verify(finishCallback, Mockito.times(1)).run();
+        assertFalse(task.isRunning());
+    }
+
+    @Test
+    public void testRun_WhenRunningFetchFails_ThenWaitingFinishCallbackStillRuns()
+    {
+        final ConfigurationCallback callback = runAndCaptureCallback();
+        final Runnable secondCallback = Mockito.mock(Runnable.class);
+
+        task.run(secondCallback);
+        callback.onFailure();
+
+        verify(finishCallback, Mockito.times(1)).run();
+        verify(secondCallback, Mockito.times(1)).run();
+    }
+}

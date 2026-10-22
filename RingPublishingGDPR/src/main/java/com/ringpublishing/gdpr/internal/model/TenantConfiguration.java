@@ -18,7 +18,7 @@ public class TenantConfiguration
     private String host;
 
     @NonNull
-    private Map<String, String> additionalQueryParameters = Collections.emptyMap();
+    private volatile Map<String, String> additionalQueryParameters = Collections.emptyMap();
 
     public void setAdditionalQueryParameters(@NonNull Map<String, String> additionalQueryParameters)
     {

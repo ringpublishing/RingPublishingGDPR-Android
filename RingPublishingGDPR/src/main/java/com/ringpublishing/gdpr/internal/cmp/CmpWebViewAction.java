@@ -64,31 +64,40 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
     @Override
     public void onActionInAppTCData(String tcData, boolean success)
     {
-        if (success)
+        if (!formViewImpl.isWaitingFor(ActionType.GET_TC_DATA))
         {
-            try
-            {
-                Logger.get().info("Try to save TCData from javascript");
-                storage.saveTCData(tcData);
-
-            }
-            catch (JSONException e)
-            {
-                storage.clearAllConsentData();
-                closeFormByError("When receive tcData from javascript and want to save TCData, " +
-                        "then have JSONException error:" + e.getLocalizedMessage() + " TcData to parse is: " + tcData);
-            }
+            Logger.get().warn("Late TC data ignored. The form is not waiting for it");
+            CookieManager.getInstance().flush();
+            return;
         }
-        else
+
+        if (!success)
         {
             storage.clearAllConsentData();
+            formViewImpl.clearWaitingActions();
             closeFormByError("When receive tcData from javascript, result is not success. TcData is: " + tcData);
+            CookieManager.getInstance().flush();
+            return;
+        }
+
+        try
+        {
+            Logger.get().info("Try to save TCData from javascript");
+            storage.saveTCData(tcData);
+        }
+        catch (JSONException e)
+        {
+            storage.clearAllConsentData();
+            formViewImpl.clearWaitingActions();
+            closeFormByError("When receive tcData from javascript and want to save TCData, " +
+                    "then have JSONException error:" + e.getLocalizedMessage() + " TcData to parse is: " + tcData);
+            CookieManager.getInstance().flush();
+            return;
         }
 
         CookieManager.getInstance().flush();
 
-        boolean closeForm = formViewImpl.waitingActionFinish(ActionType.GET_TC_DATA);
-        if (closeForm)
+        if (formViewImpl.waitingActionFinish(ActionType.GET_TC_DATA))
         {
             closeForm();
             ringPublishingGDPRListener.onConsentsUpdated();
@@ -98,46 +107,60 @@ public class CmpWebViewAction implements CmpWebViewActionCallback
     @Override
     public void getCompleteConsentData(String error, String dlData)
     {
-        if (TextUtils.isEmpty(error))
+        if (!formViewImpl.isWaitingFor(ActionType.GET_COMPLETE_CONSENT_DATA))
         {
-            try
-            {
-                storage.saveConsentData(dlData);
-
-                boolean closeForm = formViewImpl.waitingActionFinish(ActionType.GET_COMPLETE_CONSENT_DATA);
-                if (closeForm)
-                {
-                    closeForm();
-                    ringPublishingGDPRListener.onConsentsUpdated();
-                }
-            }
-            catch (JSONException e)
-            {
-                storage.clearAllConsentData();
-                Logger.get().error("Fail saving consent data" + e.getLocalizedMessage());
-                closeFormByError("When try to save consent data, then have JSONException with error: "
-                        + e.getLocalizedMessage() + " Parsed data is: " + dlData);
-            }
+            Logger.get().warn("Late complete consent data ignored. The form is not waiting for it");
+            CookieManager.getInstance().flush();
+            return;
         }
-        else
+
+        if (!TextUtils.isEmpty(error))
         {
             storage.clearAllConsentData();
+            formViewImpl.clearWaitingActions();
             Logger.get().error("Save dlData fail.Error " + error);
             closeFormByError("When try to get complete consent data, then have error: " + error + " dlData:" + dlData);
+            CookieManager.getInstance().flush();
+            return;
+        }
+
+        try
+        {
+            storage.saveConsentData(dlData);
+        }
+        catch (JSONException e)
+        {
+            storage.clearAllConsentData();
+            formViewImpl.clearWaitingActions();
+            Logger.get().error("Fail saving consent data" + e.getLocalizedMessage());
+            closeFormByError("When try to save consent data, then have JSONException with error: "
+                    + e.getLocalizedMessage() + " Parsed data is: " + dlData);
+            CookieManager.getInstance().flush();
+            return;
         }
 
         CookieManager.getInstance().flush();
+
+        if (formViewImpl.waitingActionFinish(ActionType.GET_COMPLETE_CONSENT_DATA))
+        {
+            closeForm();
+            ringPublishingGDPRListener.onConsentsUpdated();
+        }
+    }
+
+    public void onSubmitTimeout()
+    {
+        storage.clearAllConsentData();
+        formViewImpl.clearWaitingActions();
+        closeFormByError("Consent data response timeout reached");
     }
 
     private void closeFormByError(String errorMessage)
     {
         Logger.get().error("Close form by error. Error message: " + errorMessage);
 
-        if (ringPublishingGDPRListener != null)
-        {
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR, errorMessage);
-        }
-        closeForm();
+        ringPublishingGDPRListener.onError(RingPublishingGDPRError.CLOSE_FORM_WITH_ERROR, errorMessage);
+        formViewImpl.hideForm();
     }
 
     private void closeForm()

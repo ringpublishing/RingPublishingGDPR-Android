@@ -23,6 +23,7 @@ import com.ringpublishing.gdpr.internal.log.Logger;
 import com.ringpublishing.gdpr.internal.model.TenantConfiguration;
 import com.ringpublishing.gdpr.internal.network.NetworkInfo;
 import com.ringpublishing.gdpr.internal.storage.Storage;
+import com.ringpublishing.gdpr.internal.task.FetchConfigurationTask;
 import com.ringpublishing.gdpr.internal.view.ErrorView.RetryCallback;
 
 import androidx.annotation.NonNull;
@@ -60,16 +61,26 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     @NonNull
     private final RingPublishingGDPRListener ringPublishingGDPRListener;
 
+    @NonNull
+    private final FetchConfigurationTask fetchConfigurationTask;
+
+    @Nullable
+    private Runnable configurationFinishListener;
+
+    private final Runnable onConfigurationFetched = this::loadCmpSiteAfterConfiguration;
+
     private final Logger log = Logger.get();
 
     public FormViewImpl(@NonNull final Context context,
                         @NonNull final Api api,
                         @NonNull TenantConfiguration tenantConfiguration,
                         @NonNull Storage storage,
-                        @NonNull RingPublishingGDPRListener ringPublishingGDPRListener)
+                        @NonNull RingPublishingGDPRListener ringPublishingGDPRListener,
+                        @NonNull FetchConfigurationTask fetchConfigurationTask)
     {
         super(context);
 
+        this.fetchConfigurationTask = fetchConfigurationTask;
         this.formViewController = new FormViewController(this);
         this.tenantConfiguration = tenantConfiguration;
         this.ringPublishingGDPRListener = ringPublishingGDPRListener;
@@ -88,6 +99,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     @Override
     protected void onDetachedFromWindow()
     {
+        removeConfigurationWait();
         formViewController.onDetach();
         super.onDetachedFromWindow();
     }
@@ -101,6 +113,8 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
 
     public void showError()
     {
+        // The error view waits for the user; Retry starts a fresh timeout through loadCmpSite().
+        formViewController.cancelLoadTimeout();
         errorView.setVisibility(View.VISIBLE);
         loadingView.setVisibility(View.GONE);
         cmpWebView.setVisibility(View.GONE);
@@ -143,7 +157,36 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     private void loadCmpSite()
     {
         showLoading();
+        removeConfigurationWait();
         formViewController.loadCmpSite();
+        final String cmpUrl = tenantConfiguration.getHostWithAdditionalQuery();
+        if (cmpUrl != null)
+        {
+            cmpWebView.loadUrl(cmpUrl);
+            return;
+        }
+
+        if (!fetchConfigurationTask.isRunning())
+        {
+            log.info("Form view refetches the configuration");
+            fetchConfigurationTask.refetch();
+        }
+
+        final Runnable listener = () -> post(onConfigurationFetched);
+        if (fetchConfigurationTask.addFinishListener(listener))
+        {
+            log.info("Form view waits for the configuration fetch to finish");
+            configurationFinishListener = listener;
+        }
+        else
+        {
+            loadCmpSiteAfterConfiguration();
+        }
+    }
+
+    private void loadCmpSiteAfterConfiguration()
+    {
+        configurationFinishListener = null;
         final String cmpUrl = tenantConfiguration.getHostWithAdditionalQuery();
         if (cmpUrl != null)
         {
@@ -151,9 +194,24 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
         }
         else
         {
-            onFailure("Loading cmp site fail. TenantConfiguration is null");
-            ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_MISSING_HOST, "loadCmpSite missing host " + tenantConfiguration.getHost());
+            failMissingHost();
         }
+    }
+
+    private void failMissingHost()
+    {
+        onFailure("Loading cmp site fail. TenantConfiguration is null");
+        ringPublishingGDPRListener.onError(RingPublishingGDPRError.WEBVIEW_MISSING_HOST, "loadCmpSite missing host " + tenantConfiguration.getHost());
+    }
+
+    private void removeConfigurationWait()
+    {
+        if (configurationFinishListener != null)
+        {
+            fetchConfigurationTask.removeFinishListener(configurationFinishListener);
+            configurationFinishListener = null;
+        }
+        removeCallbacks(onConfigurationFetched);
     }
 
     public void attachJavascript(String url)
@@ -185,6 +243,7 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     @Override
     public void onFailure(String errorMessage)
     {
+        removeConfigurationWait();
         cmpWebViewCallback.onActionError(errorMessage);
     }
 
@@ -248,6 +307,21 @@ public class FormViewImpl extends FormView implements RetryCallback, CmpWebViewC
     public boolean waitingActionFinish(ActionType actionType)
     {
         return formViewController.waitingActionFinish(actionType);
+    }
+
+    public boolean isWaitingFor(ActionType actionType)
+    {
+        return formViewController.isWaitingFor(actionType);
+    }
+
+    public void clearWaitingActions()
+    {
+        formViewController.clearWaitingActions();
+    }
+
+    public void onSubmitTimeout()
+    {
+        cmpWebViewCallback.onSubmitTimeout();
     }
 
     public void setTimeoutInSeconds(int timeoutInSeconds)

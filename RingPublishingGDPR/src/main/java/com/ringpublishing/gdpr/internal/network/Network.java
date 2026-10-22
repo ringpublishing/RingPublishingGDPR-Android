@@ -49,6 +49,7 @@ public class Network
                 .readTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                 .writeTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                 .connectTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+                .callTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                 .build();
     }
 
